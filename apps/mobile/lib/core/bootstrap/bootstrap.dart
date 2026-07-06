@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:healthon/core/services/connectivity_service.dart';
+
 /// ===============================================================
 ///
 /// HealthON Bootstrap
