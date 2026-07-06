@@ -2,6 +2,10 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 /// ===============================================================
 ///
 /// HealthON Bootstrap
@@ -69,8 +73,12 @@ class Bootstrap {
   // ------------------------------------------------------------
 
   static Future<void> _initializeEnvironment() async {
-    debugPrint('• Environment');
+  debugPrint('• Loading .env');
 
+  await dotenv.load(fileName: ".env");
+
+  debugPrint('✅ .env Loaded');
+}
     // Sprint 2
     //
     // await dotenv.load(fileName: ".env");
@@ -81,7 +89,15 @@ class Bootstrap {
   // ------------------------------------------------------------
 
   static Future<void> _initializeSupabase() async {
-    debugPrint('• Supabase');
+  debugPrint('• Initializing Supabase');
+
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
+  );
+
+  debugPrint('✅ Supabase Initialized');
+}
 
     // Sprint 2
     //
