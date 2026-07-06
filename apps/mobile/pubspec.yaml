@@ -1,0 +1,89 @@
+name: healthon
+description: 건강ON - 건강 챌린지 플랫폼
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+
+  # Routing
+  go_router: ^16.0.0
+
+  # Backend
+  supabase_flutter: ^2.9.1
+
+  # Google Login
+  google_sign_in: ^7.1.1
+
+  # Apple Login
+  sign_in_with_apple: ^7.0.1
+
+  # Firebase
+  firebase_core: ^4.0.0
+  firebase_messaging: ^16.0.0
+
+  flutter_local_notifications: ^19.4.0
+
+  # Health
+  health: ^13.1.1
+
+  # Charts
+  fl_chart: ^1.1.0
+
+  # Image
+  cached_network_image: ^3.4.1
+
+  image_picker: ^1.1.2
+
+  # Env
+  flutter_dotenv: ^6.0.0
+
+  # Intl
+  intl: ^0.20.2
+
+  # JSON
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+
+  # Utilities
+  uuid: ^4.5.1
+
+  package_info_plus: ^8.3.0
+
+  connectivity_plus: ^7.0.0
+
+  permission_handler: ^12.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  build_runner: ^2.5.4
+
+  freezed: ^3.2.0
+
+  json_serializable: ^6.10.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/lottie/
+    - assets/fonts/
+    - .env

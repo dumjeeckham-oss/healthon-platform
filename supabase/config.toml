@@ -1,0 +1,7 @@
+project_id = "healthon-prod"
+
+[db]
+shadow_port = 54320
+
+[functions]
+serve_port = 54321

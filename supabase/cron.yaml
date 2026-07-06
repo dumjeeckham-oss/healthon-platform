@@ -1,0 +1,5 @@
+name: update-ranking-job
+
+schedule: "*/10 * * * *"  # 10분마다 실행
+
+function: update-ranking
