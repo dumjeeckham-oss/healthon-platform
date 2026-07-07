@@ -1,75 +1,147 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../ai/ai_coach_service.dart';
-import '../../walking/data/step_repository_impl.dart';
+import '../../auth/presentation/provider/auth_provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
 
-class _HomeScreenState extends State<HomeScreen> {
-  late final AiCoachService _aiService;
-
-  String _message = "오늘의 건강 상태를 분석하는 중...";
-
-  /// TODO
-  ///
-  /// 실제 로그인 기능이 완성되면
-  /// 현재 로그인된 사용자 ID를 가져오도록 변경
-  ///
-  static const String demoUserId = "demo-user";
-
-  @override
-  void initState() {
-    super.initState();
-
-    _aiService = AiCoachService(
-      StepRepositoryImpl(),
-    );
-
-    _loadMessage();
-  }
-
-  Future<void> _loadMessage() async {
-    try {
-      final result =
-          await _aiService.getDailyMessage(demoUserId);
-
-      if (!mounted) return;
-
-      setState(() {
-        _message = result;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _message = "오늘의 메시지를 불러오지 못했습니다.";
-      });
-
-      debugPrint(e.toString());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("건강ON"),
+    return authState.when(
+      loading: () => const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+
+      error: (e, _) => Scaffold(
+        appBar: AppBar(
+          title: const Text('건강ON'),
+        ),
+        body: Center(
           child: Text(
-            _message,
+            e.toString(),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 20,
-              height: 1.5,
+          ),
+        ),
+      ),
+
+      data: (user) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("건강ON"),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () async {
+                  await ref.read(authProvider.notifier).signOut();
+                },
+              ),
+            ],
+          ),
+
+          body: RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(authProvider.notifier).refreshUser();
+            },
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Text(
+                  "안녕하세요 👋",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  user?.name ?? "사용자",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+
+                const SizedBox(height: 30),
+
+                _infoCard(
+                  icon: Icons.directions_walk,
+                  title: "오늘 걸음수",
+                  value: "0 걸음",
+                ),
+
+                const SizedBox(height: 16),
+
+                _infoCard(
+                  icon: Icons.route,
+                  title: "누적 거리",
+                  value: "0.0 km",
+                ),
+
+                const SizedBox(height: 16),
+
+                _infoCard(
+                  icon: Icons.emoji_events,
+                  title: "현재 챌린지",
+                  value: "부천100K",
+                ),
+
+                const SizedBox(height: 30),
+
+                FilledButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text("오늘 챌린지 시작"),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "AI 건강 코치",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      "오늘도 10분만 더 걸어보세요.\n목표까지 조금만 남았습니다 😊",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _infoCard({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Card(
+      elevation: 1,
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: Colors.green,
+          size: 34,
+        ),
+        title: Text(title),
+        trailing: Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
