@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/connectivity_service.dart';
 
+import 'package:healthon/core/services/connectivity_service.dart';
+
 /// ===============================================================
 ///
 /// HealthON Bootstrap
