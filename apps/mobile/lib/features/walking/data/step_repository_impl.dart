@@ -40,4 +40,41 @@ class StepRepositoryImpl {
 
     return response['steps'] ?? 0;
   }
+  /// 최근 7일 걸음 수
+  Future<List<int>> getWeeklySteps(String userId) async {
+    final today = DateTime.now();
+
+    final response = await _client
+        .from('step_daily')
+        .select('steps,date')
+        .eq('user_id', userId)
+        .gte(
+          'date',
+          today
+              .subtract(const Duration(days: 6))
+              .toIso8601String(),
+        )
+        .order('date');
+
+    if (response.isEmpty) {
+      return [];
+    }
+
+    return response
+        .map<int>((e) => (e['steps'] ?? 0) as int)
+        .toList();
+  }
+
+  /// 최근 7일 평균
+  Future<int> getAverageSteps(String userId) async {
+    final list = await getWeeklySteps(userId);
+
+    if (list.isEmpty) {
+      return 0;
+    }
+
+    final sum = list.reduce((a, b) => a + b);
+
+    return (sum / list.length).round();
+  }
 }
