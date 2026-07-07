@@ -52,12 +52,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authProvider);
 
     ref.listen(authProvider, (previous, next) {
-      next.whenOrNull(
-        error: (error, stack) {
-          _showMessage(error.toString());
-        },
-      );
-    });
+  next.whenOrNull(
+    data: (user) {
+      if (user != null) {
+        context.go('/home');
+      }
+    },
+    error: (error, stack) {
+      _showMessage(error.toString());
+    },
+  );
+});
 
     final loading = authState.isLoading;
 
@@ -110,6 +115,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 50),
 
                   TextField(
+                     enabled: !loading,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
@@ -121,6 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 18),
 
                   TextField(
+	                  enabled: !loading,
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
