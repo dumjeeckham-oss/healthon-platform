@@ -175,8 +175,6 @@ return AuthUser(
   await GoogleSignIn.instance.signOut();
 } catch (_) {}
 
-await _supabase.auth.signOut();
-
     await _supabase.auth.signOut();
   }
 
