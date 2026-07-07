@@ -19,8 +19,11 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-  path: '/signup',
-  builder: (context, state) => const SignupScreen(),
+      path: '/signup',
+      name: 'signup',
+      builder: (context, state) {
+        return const SignupScreen();
+  },
 ),
 
     GoRoute(
