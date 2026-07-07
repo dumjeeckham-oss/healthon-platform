@@ -40,7 +40,7 @@ final authProvider =
 class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
   AuthNotifier(this._repository)
       : super(const AsyncLoading()) {
-    _initialize();
+    Future.microtask(_initialize);
   }
 
   final AuthRepository _repository;
