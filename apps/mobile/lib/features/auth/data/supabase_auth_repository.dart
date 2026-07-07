@@ -1,6 +1,5 @@
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-    hide AuthUser;
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthUser;
 
 import '../domain/auth_repository.dart';
 import '../domain/auth_user.dart';
@@ -57,10 +56,6 @@ return AuthUser(
     await google.initialize();
 
     final account = await google.authenticate();
-
-    if (account == null) {
-      throw Exception('Google 로그인 취소');
-    }
 
     final auth = account.authentication;
 
@@ -176,7 +171,11 @@ return AuthUser(
 
   @override
   Future<void> signOut() async {
-    await GoogleSignIn.instance.signOut();
+    try {
+  await GoogleSignIn.instance.signOut();
+} catch (_) {}
+
+await _supabase.auth.signOut();
 
     await _supabase.auth.signOut();
   }
