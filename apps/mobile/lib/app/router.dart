@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/auth/presentation/signup_screen.dart';
 
 final router = GoRouter(
   debugLogDiagnostics: true,
@@ -17,6 +18,10 @@ final router = GoRouter(
         return const LoginScreen();
       },
     ),
+    GoRoute(
+  path: '/signup',
+  builder: (context, state) => const SignupScreen(),
+),
 
     GoRoute(
       path: '/home',
