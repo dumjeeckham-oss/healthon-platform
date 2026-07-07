@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../provider/auth_provider.dart';
 
@@ -173,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       TextButton(
                         onPressed: () {
-                          // TODO:
+                          context.push('/signup');
                           // 회원가입 화면 연결
                         },
                         child: const Text("회원가입"),
