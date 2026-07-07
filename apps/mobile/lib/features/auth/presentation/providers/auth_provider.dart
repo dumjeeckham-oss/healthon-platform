@@ -110,15 +110,23 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
 
   /// 로그아웃
   Future<void> signOut() async {
+  try {
     await _repository.signOut();
 
     state = const AsyncData(null);
+  } catch (e, stack) {
+    state = AsyncError(e, stack);
   }
+}
 
   /// 새로고침
   Future<void> refreshUser() async {
+  try {
     final user = await _repository.getCurrentUser();
 
     state = AsyncData(user);
+  } catch (e, stack) {
+    state = AsyncError(e, stack);
   }
+}
 }
