@@ -1,5 +1,6 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+    hide AuthUser;
 
 import '../domain/auth_repository.dart';
 import '../domain/auth_user.dart';
@@ -26,7 +27,18 @@ class SupabaseAuthRepository implements AuthRepository {
 
     if (user == null) return null;
 
-    return fetchUser(user.id);
+    final profile = await fetchUser(user.id);
+
+if (profile != null) {
+  return profile;
+}
+
+return AuthUser(
+  id: user.id,
+  email: user.email,
+  name: user.userMetadata?['full_name'],
+  photoUrl: user.userMetadata?['avatar_url'],
+);
   }
 
   @override
@@ -40,21 +52,23 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<AuthUser> signInWithGoogle() async {
-    final GoogleSignIn google = GoogleSignIn();
+    final GoogleSignIn google = GoogleSignIn.instance;
 
-    final account = await google.signIn();
+    await google.initialize();
+
+    final account = await google.authenticate();
 
     if (account == null) {
       throw Exception('Google 로그인 취소');
     }
 
-    final auth = await account.authentication;
+    final auth = account.authentication;
 
     final idToken = auth.idToken;
 
-    if (idToken == null) {
-      throw Exception('Google ID Token 없음');
-    }
+    if (idToken == null || idToken.isEmpty) {
+  throw Exception("Google 인증 토큰을 가져오지 못했습니다.");
+}
 
     await _supabase.auth.signInWithIdToken(
       provider: OAuthProvider.google,
@@ -162,6 +176,8 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
+    await GoogleSignIn.instance.signOut();
+
     await _supabase.auth.signOut();
   }
 
@@ -171,9 +187,12 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> saveUser(AuthUser user) async {
-    await _supabase.from('users').upsert(
-          user.toJson(),
-        );
+    await _supabase
+    .from('users')
+    .upsert(
+      user.toJson(),
+      onConflict: 'id',
+    );
   }
 
   // ==========================================================
@@ -182,10 +201,16 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> updateUser(AuthUser user) async {
-    await _supabase
-        .from('users')
-        .update(user.toJson())
-        .eq('id', user.id);
+    final response = await _supabase
+    .from('users')
+    .update(user.toJson())
+    .eq('id', user.id)
+    .select()
+    .maybeSingle();
+
+if (response == null) {
+  throw Exception("사용자 수정 실패");
+}
   }
 
   // ==========================================================
