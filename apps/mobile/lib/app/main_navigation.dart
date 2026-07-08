@@ -4,6 +4,7 @@ import '../features/home/presentation/home_screen.dart';
 import '../features/challenge/presentation/challenge_screen.dart';
 import '../features/family/presentation/family_screen.dart';
 import '../features/community/presentation/community_screen.dart';
+import '../features/mypage/presentation/my_page_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -16,11 +17,11 @@ class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
 
   late final List<Widget> pages = const [
-    HomeScreen(),
+    const HomeScreen(),
     const ChallengeScreen(),
     const FamilyScreen(),
     const CommunityScreen(),
-    MyPage(),
+    const MyPageScreen(),
   ];
 
   @override
