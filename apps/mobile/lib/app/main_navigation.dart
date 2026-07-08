@@ -12,12 +12,12 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
 
-  final pages = const [
+  late final List<Widget> pages = const [
     HomeScreen(),
-    _ChallengePage(),
-    _FamilyPage(),
-    _CommunityPage(),
-    _MyPage(),
+    ChallengePage(),
+    FamilyPage(),
+    CommunityPage(),
+    MyPage(),
   ];
 
   @override
@@ -28,13 +28,21 @@ class _MainNavigationState extends State<MainNavigation> {
         children: pages,
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        destinations: const [
+       height: 70,
+       backgroundColor: Colors.white,
+       indicatorColor: Colors.green.shade100,
+       labelBehavior:
+       NavigationDestinationLabelBehavior.alwaysShow,
+
+       selectedIndex: currentIndex,
+
+       onDestinationSelected: (index) {
+       setState(() {
+       currentIndex = index;
+    });
+  },
+
+  destinations: const [
 
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
