@@ -13,7 +13,7 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     return Scaffold(
       appBar: AppBar(
@@ -30,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
           },
           child: ListView(
             padding: const EdgeInsets.all(20),
-            children: const [
+            children: [
 
               //--------------------------------------------------
               // 인사말
@@ -135,7 +135,7 @@ class _QuickMenu extends StatelessWidget {
   const _QuickMenu();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GridView.count(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -143,7 +143,7 @@ class _QuickMenu extends StatelessWidget {
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
       childAspectRatio: 1.45,
-      children: const [
+      children: [
         _MenuCard(
           icon: Icons.emoji_events,
           title: "100K 챌린지",
@@ -181,7 +181,7 @@ class _MenuCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       elevation: 2,
       child: InkWell(
@@ -226,10 +226,10 @@ class _RecentActivity extends StatelessWidget {
   const _RecentActivity();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: Column(
-        children: const [
+        children: [
           ListTile(
             leading: Icon(Icons.directions_walk),
             title: Text("오늘 7,820걸음 달성"),
