@@ -1,48 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../auth/presentation/provider/auth_provider.dart';
+import '../../../core/health/step_sync_service.dart';
 
-class SplashScreen extends ConsumerStatefulWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(_initialize);
+    _initialize();
   }
 
   Future<void> _initialize() async {
     try {
-      await ref.read(authProvider.notifier).refreshUser();
+      final supabase = Supabase.instance.client;
 
-      final authState = ref.read(authProvider);
+      final user = supabase.auth.currentUser;
 
-      authState.when(
-        data: (user) {
-          if (!mounted) return;
+      if (user == null) {
+        if (!mounted) return;
+        context.go('/');
+        return;
+      }
 
-          if (user == null) {
-            context.go('/');
-          } else {
-            context.go('/home');
-          }
-        },
-        loading: () {},
-        error: (_, __) {
-          if (!mounted) return;
-          context.go('/');
-        },
-      );
-    } catch (_) {
+      //--------------------------------------------------
+      // Health Connect 동기화
+      //--------------------------------------------------
+
+      try {
+        await StepSyncService.instance.syncTodaySteps();
+      } catch (e) {
+        debugPrint("Health Sync 실패 : $e");
+      }
+
+      //--------------------------------------------------
+      // Home 이동
+      //--------------------------------------------------
+
       if (!mounted) return;
+
+      context.go('/home');
+    } catch (e) {
+      debugPrint(e.toString());
+
+      if (!mounted) return;
+
       context.go('/');
     }
   }
@@ -50,7 +60,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -58,26 +67,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
             Icon(
               Icons.favorite,
-              color: Colors.green,
               size: 80,
+              color: Colors.green,
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 24),
 
             Text(
               "건강ON",
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 34,
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            SizedBox(height: 12),
-
-            Text(
-              "매일 걷고 함께 건강해지는 챌린지",
-              style: TextStyle(
-                color: Colors.grey,
               ),
             ),
 
