@@ -9,8 +9,16 @@ import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() =>
+      _HomeScreenState();
+}
+
+class _HomeScreenState
+    extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +44,11 @@ class HomeScreen extends ConsumerWidget {
           onRefresh: () async {
             // TODO
             // Sprint3에서 Health Connect 다시 동기화
-            await Future.delayed(const Duration(milliseconds: 800));
-          },
+            await _syncSteps();
+             ref.invalidate(todayStepProvider);
+
+             ref.invalidate(currentUserProvider);
+      },
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
