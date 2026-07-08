@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'main_navigation.dart';
-
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/signup_screen.dart';
 import '../features/splash/presentation/splash_screen.dart';
+
+import 'main_navigation.dart';
 
 final router = GoRouter(
   debugLogDiagnostics: true,
