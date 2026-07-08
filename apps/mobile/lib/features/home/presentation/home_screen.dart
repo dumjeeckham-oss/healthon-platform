@@ -5,6 +5,7 @@ import '../../walking/presentation/widgets/today_step_card.dart';
 import '../../challenge/presentation/widgets/challenge_progress_section.dart';
 import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
+import '../../notice/presentation/widgets/notice_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -77,6 +78,10 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 24),
 
               FamilyRankingCard(),
+
+              SizedBox(height: 24),
+
+              NoticeCard(),
 
               SizedBox(height: 30),
 
