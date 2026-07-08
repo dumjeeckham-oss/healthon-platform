@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../features/home/presentation/home_screen.dart';
 
+import '../features/challenge/presentation/challenge_screen.dart';
+
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
@@ -14,7 +16,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   late final List<Widget> pages = const [
     HomeScreen(),
-    ChallengePage(),
+    const ChallengeScreen(),
     FamilyPage(),
     CommunityPage(),
     MyPage(),
