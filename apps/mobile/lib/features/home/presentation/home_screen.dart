@@ -13,8 +13,18 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    
+    final displayName =
+    user?.nickname?.isNotEmpty == true
+        ? user!.nickname!
+        : user?.name?.isNotEmpty == true
+            ? user!.name!
+            : user?.email ?? "조합원";
+
+    final photoUrl = user?.photoUrl;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text("건강ON"),
@@ -36,25 +46,67 @@ class HomeScreen extends ConsumerWidget {
               // 인사말
               //--------------------------------------------------
 
-              Text(
-                "안녕하세요 ${user?.name ?? '회원'}님 👋",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+         Row(
+  children: [
 
-              SizedBox(height: 6),
+    CircleAvatar(
+      radius: 28,
+      backgroundColor: Colors.green.shade100,
 
-              Text(
-                "오늘도 건강한 하루를 시작해보세요.",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
+      backgroundImage:
+          photoUrl != null && photoUrl.isNotEmpty
+        ? NetworkImage(photoUrl)
+        : null,
 
-              SizedBox(height: 28),
+      child: user?.photoUrl == null ||
+              photoUrl.isEmpty
+          ? const Icon(
+              Icons.person,
+              size: 30,
+              color: Colors.green,
+            )
+          : null,
+    ),
+
+    const SizedBox(width: 16),
+
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          const Text(
+            "안녕하세요 👋",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            displayName,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          
+          const SizedBox(height: 4),
+
+          const Text(
+            "오늘도 건강한 하루를 시작해보세요.",
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
 
               //--------------------------------------------------
               // 오늘 걸음수
@@ -135,7 +187,7 @@ class _QuickMenu extends StatelessWidget {
   const _QuickMenu();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return GridView.count(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -181,7 +233,7 @@ class _MenuCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       child: InkWell(
@@ -226,23 +278,23 @@ class _RecentActivity extends StatelessWidget {
   const _RecentActivity();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Card(
       child: Column(
         children: [
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.directions_walk),
             title: Text("오늘 7,820걸음 달성"),
             subtitle: Text("10분 전"),
           ),
           Divider(height: 1),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.emoji_events),
             title: Text("100K 챌린지 참여"),
             subtitle: Text("어제"),
           ),
           Divider(height: 1),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.favorite),
             title: Text("AI 코치 응원 메시지 도착"),
             subtitle: Text("어제"),
