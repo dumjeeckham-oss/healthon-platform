@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../ai/presentation/widgets/ai_coach_card.dart';
 import '../../walking/presentation/widgets/today_step_card.dart';
 import '../../challenge/presentation/widgets/challenge_progress_section.dart';
+import '../../challenge/presentation/widgets/team_cheer_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -67,6 +68,10 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 24),
 
               ChallengeProgressSection(),
+
+              SizedBox(height: 24),
+
+              TeamCheerCard(),
 
               SizedBox(height: 30),
 
