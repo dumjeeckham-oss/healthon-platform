@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>NSHealthShareUsageDescription</key>
+    <string>건강ON은 오늘의 걸음수를 읽어 챌린지와 가족 랭킹을 제공합니다.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>건강ON은 건강 데이터를 저장하지 않으며 걸음수만 읽습니다.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
