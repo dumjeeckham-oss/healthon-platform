@@ -11,6 +11,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    health: ^11.0.0
+
+  permission_handler: ^11.3.1
+
+  intl: ^0.20.2
 
   cupertino_icons: ^1.0.8
 
