@@ -86,9 +86,9 @@ class AuthUser {
       nickname: json['nickname'] as String?,
       phone: json['phone'] as String?,
       familyId: json['family_id'] as String?,
-      isAdmin: json['is_admin'] ?? false,
+      isAdmin: json['is_admin'] as bool? ?? false,
       isProfileCompleted:
-          json['is_profile_completed'] ?? false,
+          json['is_profile_completed'] as bool? ?? false,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,
