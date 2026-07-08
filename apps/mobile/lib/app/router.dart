@@ -5,13 +5,18 @@ import 'main_navigation.dart';
 
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/signup_screen.dart';
+import '../features/splash/presentation/splash_screen.dart';
 
 final router = GoRouter(
   debugLogDiagnostics: true,
 
-  initialLocation: '/',
+  initialLocation: '/splash',
 
   routes: [
+    GoRoute(
+  path: '/splash',
+  builder: (context, state) => const SplashScreen(),
+),
     GoRoute(
       path: '/',
       name: 'login',
