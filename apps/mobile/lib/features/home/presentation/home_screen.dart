@@ -1,258 +1,228 @@
 import 'package:flutter/material.dart';
 
+import '../../ai/presentation/widgets/ai_coach_card.dart';
+import '../../walking/presentation/widgets/today_step_card.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF7F9FC),
-
       appBar: AppBar(
+        title: const Text("건강ON"),
+        centerTitle: false,
         elevation: 0,
-        backgroundColor: Colors.white,
-        title: const Text(
-          "건강ON",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            // TODO
+            // Sprint3에서 Health Connect 다시 동기화
+            await Future.delayed(const Duration(milliseconds: 800));
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: const [
+
+              //--------------------------------------------------
+              // 인사말
+              //--------------------------------------------------
+
+              Text(
+                "안녕하세요 👋",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              SizedBox(height: 6),
+
+              Text(
+                "오늘도 건강한 하루를 시작해보세요.",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+
+              SizedBox(height: 28),
+
+              //--------------------------------------------------
+              // 오늘 걸음수
+              //--------------------------------------------------
+
+              TodayStepCard(),
+
+              SizedBox(height: 20),
+
+              //--------------------------------------------------
+              // AI 코치
+              //--------------------------------------------------
+
+              AiCoachCard(),
+
+              SizedBox(height: 24),
+
+              //--------------------------------------------------
+              // 빠른 메뉴
+              //--------------------------------------------------
+
+              Text(
+                "빠른 메뉴",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+
+              SizedBox(height: 16),
+
+              _QuickMenu(),
+
+              SizedBox(height: 24),
+
+              //--------------------------------------------------
+              // 최근 활동
+              //--------------------------------------------------
+
+              Text(
+                "최근 활동",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+
+              SizedBox(height: 16),
+
+              _RecentActivity(),
+
+              SizedBox(height: 40),
+            ],
           ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 18,
-              child: Icon(Icons.person),
-            ),
-          )
-        ],
       ),
+    );
+  }
+}
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+class _QuickMenu extends StatelessWidget {
+  const _QuickMenu();
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      crossAxisCount: 2,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 1.45,
+      children: const [
+        _MenuCard(
+          icon: Icons.emoji_events,
+          title: "100K 챌린지",
+          subtitle: "현재 진행률",
+        ),
+        _MenuCard(
+          icon: Icons.family_restroom,
+          title: "가족 랭킹",
+          subtitle: "이번 주 순위",
+        ),
+        _MenuCard(
+          icon: Icons.bar_chart,
+          title: "통계",
+          subtitle: "걸음 분석",
+        ),
+        _MenuCard(
+          icon: Icons.campaign,
+          title: "공지사항",
+          subtitle: "새로운 소식",
+        ),
+      ],
+    );
+  }
+}
 
-            //----------------------------------------------------
-            // 인사
-            //----------------------------------------------------
+class _MenuCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
 
-            const Text(
-              "안녕하세요 👋",
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
+  const _MenuCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
 
-            const SizedBox(height: 6),
-
-            const Text(
-              "오늘도 건강한 하루를 시작해볼까요?",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
-            //----------------------------------------------------
-            // 오늘 걸음수 카드
-            //----------------------------------------------------
-
-            Container(
-              padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          // TODO
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 34,
                 color: Colors.green,
-                borderRadius: BorderRadius.circular(24),
               ),
-              child: Column(
-                children: [
-
-                  const Text(
-                    "오늘 걸음수",
-                    style: TextStyle(
-                      color: Colors.white70,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  const Text(
-                    "4,862",
-                    style: TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: LinearProgressIndicator(
-                      value: 0.48,
-                      minHeight: 10,
-                      backgroundColor: Colors.white24,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  const Text(
-                    "목표 10,000 걸음",
-                    style: TextStyle(
-                      color: Colors.white70,
-                    ),
-                  )
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            //----------------------------------------------------
-            // 챌린지
-            //----------------------------------------------------
-
-            const Text(
-              "참여중인 챌린지",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: ListTile(
-                leading: const Icon(
-                  Icons.flag,
-                  color: Colors.green,
-                ),
-                title: const Text("부천100K 챌린지"),
-                subtitle: const Text("48 / 100 km"),
-                trailing: FilledButton(
-                  onPressed: () {},
-                  child: const Text("보기"),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-
-            const SizedBox(height: 28),
-
-            //----------------------------------------------------
-            // AI 코치
-            //----------------------------------------------------
-
-            const Text(
-              "AI 건강코치",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(18),
-                child: Row(
-                  children: [
-
-                    Icon(
-                      Icons.smart_toy,
-                      color: Colors.green,
-                      size: 42,
-                    ),
-
-                    SizedBox(width: 14),
-
-                    Expanded(
-                      child: Text(
-                        "오늘은 평소보다 조금 적게 걸으셨네요.\n산책 15분이면 목표에 가까워집니다 😊",
-                        style: TextStyle(
-                          height: 1.4,
-                        ),
-                      ),
-                    )
-                  ],
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
                 ),
               ),
-            ),
-
-            const SizedBox(height: 28),
-
-            //----------------------------------------------------
-            // 랭킹
-            //----------------------------------------------------
-
-            const Text(
-              "이번 주 랭킹",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            ...List.generate(
-              5,
-              (index) => Card(
-                child: ListTile(
-                  leading: CircleAvatar(
-                    child: Text("${index + 1}"),
-                  ),
-                  title: Text("참가자 ${index + 1}"),
-                  trailing: Text(
-                    "${15000 - index * 1200} 걸음",
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 40),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
 
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 0,
+class _RecentActivity extends StatelessWidget {
+  const _RecentActivity();
 
-        destinations: const [
-
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: "홈",
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: const [
+          ListTile(
+            leading: Icon(Icons.directions_walk),
+            title: Text("오늘 7,820걸음 달성"),
+            subtitle: Text("10분 전"),
           ),
-
-          NavigationDestination(
-            icon: Icon(Icons.flag),
-            label: "챌린지",
+          Divider(height: 1),
+          ListTile(
+            leading: Icon(Icons.emoji_events),
+            title: Text("100K 챌린지 참여"),
+            subtitle: Text("어제"),
           ),
-
-          NavigationDestination(
-            icon: Icon(Icons.people),
-            label: "커뮤니티",
-          ),
-
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: "내정보",
+          Divider(height: 1),
+          ListTile(
+            leading: Icon(Icons.favorite),
+            title: Text("AI 코치 응원 메시지 도착"),
+            subtitle: Text("어제"),
           ),
         ],
       ),
