@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/presentation/provider/current_user_provider.dart';
 import '../../ai/presentation/widgets/ai_coach_card.dart';
 import '../../walking/presentation/widgets/today_step_card.dart';
 import '../../challenge/presentation/widgets/challenge_progress_section.dart';
@@ -7,11 +9,12 @@ import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(currentUserProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text("건강ON"),
@@ -34,7 +37,7 @@ class HomeScreen extends StatelessWidget {
               //--------------------------------------------------
 
               Text(
-                "안녕하세요 👋",
+                "안녕하세요 ${user?.name ?? '회원'}님 👋",
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
