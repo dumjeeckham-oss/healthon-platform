@@ -51,18 +51,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    ref.listen(authProvider, (previous, next) {
-  next.whenOrNull(
-    data: (user) {
-      if (user != null) {
-        context.go('/home');
-      }
-    },
-    error: (error, stack) {
-      _showMessage(error.toString());
-    },
-  );
-});
+    ref.listen<AsyncValue>(
+      authProvider,
+      (previous, next) {
+        next.when(
+          data: (user) {
+            if (user != null) {
+              context.go('/home');
+            }
+          },
+          error: (error, stack) {
+            _showMessage(error.toString());
+          },
+          loading: () {},
+        );
+      },
+    );
 
     final loading = authState.isLoading;
 
@@ -81,7 +85,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-
                   const SizedBox(height: 40),
 
                   const Icon(
@@ -104,18 +107,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 8),
 
                   const Text(
-                    "매일 걷고, 함께 건강해지는 챌린지",
+                    "매일 걷고 함께 건강해지는 챌린지",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
                   ),
 
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 40),
 
                   TextField(
-                     enabled: !loading,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
@@ -127,35 +125,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 18),
 
                   TextField(
-	                  enabled: !loading,
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: "비밀번호",
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility
                               : Icons.visibility_off,
                         ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 30),
 
                   FilledButton(
                     onPressed: loading ? null : _emailLogin,
                     child: loading
                         ? const SizedBox(
-                            width: 22,
-                            height: 22,
+                            width: 20,
+                            height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                             ),
@@ -168,35 +165,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   OutlinedButton.icon(
                     onPressed: loading ? null : _googleLogin,
                     icon: const Icon(Icons.login),
-                    label: const Text("Google로 로그인"),
+                    label: const Text("Google 로그인"),
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 30),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       const Text("처음 오셨나요?"),
-
                       TextButton(
                         onPressed: () {
                           context.push('/signup');
-                          // 회원가입 화면 연결
                         },
                         child: const Text("회원가입"),
                       ),
                     ],
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  TextButton(
-                    onPressed: () {
-                      // TODO:
-                      // 비밀번호 찾기
-                    },
-                    child: const Text("비밀번호를 잊으셨나요?"),
                   ),
                 ],
               ),
