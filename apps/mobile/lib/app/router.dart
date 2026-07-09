@@ -1,38 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/auth/presentation/login/login_screen.dart';
-import '../features/home/presentation/home_screen.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/signup_screen.dart';
+import '../features/splash/presentation/splash_screen.dart';
 
-/// ===============================================================
-///
-/// HealthON Router
-///
-/// 화면 이동을 관리한다.
-///
-/// /        -> Login
-/// /home    -> Home
-///
-/// ===============================================================
+import 'main_navigation.dart';
 
 final router = GoRouter(
   debugLogDiagnostics: true,
 
-  initialLocation: '/',
+  initialLocation: '/splash',
 
   routes: [
-    /// 로그인
+    GoRoute(
+  path: '/splash',
+  builder: (context, state) => const SplashScreen(),
+),
     GoRoute(
       path: '/',
       name: 'login',
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state) {
+        return const LoginScreen();
+      },
     ),
+    GoRoute(
+      path: '/signup',
+      name: 'signup',
+      builder: (context, state) {
+        return const SignupScreen();
+  },
+),
 
-    /// 홈
     GoRoute(
       path: '/home',
       name: 'home',
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) {
+        return const MainNavigation();
+      },
     ),
   ],
 
@@ -42,14 +47,9 @@ final router = GoRouter(
         title: const Text('오류'),
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            '페이지를 찾을 수 없습니다.\n\n'
-            '경로 : ${state.uri}',
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18),
-          ),
+        child: Text(
+          '페이지를 찾을 수 없습니다.\n\n${state.uri}',
+          textAlign: TextAlign.center,
         ),
       ),
     );
