@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../provider/today_steps_provider.dart';
+import '../providers/today_steps_provider.dart';
 
 class TodayStepCard extends ConsumerWidget {
   const TodayStepCard({super.key});
@@ -130,7 +130,7 @@ class TodayStepCard extends ConsumerWidget {
                     icon: const Icon(Icons.sync),
                     label: const Text("Health Connect 동기화"),
                     onPressed: () {
-                      ref.refresh(todayStepsProvider);
+                      ref.invalidate(todayStepsProvider);
                     },
                   ),
                 ),

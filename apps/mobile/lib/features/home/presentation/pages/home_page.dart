@@ -21,12 +21,7 @@ class HomePage extends StatelessWidget {
               name: "홍길동",
             ),
             SizedBox(height: 16),
-            ChallengeCard(
-              title: "🌳 부천 둘레길 100K",
-              currentDistance: 38.2,
-              goalDistance: 100,
-              todayDistance: 2.6,
-            ),
+            ChallengeCard(),
             SizedBox(height: 16),
             TodayStepsCard(),
           ],

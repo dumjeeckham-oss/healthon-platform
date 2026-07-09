@@ -51,9 +51,9 @@ class HealthRepository {
     final end = now;
 
     final data = await health.getHealthDataFromTypes(
-      start,
-      end,
-      [
+      startTime: start,
+      endTime: end,
+      types: [
         HealthDataType.DISTANCE_DELTA,
       ],
     );

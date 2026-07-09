@@ -50,4 +50,13 @@ class ChallengeProgress {
 
   int get remainSteps =>
       (currentGoal - totalSteps).clamp(0, currentGoal);
+
+  double get progress50 =>
+      (totalSteps / 50000).clamp(0.0, 1.0);
+
+  double get progress100 =>
+      (totalSteps / 100000).clamp(0.0, 1.0);
+
+  double get progress200 =>
+      (totalSteps / 200000).clamp(0.0, 1.0);
 }

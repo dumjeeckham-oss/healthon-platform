@@ -108,7 +108,7 @@ class _RankingTile extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: highlight
-            ? Colors.green.withOpacity(.08)
+            ? Colors.green.withValues(alpha: .08)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),

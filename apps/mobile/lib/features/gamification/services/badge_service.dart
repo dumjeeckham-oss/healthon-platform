@@ -96,4 +96,4 @@ class BadgeService {
       return null;
     }
   }
-};
+}

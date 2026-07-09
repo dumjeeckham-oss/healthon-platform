@@ -52,7 +52,7 @@ class ProgressRing extends StatelessWidget {
           ),
 
           // 중앙 콘텐츠
-          if (center != null) center!,
+          ?center,
         ],
       ),
     );

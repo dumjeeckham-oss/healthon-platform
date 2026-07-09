@@ -156,7 +156,8 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.lgRadius,
         ),
-      );
+      ),
+    );
 
   }
 

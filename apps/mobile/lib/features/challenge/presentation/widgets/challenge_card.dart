@@ -38,7 +38,7 @@ class ChallengeCard extends StatelessWidget {
 
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor: color.withOpacity(.15),
+                  backgroundColor: color.withValues(alpha: .15),
                   child: Icon(
                     Icons.directions_walk,
                     color: color,

@@ -6,8 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/connectivity_service.dart';
 
-import 'package:healthon/core/services/connectivity_service.dart';
-
 /// ===============================================================
 ///
 /// HealthON Bootstrap
@@ -101,7 +99,7 @@ class Bootstrap {
 
     await Supabase.initialize(
       url: dotenv.env['SUPABASE_URL']!,
-      anonKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
+      publishableKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
     );
 
     debugPrint('✅ Supabase Initialized');

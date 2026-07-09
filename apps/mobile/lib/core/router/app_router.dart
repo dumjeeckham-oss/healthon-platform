@@ -3,10 +3,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/home/screens/home_screen.dart';
-import '../../features/challenge/screens/challenge_screen.dart';
-import '../../features/community/screens/community_screen.dart';
-import '../../features/profile/screens/profile_screen.dart';
-import '../../features/admin/screens/admin_dashboard_screen.dart';
+import '../../features/challenge/presentation/challenge_screen.dart';
+import '../../features/community/presentation/community_screen.dart';
+import '../../features/mypage/presentation/my_page_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
 
 class AppRoutes {
@@ -51,12 +50,12 @@ final GoRouter appRouter = GoRouter(
 
     GoRoute(
       path: AppRoutes.profile,
-      builder: (context, state) => const ProfileScreen(),
+      builder: (context, state) => const MyPageScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.admin,
-      builder: (context, state) => const AdminDashboardScreen(),
+      builder: (context, state) => const _AdminPlaceholderScreen(),
     ),
 
   ],
@@ -75,3 +74,16 @@ final GoRouter appRouter = GoRouter(
     );
   },
 );
+
+class _AdminPlaceholderScreen extends StatelessWidget {
+  const _AdminPlaceholderScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Text('관리자 화면은 준비 중입니다.'),
+      ),
+    );
+  }
+}

@@ -66,7 +66,7 @@ class FamilyMedalWidget extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: color.withOpacity(.12),
+        color: color.withValues(alpha: .12),
         shape: BoxShape.circle,
       ),
       child: Text(

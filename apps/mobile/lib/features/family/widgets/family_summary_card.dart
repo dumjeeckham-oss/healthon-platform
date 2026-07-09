@@ -31,12 +31,11 @@ class FamilySummaryCard extends StatelessWidget {
 
     final leader = members.isEmpty
         ? null
-        : [...members]..sort(
+        : ([...members]..sort(
             (a, b) => b.steps.compareTo(a.steps),
-          );
+          ));
 
-    final leaderMember =
-        leader == null ? null : leader.first;
+    final leaderMember = leader?.first;
 
     final goalSteps = members.length * 10000;
 
@@ -44,7 +43,7 @@ class FamilySummaryCard extends StatelessWidget {
         goalSteps == 0 ? 0.0 : totalSteps / goalSteps;
 
     final healthScore =
-        (progress * 100).clamp(0, 100);
+        (progress * 100).clamp(0.0, 100.0);
 
     return Card(
       elevation: 3,

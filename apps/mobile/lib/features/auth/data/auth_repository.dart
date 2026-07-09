@@ -15,8 +15,8 @@ class AuthRepository {
 
   /// 로그인 (예: OAuth)
   Future<void> signInWithGoogle() async {
-    await _client.auth.signInWithOAuth(
-      OAuthProvider.google,
+    throw UnimplementedError(
+      'Google 로그인은 SupabaseAuthRepository를 사용하세요.',
     );
   }
 

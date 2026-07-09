@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/health_repository.dart';
-import '../data/step_repository_impl.dart';
+import '../../data/health_repository.dart';
+import '../../data/step_repository_impl.dart';
 
 class StepSyncService {
   StepSyncService({

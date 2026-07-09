@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/provider/current_user_provider.dart';
 import '../../ai/presentation/widgets/ai_coach_card.dart';
 import '../../walking/presentation/widgets/today_step_card.dart';
+import '../../walking/presentation/providers/today_steps_provider.dart';
+import '../../challenge/presentation/provider/challenge_provider.dart';
 import '../../challenge/presentation/widgets/challenge_progress_section.dart';
 import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
+import '../../../core/health/step_sync_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -32,6 +35,7 @@ class _HomeScreenState
             : user?.email ?? "조합원";
 
     final photoUrl = user?.photoUrl;
+    final hasPhoto = photoUrl?.isNotEmpty == true;
     
     return Scaffold(
       appBar: AppBar(
@@ -42,13 +46,11 @@ class _HomeScreenState
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            // TODO
-            // Sprint3에서 Health Connect 다시 동기화
-            await _syncSteps();
-             ref.invalidate(todayStepProvider);
-
-             ref.invalidate(currentUserProvider);
-      },
+            await StepSyncService.instance.refresh();
+            ref.invalidate(todayStepsProvider);
+            ref.invalidate(challengeProvider);
+            ref.invalidate(currentUserProvider);
+          },
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
@@ -64,13 +66,9 @@ class _HomeScreenState
       radius: 28,
       backgroundColor: Colors.green.shade100,
 
-      backgroundImage:
-          photoUrl != null && photoUrl.isNotEmpty
-        ? NetworkImage(photoUrl)
-        : null,
+      backgroundImage: hasPhoto ? NetworkImage(photoUrl!) : null,
 
-      child: user?.photoUrl == null ||
-              photoUrl.isEmpty
+      child: !hasPhoto
           ? const Icon(
               Icons.person,
               size: 30,
@@ -123,39 +121,39 @@ class _HomeScreenState
               // 오늘 걸음수
               //--------------------------------------------------
 
-              TodayStepCard(),
+              const TodayStepCard(),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               //--------------------------------------------------
               // AI 코치
               //--------------------------------------------------
 
-              AiCoachCard(),
+              const AiCoachCard(),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-              ChallengeProgressSection(),
+              const ChallengeProgressSection(),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-              TeamCheerCard(),
+              const TeamCheerCard(),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-              FamilyRankingCard(),
+              const FamilyRankingCard(),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-              NoticeCard(),
+              const NoticeCard(),
 
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
 
               //--------------------------------------------------
               // 빠른 메뉴
               //--------------------------------------------------
 
-              Text(
+              const Text(
                 "빠른 메뉴",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -163,17 +161,17 @@ class _HomeScreenState
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-              _QuickMenu(),
+              const _QuickMenu(),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               //--------------------------------------------------
               // 최근 활동
               //--------------------------------------------------
 
-              Text(
+              const Text(
                 "최근 활동",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -181,11 +179,11 @@ class _HomeScreenState
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-              _RecentActivity(),
+              const _RecentActivity(),
 
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
           ),
         ),

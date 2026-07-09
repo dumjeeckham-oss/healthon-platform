@@ -47,6 +47,8 @@ class HealthPermissionScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   await _requestPermission();
+                  if (!context.mounted) return;
+
                   Navigator.pop(context);
                 },
                 child: const Text("허용하기"),

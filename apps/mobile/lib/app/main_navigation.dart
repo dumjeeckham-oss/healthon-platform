@@ -17,11 +17,11 @@ class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
 
   late final List<Widget> pages = const [
-    const HomeScreen(),
-    const ChallengeScreen(),
-    const FamilyScreen(),
-    const CommunityScreen(),
-    const MyPageScreen(),
+    HomeScreen(),
+    ChallengeScreen(),
+    FamilyScreen(),
+    CommunityScreen(),
+    MyPageScreen(),
   ];
 
   @override
@@ -78,70 +78,6 @@ class _MainNavigationState extends State<MainNavigation> {
             label: "마이",
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ChallengePage extends StatelessWidget {
-  const _ChallengePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          "챌린지 화면\n(Sprint 4)",
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
-
-class _FamilyPage extends StatelessWidget {
-  const _FamilyPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          "가족 화면\n(Sprint 5)",
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
-
-class _CommunityPage extends StatelessWidget {
-  const _CommunityPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          "커뮤니티 화면\n(Sprint 6)",
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
-
-class _MyPage extends StatelessWidget {
-  const _MyPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          "마이페이지\n(Sprint 7)",
-          textAlign: TextAlign.center,
-        ),
       ),
     );
   }

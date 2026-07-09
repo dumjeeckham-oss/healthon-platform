@@ -60,7 +60,7 @@ class TodayStepsCard extends StatelessWidget {
           const SizedBox(height: 16),
 
           Text(
-            "목표 ${goalSteps}걸음 중 ${(progress * 100).toStringAsFixed(0)}% 달성",
+            "목표 $goalSteps걸음 중 ${(progress * 100).toStringAsFixed(0)}% 달성",
             style: const TextStyle(color: Colors.grey),
           ),
         ],

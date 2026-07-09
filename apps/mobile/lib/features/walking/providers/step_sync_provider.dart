@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/health_repository.dart';
 import '../data/step_repository_impl.dart';
-import '../services/step_sync_service.dart';
+import '../services/services/step_sync_service.dart';
 
 final healthRepositoryProvider =
     Provider<HealthRepository>(
