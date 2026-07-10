@@ -55,17 +55,17 @@ class HealthRepository {
   Future<int> getWeeklySteps() async {
     final list = await getLast7DaysSteps();
 
-    return list.fold(
+    return list.fold<int>(
       0,
       (sum, item) => sum + item,
-    );
+       );
   }
 
   /// ----------------------------------------------------------
   /// 이번달 총 걸음수
   /// ----------------------------------------------------------
   Future<int> getMonthlySteps() async {
-    int total = 0;
+    total += await _healthService.getStepsByDate(...);
 
     final now = DateTime.now();
 
