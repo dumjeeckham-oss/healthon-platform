@@ -62,27 +62,29 @@ class HealthRepository {
   }
 
   /// ----------------------------------------------------------
-  /// 이번달 총 걸음수
-  /// ----------------------------------------------------------
-  Future<int> getMonthlySteps() async {
-    total += await _healthService.getStepsByDate(...);
+/// 이번달 총 걸음수
+/// ----------------------------------------------------------
+Future<int> getMonthlySteps() async {
+  int total = 0;
 
-    final now = DateTime.now();
+  final now = DateTime.now();
 
-    final start =
-        DateTime(now.year, now.month, 1);
+  final start = DateTime(
+    now.year,
+    now.month,
+    1,
+  );
 
-    final days =
-        now.difference(start).inDays + 1;
+  final days = now.difference(start).inDays + 1;
 
-    for (int i = 0; i < days; i++) {
-      total += await _healthService.getStepsByDate(
-        start.add(Duration(days: i)),
-      );
-    }
-
-    return total;
+  for (int i = 0; i < days; i++) {
+    total += await _healthService.getStepsByDate(
+      start.add(Duration(days: i)),
+    );
   }
+
+  return total;
+}
 
   /// ----------------------------------------------------------
   /// 칼로리(대략)
