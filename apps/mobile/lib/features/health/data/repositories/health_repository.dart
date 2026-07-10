@@ -1,5 +1,3 @@
-import 'package:health/health.dart';
-
 import '../services/health_service.dart';
 
 class HealthRepository {
