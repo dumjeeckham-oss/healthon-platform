@@ -6,7 +6,6 @@ import '../../features/home/screens/home_screen.dart';
 import '../../features/challenge/presentation/challenge_screen.dart';
 import '../../features/community/presentation/community_screen.dart';
 import '../../features/mypage/presentation/my_page_screen.dart';
-import '../../features/splash/screens/splash_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 
 class AppRoutes {
@@ -19,53 +18,51 @@ class AppRoutes {
   static const admin = '/admin';
 }
 
-final GoRouter appRouter = GoRouter(
+final appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
 
   routes: [
 
     GoRoute(
       path: AppRoutes.splash,
-      builder: (context, state) => const SplashScreen(),
+      builder: (_, __) => const SplashScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.login,
-      builder: (context, state) => const LoginScreen(),
+      builder: (_, __) => const LoginScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.home,
-      builder: (context, state) => const HomeScreen(),
+      builder: (_, __) => const HomeScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.challenge,
-      builder: (context, state) => const ChallengeScreen(),
+      builder: (_, __) => const ChallengeScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.community,
-      builder: (context, state) => const CommunityScreen(),
+      builder: (_, __) => const CommunityScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.profile,
-      builder: (context, state) => const MyPageScreen(),
+      builder: (_, __) => const MyPageScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.admin,
-      builder: (context, state) => const _AdminPlaceholderScreen(),
+      builder: (_, __) => const _AdminPlaceholderScreen(),
     ),
 
   ],
 
-  errorBuilder: (context, state) {
+  errorBuilder: (_, state) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("오류"),
-      ),
+      appBar: AppBar(title: const Text("오류")),
       body: Center(
         child: Text(
           "페이지를 찾을 수 없습니다.\n${state.uri}",
@@ -83,7 +80,7 @@ class _AdminPlaceholderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Text('관리자 화면은 준비 중입니다.'),
+        child: Text("관리자 화면 준비중"),
       ),
     );
   }
