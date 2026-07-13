@@ -46,11 +46,10 @@ class _HomeScreenState
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            await StepSyncService.instance.refresh();
             ref.invalidate(todayStepsProvider);
             ref.invalidate(challengeProvider);
             ref.invalidate(currentUserProvider);
-          },
+           },
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
