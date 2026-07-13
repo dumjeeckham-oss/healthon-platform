@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/health/step_sync_service.dart';
+import '../../health/data/services/step_sync_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
