@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../health/data/services/step_sync_service.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -22,40 +20,16 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initialize() async {
-    try {
-      final supabase = Supabase.instance.client;
+    final user = Supabase.instance.client.auth.currentUser;
 
-      final user = supabase.auth.currentUser;
+    await Future.delayed(const Duration(seconds: 1));
 
-      if (user == null) {
-        if (!mounted) return;
-        context.go('/');
-        return;
-      }
+    if (!mounted) return;
 
-      //--------------------------------------------------
-      // Health Connect 동기화
-      //--------------------------------------------------
-
-      try {
-        await StepSyncService.instance.syncTodaySteps();
-      } catch (e) {
-        debugPrint("Health Sync 실패 : $e");
-      }
-
-      //--------------------------------------------------
-      // Home 이동
-      //--------------------------------------------------
-
-      if (!mounted) return;
-
+    if (user == null) {
+      context.go('/login');
+    } else {
       context.go('/home');
-    } catch (e) {
-      debugPrint(e.toString());
-
-      if (!mounted) return;
-
-      context.go('/');
     }
   }
 
@@ -63,31 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            Icon(
-              Icons.favorite,
-              size: 80,
-              color: Colors.green,
-            ),
-
-            SizedBox(height: 24),
-
-            Text(
-              "건강ON",
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            SizedBox(height: 40),
-
-            CircularProgressIndicator(),
-          ],
-        ),
+        child: CircularProgressIndicator(),
       ),
     );
   }
