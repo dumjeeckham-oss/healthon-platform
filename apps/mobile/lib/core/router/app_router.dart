@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/screens/login_screen.dart';
-import '../../features/home/screens/home_screen.dart';
+import '../../features/home/presentation/home_screen.dart';
 import '../../features/challenge/presentation/challenge_screen.dart';
 import '../../features/community/presentation/community_screen.dart';
 import '../../features/mypage/presentation/my_page_screen.dart';
