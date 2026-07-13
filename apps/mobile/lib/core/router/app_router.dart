@@ -25,37 +25,37 @@ final appRouter = GoRouter(
 
     GoRoute(
       path: AppRoutes.splash,
-      builder: (_, __) => const SplashScreen(),
+      builder: (context, state) => const SplashScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.login,
-      builder: (_, __) => const LoginScreen(),
+      builder: (context, state) => const LoginScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.home,
-      builder: (_, __) => const HomeScreen(),
+      builder: (context, state) => const HomeScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.challenge,
-      builder: (_, __) => const ChallengeScreen(),
+      builder: (context, state) => const ChallengeScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.community,
-      builder: (_, __) => const CommunityScreen(),
+      builder: (context, state) => const CommunityScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.profile,
-      builder: (_, __) => const MyPageScreen(),
+      builder: (context, state) => const MyPageScreen(),
     ),
 
     GoRoute(
       path: AppRoutes.admin,
-      builder: (_, __) => const _AdminPlaceholderScreen(),
+      builder: (context, state) => const _AdminPlaceholderScreen(),
     ),
 
   ],
