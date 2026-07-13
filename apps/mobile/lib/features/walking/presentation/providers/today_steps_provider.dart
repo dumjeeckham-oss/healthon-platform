@@ -1,26 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../health/data/services/step_sync_service.dart';
+import '../../../health/presentation/providers/health_provider.dart';
 
-/// ===============================================================
-///
-/// Today Steps Provider
-///
-/// Health Connect
-///      ↓
-/// Supabase
-///      ↓
-/// Home UI
-///
-/// ===============================================================
+final todayStepsProvider = FutureProvider.autoDispose<int>((ref) async {
+  final repository = ref.read(healthRepositoryProvider);
 
-final todayStepsProvider =
-    FutureProvider.autoDispose<int>((ref) async {
-  final service = StepSyncService.instance;
-
-  // Health Connect → Supabase 동기화
-  await service.syncTodaySteps();
-
-  // 저장된 걸음수 반환
-  return service.getTodaySteps();
+  return repository.getTodaySteps();
 });
