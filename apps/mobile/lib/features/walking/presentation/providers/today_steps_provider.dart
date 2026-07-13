@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/health/step_sync_service.dart';
+import '../../../health/data/services/step_sync_service.dart';
 
 /// ===============================================================
 ///
