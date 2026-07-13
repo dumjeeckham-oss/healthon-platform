@@ -101,7 +101,7 @@ class ChallengeProgressSection extends ConsumerWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: LinearProgressIndicator(
-                    value: progress.progress,
+                    value: progress.progress, / 100,
                     minHeight: 14,
                   ),
                 ),
