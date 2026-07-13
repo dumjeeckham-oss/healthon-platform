@@ -7,6 +7,7 @@ import '../../features/challenge/presentation/challenge_screen.dart';
 import '../../features/community/presentation/community_screen.dart';
 import '../../features/mypage/presentation/my_page_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
+import '../../features/splash/presentation/splash_screen.dart';
 
 class AppRoutes {
   static const splash = '/';
