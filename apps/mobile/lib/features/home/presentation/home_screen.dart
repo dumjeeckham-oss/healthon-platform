@@ -10,7 +10,7 @@ import '../../challenge/presentation/widgets/challenge_progress_section.dart';
 import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
-import '../../health/data/services/step_sync_service.dart';
+
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
