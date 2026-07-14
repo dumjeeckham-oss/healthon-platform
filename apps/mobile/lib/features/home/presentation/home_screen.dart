@@ -6,7 +6,6 @@ import '../../ai/presentation/widgets/ai_coach_card.dart';
 import '../../walking/presentation/widgets/today_step_card.dart';
 import '../../walking/presentation/providers/today_steps_provider.dart';
 import '../../challenge/presentation/provider/challenge_provider.dart';
-import '../../challenge/domain/models/challenge_summary.dart';
 import '../../challenge/presentation/widgets/challenge_progress_section.dart';
 import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
@@ -154,8 +153,7 @@ class _HomeScreenState
   ),
 
   data: (ChallengeSummary challenge) {
-    return ChallengeProgressSection(
-      challenge: challenge,
+    return const ChallengeProgressSection(),
     );
   },
 ),
