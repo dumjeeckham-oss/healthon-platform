@@ -5,7 +5,6 @@ import '../../auth/presentation/provider/current_user_provider.dart';
 import '../../ai/presentation/widgets/ai_coach_card.dart';
 import '../../walking/presentation/widgets/today_step_card.dart';
 import '../../walking/presentation/providers/today_steps_provider.dart';
-import '../../challenge/presentation/provider/challenge_provider.dart';
 import '../../challenge/presentation/widgets/challenge_progress_section.dart';
 import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
@@ -133,31 +132,8 @@ class _HomeScreenState
 
               const SizedBox(height: 24),
 
-              challengeAsync.when(
-  loading: () => const Card(
-    child: Padding(
-      padding: EdgeInsets.all(24),
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
-    ),
-  ),
-
-  error: (e, _) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Text(
-        "챌린지를 불러오지 못했습니다.\n$e",
-      ),
-    ),
-  ),
-
-  data: (ChallengeSummary challenge) {
-    return const ChallengeProgressSection(),
-    );
-  },
-),
-
+              const ChallengeProgressSection(), 
+              
               const SizedBox(height: 24),
 
               const TeamCheerCard(),
