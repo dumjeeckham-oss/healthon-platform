@@ -94,6 +94,11 @@ class ChallengeProgressSection extends ConsumerWidget {
                   style: const TextStyle(
                     color: Colors.grey,
                   ),
+                  const SizedBox(height: 8),
+
+               Text(
+                 "오늘 목표 : ${challenge.todayGoal} km",
+                ),
                 ),
 
                 const SizedBox(height: 20),
@@ -115,12 +120,36 @@ class ChallengeProgressSection extends ConsumerWidget {
                     Text(
                       "${(progress.progress * 100).toStringAsFixed(1)}%",
                     ),
+                    const SizedBox(height: 8),
+
+                    Text(
+                      "남은 거리 ${(challenge.goalKm - challenge.currentKm).toStringAsFixed(1)} km",
+                    ),
                     Text(
                       "${progress.remainSteps} 걸음 남음",
                     ),
+                    const SizedBox(height: 8),
+
+                    Text(
+                     "예상 완료일 : ${challenge.expectedFinish}",
+                    ),
                   ],
                 ),
+                     const SizedBox(height: 16),
 
+                     Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                      challenge.cheerMessage,
+                      style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+    ),
+  ),
+),
                 const SizedBox(height: 20),
 
                 SizedBox(
