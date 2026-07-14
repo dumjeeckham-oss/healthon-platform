@@ -6,7 +6,9 @@ import '../../../challenge/presentation/providers/challenge_provider.dart';
 
 final aiCoachProvider =
     FutureProvider.autoDispose((ref) async {
-  final today = await ref.watch(todayStepsProvider.future);
+
+  final todaySteps =
+      await ref.watch(todayStepsProvider.future);
 
   final challenge =
       await ref.watch(challengeProvider.future);
@@ -14,7 +16,7 @@ final aiCoachProvider =
   final repository = AiCoachRepository();
 
   return repository.buildMessage(
-    today: today,
+    todaySteps: todaySteps,
     challenge: challenge,
   );
 });
