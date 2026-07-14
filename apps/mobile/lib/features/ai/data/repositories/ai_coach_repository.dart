@@ -6,10 +6,7 @@ class AiCoachRepository {
     required int todaySteps,
     required ChallengeSummary challenge,
   }) async {
-
-    //--------------------------------------------------------
-    // 완주
-    //--------------------------------------------------------
+    final todayKm = todaySteps / 1300.0;
 
     if (challenge.progress >= 1.0) {
       return const AiCoachMessage(
@@ -19,25 +16,13 @@ class AiCoachRepository {
       );
     }
 
-    //--------------------------------------------------------
-    // 오늘 목표 달성
-    //--------------------------------------------------------
-
-    const stepPerKm = 1300;
-    final todayGoalSteps =
-        (challenge.todayGoal * stepPerKm).round();
-
-    if (todaySteps >= todayGoalSteps) {
+    if (todayKm >= challenge.todayGoal) {
       return const AiCoachMessage(
         emoji: "🎉",
         title: "오늘 목표 달성!",
         message: "오늘 목표를 달성했습니다.\n좋은 흐름을 이어가세요.",
       );
     }
-
-    //--------------------------------------------------------
-    // 80%
-    //--------------------------------------------------------
 
     if (challenge.progress >= 0.8) {
       return const AiCoachMessage(
@@ -47,10 +32,6 @@ class AiCoachRepository {
       );
     }
 
-    //--------------------------------------------------------
-    // 50%
-    //--------------------------------------------------------
-
     if (challenge.progress >= 0.5) {
       return const AiCoachMessage(
         emoji: "💪",
@@ -58,10 +39,6 @@ class AiCoachRepository {
         message: "벌써 절반 이상을 걸었습니다.",
       );
     }
-
-    //--------------------------------------------------------
-    // 기본
-    //--------------------------------------------------------
 
     return const AiCoachMessage(
       emoji: "🚶",
