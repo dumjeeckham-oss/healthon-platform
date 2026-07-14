@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/challenge_provider.dart';
-import '../../domain/models/challenge_summary.dart';
 
 class ChallengeProgressSection extends ConsumerWidget {
   const ChallengeProgressSection({super.key});
