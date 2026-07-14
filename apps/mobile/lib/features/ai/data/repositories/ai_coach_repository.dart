@@ -1,12 +1,12 @@
 import '../../challenge/domain/models/challenge_summary.dart';
-import '../../walking/domain/models/today_steps.dart';
 import '../../domain/models/ai_coach_message.dart';
 
 class AiCoachRepository {
   Future<AiCoachMessage> buildMessage({
-    required TodaySteps today,
+    required int todaySteps,
     required ChallengeSummary challenge,
   }) async {
+
     //--------------------------------------------------------
     // 완주
     //--------------------------------------------------------
@@ -23,7 +23,11 @@ class AiCoachRepository {
     // 오늘 목표 달성
     //--------------------------------------------------------
 
-    if (today.distanceKm >= challenge.todayGoal) {
+    const stepPerKm = 1300;
+    final todayGoalSteps =
+        (challenge.todayGoal * stepPerKm).round();
+
+    if (todaySteps >= todayGoalSteps) {
       return const AiCoachMessage(
         emoji: "🎉",
         title: "오늘 목표 달성!",
