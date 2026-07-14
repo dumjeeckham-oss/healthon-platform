@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../provider/challenge_provider.dart';
+import '../../domain/models/challenge_summary.dart';
 
 class ChallengeProgressSection extends ConsumerWidget {
   const ChallengeProgressSection({super.key});
@@ -74,23 +75,23 @@ class ChallengeProgressSection extends ConsumerWidget {
                 //--------------------------------------------------
 
                 Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
+                   spacing: 12,
+                   runSpacing: 12,
+                   children: [
 
-                    _StageChip(
-                      title: "50K",
-                      completed: challenge.completed50K,
+                      _StageChip(
+                        title: "50K",
+                        completed: challenge.currentKm >= 50,
                     ),
 
-                    _StageChip(
-                      title: "100K",
-                      completed: challenge.completed100K,
-                    ),
+                   _StageChip(
+                     title: "100K",
+                     completed: challenge.currentKm >= 100,
+                   ),
 
-                    _StageChip(
-                      title: "200K",
-                      completed: challenge.completed200K,
+                  _StageChip(
+                    title: "200K",
+                     completed: challenge.currentKm >= 200,
                     ),
                   ],
                 ),
@@ -102,7 +103,7 @@ class ChallengeProgressSection extends ConsumerWidget {
                 //--------------------------------------------------
 
                 Text(
-                  "${challenge.totalSteps} 걸음",
+                  "${challenge.currentKm.toStringAsFixed(1)} km",
                   style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -112,7 +113,7 @@ class ChallengeProgressSection extends ConsumerWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  "현재 목표 : ${challenge.currentGoal} 걸음",
+                  "오늘 목표 : ${challenge.todayGoal.toStringAsFixed(1)} km",
                   style: const TextStyle(
                     color: Colors.grey,
                   ),
@@ -147,13 +148,37 @@ class ChallengeProgressSection extends ConsumerWidget {
                     ),
 
                     Text(
-                      "${challenge.remainSteps} 걸음 남음",
+                      "남은 거리 ${challenge.remainingKm.toStringAsFixed(1)} km",
                       style: const TextStyle(
                         color: Colors.grey,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
+
+                   Text(
+                  "예상 완료일 : ${challenge.expectedFinish}",
+                 ),
+
+                const SizedBox(height: 12),
+
+              Container(
+               width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(12),
+                 ),
+             child: Text(
+             challenge.cheerMessage,
+             style: const TextStyle(
+              fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
+const SizedBox(height: 24),
 
                 const SizedBox(height: 28),
 
