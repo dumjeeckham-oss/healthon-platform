@@ -1,4 +1,4 @@
-import '../../challenge/domain/models/challenge_summary.dart';
+import '../../../challenge/domain/models/challenge_summary.dart';
 import '../../domain/models/ai_coach_message.dart';
 
 class AiCoachRepository {
