@@ -8,49 +8,60 @@ class ChallengeProgressSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final progressAsync = ref.watch(challengeProvider);
+    final challengeAsync = ref.watch(challengeProvider);
 
-    return progressAsync.when(
+    return challengeAsync.when(
       loading: () => const Card(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(30),
           child: Center(
             child: CircularProgressIndicator(),
           ),
         ),
       ),
+
       error: (error, stack) => Card(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
             error.toString(),
             textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.red),
           ),
         ),
       ),
-      data: (progress) {
+
+      data: (challenge) {
         return Card(
-          elevation: 2,
+          elevation: 3,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
+                //--------------------------------------------------
+                // 제목
+                //--------------------------------------------------
+
                 const Row(
                   children: [
+
                     Icon(
                       Icons.emoji_events,
                       color: Colors.orange,
                     ),
+
                     SizedBox(width: 8),
+
                     Text(
                       "100K 챌린지",
                       style: TextStyle(
-                        fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     ),
                   ],
@@ -58,29 +69,40 @@ class ChallengeProgressSection extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
+                //--------------------------------------------------
+                // 단계
+                //--------------------------------------------------
+
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
                   children: [
+
                     _StageChip(
                       title: "50K",
-                      completed: progress.completed50K,
+                      completed: challenge.completed50K,
                     ),
+
                     _StageChip(
                       title: "100K",
-                      completed: progress.completed100K,
+                      completed: challenge.completed100K,
                     ),
+
                     _StageChip(
                       title: "200K",
-                      completed: progress.completed200K,
+                      completed: challenge.completed200K,
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 28),
 
+                //--------------------------------------------------
+                // 현재 걸음수
+                //--------------------------------------------------
+
                 Text(
-                  "${progress.totalSteps.toString()} 걸음",
+                  "${challenge.totalSteps} 걸음",
                   style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -90,67 +112,54 @@ class ChallengeProgressSection extends ConsumerWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  "현재 목표 : ${progress.currentGoal.toString()} 걸음",
+                  "현재 목표 : ${challenge.currentGoal} 걸음",
                   style: const TextStyle(
                     color: Colors.grey,
                   ),
-                  const SizedBox(height: 8),
-
-               Text(
-                 "오늘 목표 : ${challenge.todayGoal} km",
-                ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
+
+                //--------------------------------------------------
+                // Progress
+                //--------------------------------------------------
 
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: LinearProgressIndicator(
-                    value: progress.progress, / 100,
+                    value: challenge.progress,
                     minHeight: 14,
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 Row(
                   mainAxisAlignment:
                       MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "${(progress.progress * 100).toStringAsFixed(1)}%",
-                    ),
-                    const SizedBox(height: 8),
 
                     Text(
-                      "남은 거리 ${(challenge.goalKm - challenge.currentKm).toStringAsFixed(1)} km",
+                      "${(challenge.progress * 100).toStringAsFixed(1)} %",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    Text(
-                      "${progress.remainSteps} 걸음 남음",
-                    ),
-                    const SizedBox(height: 8),
 
                     Text(
-                     "예상 완료일 : ${challenge.expectedFinish}",
+                      "${challenge.remainSteps} 걸음 남음",
+                      style: const TextStyle(
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
-                     const SizedBox(height: 16),
 
-                     Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                      challenge.cheerMessage,
-                      style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-    ),
-  ),
-),
-                const SizedBox(height: 20),
+                const SizedBox(height: 28),
+
+                //--------------------------------------------------
+                // 새로고침
+                //--------------------------------------------------
 
                 SizedBox(
                   width: double.infinity,
@@ -184,13 +193,18 @@ class _StageChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Chip(
       avatar: Icon(
-        completed ? Icons.check_circle : Icons.flag,
-        color: completed ? Colors.green : Colors.grey,
+        completed
+            ? Icons.check_circle
+            : Icons.flag,
+        color: completed
+            ? Colors.green
+            : Colors.grey,
         size: 18,
       ),
       label: Text(title),
-      backgroundColor:
-          completed ? Colors.green.shade50 : Colors.grey.shade100,
+      backgroundColor: completed
+          ? Colors.green.shade50
+          : Colors.grey.shade200,
     );
   }
 }
