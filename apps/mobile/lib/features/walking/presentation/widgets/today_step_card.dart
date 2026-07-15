@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/walking_provider.dart';
 
-import '../providers/today_steps_provider.dart';
-
 class TodayStepCard extends ConsumerWidget {
   const TodayStepCard({super.key});
 
