@@ -16,8 +16,7 @@ final aiCoachProvider =
   final repository = AiCoachRepository();
 
   return repository.buildMessage(
-    todaySteps: today,
+    todaySteps: todaySteps,
     challenge: challenge,
-);
   );
 });
