@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../walking/presentation/providers/walking_provider.dart';
+import '../../walking/presentation/providers/walking_provider.dart';
 
 class TodayStepsCard extends StatelessWidget {
 
