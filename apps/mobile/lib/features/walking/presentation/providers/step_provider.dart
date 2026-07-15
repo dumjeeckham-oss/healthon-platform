@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../auth/presentation/provider/current_user_provider.dart';
+import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../data/step_repository_impl.dart';
 
 /// Repository
