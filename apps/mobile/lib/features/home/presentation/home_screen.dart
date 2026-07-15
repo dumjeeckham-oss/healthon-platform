@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../auth/presentation/provider/current_user_provider.dart';
+import '../../auth/presentation/providers/current_user_provider.dart';
 import '../../ai/presentation/widgets/ai_coach_card.dart';
 import '../../walking/presentation/widgets/today_step_card.dart';
 import '../../walking/presentation/providers/today_steps_provider.dart';
