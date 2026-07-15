@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/info_card.dart';
 import '../../../shared/widgets/progress_ring.dart';
+import '../../../walking/presentation/providers/walking_provider.dart';
 
 class TodayStepsCard extends StatelessWidget {
   final int steps;
