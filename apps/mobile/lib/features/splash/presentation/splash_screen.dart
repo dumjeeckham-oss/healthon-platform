@@ -26,11 +26,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    if (user == null) {
-      context.go('/login');
-    } else {
-      context.go('/home');
-    }
+   if (user == null) {
+     context.go('/');
+   } else {
+     context.go('/home');
+   }
   }
 
   @override
