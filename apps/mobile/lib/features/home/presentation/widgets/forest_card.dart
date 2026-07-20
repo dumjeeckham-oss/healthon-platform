@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/widgets/info_card.dart';
+import '../../../../shared/widgets/info_card.dart';
 
 class ForestCard extends StatelessWidget {
   final int treeCount;
