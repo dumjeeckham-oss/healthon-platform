@@ -16,13 +16,12 @@ class WalkingSyncService {
   /// 오늘 걸음수를 Challenge에 반영
   /// ----------------------------------------------------------
   Future<void> syncToday(String userId) async {
-    final steps = await _stepRepository.getTodaySteps(userId);
+    final totalDistance =
+         await _stepRepository.getTotalDistance(userId);
 
-    final distanceKm = steps * 0.0007;
-
-    await _challengeRepository.updateProgress(
-      userId: userId,
-      totalDistance: distanceKm,
+   await _challengeRepository.updateProgress(
+    userId: userId,
+    totalDistance: totalDistance,
     );
   }
 
