@@ -22,6 +22,28 @@ class StepRepositoryImpl {
       'updated_at': DateTime.now().toIso8601String(),
     }, onConflict: 'user_id,date');
   }
+    /// ----------------------------------------------------------
+  /// 누적 이동거리(km)
+  /// challenge_progress 갱신용
+  /// ----------------------------------------------------------
+  Future<double> getTotalDistance(String userId) async {
+    final response = await _client
+        .from('step_daily')
+        .select('distance_km')
+        .eq('user_id', userId);
+
+    if (response.isEmpty) {
+      return 0;
+    }
+
+    double total = 0;
+
+    for (final row in response) {
+      total += ((row['distance_km'] ?? 0) as num).toDouble();
+    }
+
+    return total;
+  }
 
   /// 오늘 데이터 조회
   Future<int> getTodaySteps(String userId) async {
