@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/widgets/info_card.dart';
+import '../../../../shared/widgets/info_card.dart';
 
 class StreakCard extends StatelessWidget {
   final int streakDays;
