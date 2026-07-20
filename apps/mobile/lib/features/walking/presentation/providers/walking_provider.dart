@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../health/presentation/providers/health_provider.dart';
+import '../../application/walking_sync_service.dart';
 
 final todayStepsProvider =
     FutureProvider.autoDispose<int>((ref) async {
