@@ -37,6 +37,11 @@ class WalkingSyncService {
 
     final totalDistance = totalSteps * 0.0007;
 
+    await familyRepository.updateMemberDistance(
+      userId,
+      distanceKm,
+    );
+
     await _challengeRepository.updateProgress(
       userId: userId,
       totalDistance: totalDistance,
