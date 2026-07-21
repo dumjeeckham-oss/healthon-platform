@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../provider/family_provider.dart';
+import '../providers/family_provider.dart';
 
 class FamilyRankingCard extends ConsumerWidget {
   const FamilyRankingCard({super.key});
