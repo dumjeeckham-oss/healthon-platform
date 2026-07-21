@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/family_ai_summary.dart';
+import '../domain/models/family_ai_summary.dart';
 
 /// ===============================================================
 ///
