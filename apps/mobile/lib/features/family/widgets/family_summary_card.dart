@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/family_member_ranking.dart';
+import '../domain/models/family_member_ranking.dart';
 
 /// ===============================================================
 ///
