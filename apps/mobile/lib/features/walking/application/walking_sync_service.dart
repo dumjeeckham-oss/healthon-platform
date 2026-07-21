@@ -13,34 +13,24 @@ class WalkingSyncService {
   final ChallengeRepository _challengeRepository;
 
   /// ----------------------------------------------------------
-  /// 오늘 걸음수를 Challenge에 반영
+  /// 오늘 데이터 동기화
   /// ----------------------------------------------------------
   Future<void> syncToday(String userId) async {
     final totalDistance =
-         await _stepRepository.getTotalDistance(userId);
+        await _stepRepository.getTotalDistance(userId);
 
-   await _challengeRepository.updateProgress(
-    userId: userId,
-    totalDistance: totalDistance,
+    await _challengeRepository.updateProgress(
+      userId: userId,
+      totalDistance: totalDistance,
     );
   }
 
   /// ----------------------------------------------------------
-  /// step_daily 누적거리 기준으로 Challenge 재계산
+  /// 전체 재동기화
   /// ----------------------------------------------------------
   Future<void> syncAll(String userId) async {
-    final weeklySteps =
-        await _stepRepository.getWeeklySteps(userId);
-
-    final totalSteps =
-        weeklySteps.fold<int>(0, (sum, e) => sum + e);
-
-    final totalDistance = totalSteps * 0.0007;
-
-    await familyRepository.updateMemberDistance(
-      userId,
-      distanceKm,
-    );
+    final totalDistance =
+        await _stepRepository.getTotalDistance(userId);
 
     await _challengeRepository.updateProgress(
       userId: userId,
