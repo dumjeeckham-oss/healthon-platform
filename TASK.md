@@ -1,5 +1,22 @@
 # 건강ON 개발 TASK
 
+[x] Walking
+
+[x] Challenge
+
+[x] Family
+
+[x] Dashboard
+
+[x] Walking Sync
+
+[ ] Forest UI
+
+[ ] AI Coach
+
+[ ] Community
+
+
 ## Phase 1 - 프로젝트 준비
 
 * [ ] GitHub Repository 구성
