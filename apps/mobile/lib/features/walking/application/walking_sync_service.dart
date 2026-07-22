@@ -11,6 +11,7 @@ class WalkingSyncService {
 
   final StepRepositoryImpl _stepRepository;
   final ChallengeRepository _challengeRepository;
+  final ForestRepository _forestRepository;
 
   /// ----------------------------------------------------------
   /// 오늘 데이터 동기화
@@ -35,6 +36,10 @@ class WalkingSyncService {
     await _challengeRepository.updateProgress(
       userId: userId,
       totalDistance: totalDistance,
+    );
+    await _forestRepository.updateDistance(
+      userId: userId,
+      totalKm: totalDistance,
     );
   }
 }
