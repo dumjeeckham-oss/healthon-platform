@@ -19,7 +19,8 @@ final forestUserIdProvider =
 /// Forest Dashboard
 final forestProvider =
     FutureProvider.autoDispose<ForestSummary>((ref) async {
-  final userId = ref.watch(forestUserIdProvider);
+  final user =
+      Supabase.instance.client.auth.currentUser;
 
   if (userId == null) {
     return const ForestSummary(
