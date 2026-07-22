@@ -20,17 +20,12 @@ final forestUserIdProvider =
 final forestProvider =
     FutureProvider.autoDispose<ForestSummary>((ref) async {
   final user =
-      Supabase.instance.client.auth.currentUser;
+       ref.watch(forestUserIdProvider);
 
   if (userId == null) {
-    return const ForestSummary(
-      totalKm: 0,
-      treeLevel: 1,
-      treeExp: 0,
-      nextLevelExp: 100,
-      treeName: "새싹",
-    );
+    return ForestSummary.empty();
   }
+      
 
   final repository =
       ref.read(forestRepositoryProvider);
