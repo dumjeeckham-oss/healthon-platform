@@ -12,9 +12,12 @@ class ForestSummary {
   });
 
   double get progress {
-    if (nextLevelExp == 0) return 0;
-    return (treeExp / nextLevelExp).clamp(0.0, 1.0);
-  }
+
+  if (nextLevelExp == 0) return 1;
+
+  return treeExp / nextLevelExp;
+
+}
 
   String get treeName {
     switch (treeLevel) {
