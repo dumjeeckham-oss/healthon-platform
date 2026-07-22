@@ -395,6 +395,28 @@ Challenge Type
 - Volunteer
 - Custom
 
+- Walking
+
+↓
+
+WalkingSyncService
+
+↓
+
+Challenge
+
+↓
+
+Family
+
+↓
+
+Forest
+
+↓
+
+Dashboard
+
 모든 Challenge는 동일한 구조를 사용한다.
 
 ---
