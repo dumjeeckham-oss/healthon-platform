@@ -21,21 +21,29 @@ class ForestRepository {
     return ForestSummary.fromMap(result);
   }
 
-  Future<void> updateDistance({
-    required String userId,
-    required double totalKm,
-  }) async {
-    final treeLevel = (totalKm ~/ 100) + 1;
-    final treeExp = totalKm % 100;
-    const nextLevelExp = 100.0;
+ Future<void> updateDistance({
+  required String userId,
+  required double totalKm,
+}) async {
 
-    await _client.from("forest_progress").upsert({
-      "user_id": userId,
-      "total_km": totalKm,
-      "tree_level": treeLevel,
-      "tree_exp": treeExp,
-      "next_level_exp": nextLevelExp,
-      "updated_at": DateTime.now().toIso8601String(),
-    });
-  }
+  final summary = _calculateLevel(totalKm);
+
+  await _client
+      .from('forest_progress')
+      .upsert({
+
+        'user_id': userId,
+
+        'total_km': totalKm,
+
+        'tree_level': summary.treeLevel,
+
+        'tree_exp': summary.treeExp,
+
+        'next_level_exp': summary.nextLevelExp,
+
+        'updated_at': DateTime.now().toIso8601String(),
+
+      });
+
 }
