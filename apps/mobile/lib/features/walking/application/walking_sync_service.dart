@@ -1,5 +1,6 @@
 import '../../challenge/data/repositories/challenge_repository.dart';
 import '../data/step_repository_impl.dart';
+import '../../forest/data/forest_repository.dart';
 
 class WalkingSyncService {
   WalkingSyncService({
@@ -8,7 +9,17 @@ class WalkingSyncService {
   })  : _stepRepository = stepRepository ?? StepRepositoryImpl(),
         _challengeRepository =
             challengeRepository ?? ChallengeRepository();
-
+  
+WalkingSyncService({
+  StepRepositoryImpl? stepRepository,
+  ChallengeRepository? challengeRepository,
+  ForestRepository? forestRepository,
+})  : _stepRepository = stepRepository ?? StepRepositoryImpl(),
+      _challengeRepository =
+          challengeRepository ?? ChallengeRepository(),
+      _forestRepository =
+          forestRepository ?? ForestRepository();
+  
   final StepRepositoryImpl _stepRepository;
   final ChallengeRepository _challengeRepository;
   final ForestRepository _forestRepository;
