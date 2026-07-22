@@ -26,6 +26,7 @@ class _HomeScreenState
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(walkingSyncProvider);
     final user = ref.watch(currentUserProvider);
     
     final displayName =
