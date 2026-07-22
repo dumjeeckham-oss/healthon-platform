@@ -112,4 +112,5 @@ flutter:
     - assets/icons/
     - assets/lottie/
     - assets/fonts/
+    - assets/animations/
     - .env
