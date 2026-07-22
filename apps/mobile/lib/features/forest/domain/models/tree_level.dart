@@ -1,37 +1,55 @@
-String _treeName(int level) {
+class TreeLevel {
+  final int level;
+  final String name;
+  final double requiredKm;
 
-  switch (level) {
+  const TreeLevel({
+    required this.level,
+    required this.name,
+    required this.requiredKm,
+  });
+}
 
-    case 1:
-      return "새싹";
+///
+/// Forest 성장 테이블
+///
+const treeLevels = [
 
-    case 2:
-      return "풀";
+  TreeLevel(level: 1, name: "새싹", requiredKm: 0),
 
-    case 3:
-      return "묘목";
+  TreeLevel(level: 2, name: "묘목", requiredKm: 100),
 
-    case 4:
-      return "어린나무";
+  TreeLevel(level: 3, name: "어린나무", requiredKm: 250),
 
-    case 5:
-      return "큰나무";
+  TreeLevel(level: 4, name: "푸른나무", requiredKm: 500),
 
-    case 6:
-      return "울창한 나무";
+  TreeLevel(level: 5, name: "큰나무", requiredKm: 800),
 
-    case 7:
-      return "거목";
+  TreeLevel(level: 6, name: "거목", requiredKm: 1200),
 
-    case 8:
-      return "신목";
+  TreeLevel(level: 7, name: "생명의나무", requiredKm: 1700),
 
-    case 9:
-      return "숲의 수호목";
+  TreeLevel(level: 8, name: "신목", requiredKm: 2300),
 
-    default:
-      return "생명의 나무";
+  TreeLevel(level: 9, name: "세계수", requiredKm: 3000),
+];
 
+TreeLevel calculateTreeLevel(double km) {
+
+  TreeLevel current = treeLevels.first;
+
+  for (final level in treeLevels) {
+
+    if (km >= level.requiredKm) {
+
+      current = level;
+
+    } else {
+
+      break;
+
+    }
   }
 
+  return current;
 }
