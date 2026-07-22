@@ -54,14 +54,10 @@ class ForestCard extends ConsumerWidget {
                 const SizedBox(height: 20),
 
                 Center(
-                  child: Text(
-                    _treeEmoji(forest.treeLevel),
-                    style:
-                        const TextStyle(
-                      fontSize: 70,
-                    ),
-                  ),
-                ),
+                  child: TreeAnimation(
+                    level: summary.treeLevel,
+                   ),
+                 ),
 
                 const SizedBox(height: 16),
 
