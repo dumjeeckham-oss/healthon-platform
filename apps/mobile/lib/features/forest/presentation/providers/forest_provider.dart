@@ -4,31 +4,39 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/forest_repository.dart';
 import '../../domain/models/forest_summary.dart';
 
-/// Repository
+/// ======================================================
+/// Forest Repository
+/// ======================================================
+
 final forestRepositoryProvider =
     Provider<ForestRepository>((ref) {
   return ForestRepository();
 });
 
+/// ======================================================
 /// 현재 로그인 사용자
-final forestUserIdProvider =
-    Provider<String?>((ref) {
-  return Supabase.instance.client.auth.currentUser?.id;
+/// ======================================================
+
+final forestUserProvider =
+    Provider<User?>((ref) {
+  return Supabase.instance.client.auth.currentUser;
 });
 
-/// Forest Dashboard
+/// ======================================================
+/// Forest Summary
+/// ======================================================
+
 final forestProvider =
     FutureProvider.autoDispose<ForestSummary>((ref) async {
-  final user =
-       ref.watch(forestUserIdProvider);
 
-  if (userId == null) {
+  final user = ref.watch(forestUserProvider);
+
+  if (user == null) {
     return ForestSummary.empty();
   }
-      
 
   final repository =
       ref.read(forestRepositoryProvider);
 
-  return repository.getSummary(userId);
+  return repository.getSummary(user.id);
 });
