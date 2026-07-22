@@ -94,7 +94,7 @@ assets/
 
 prompts/
 
-.github/
+.github/workflows
 ```
 
 ---
@@ -109,6 +109,22 @@ prompts/
 * AI Native Development
 * Documentation First
 
+---
+현재 구현 완료
+
+✔ Authentication
+✔ Walking Sync
+✔ Challenge
+✔ Family Ranking
+✔ Dashboard
+✔ Forest (진행중)
+
+Architecture
+
+Flutter
+Riverpod
+Supabase
+GitHub Actions
 ---
 
 # 장기 목표
