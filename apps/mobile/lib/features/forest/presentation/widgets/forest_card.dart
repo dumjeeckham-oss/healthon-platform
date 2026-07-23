@@ -4,12 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/forest_provider.dart';
 import '../../domain/models/tree_level.dart';
 
-class ForestCard extends ConsumerWidget {
-  const ForestCard({super.key});
+class ForestCard extends StatelessWidget {
+  const ForestCard({
+  super.key,
+  required this.summary,
+});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final forestAsync = ref.watch(forestProvider);
+    final ForestSummary summary;
 
     return forestAsync.when(
       loading: () => const Card(
@@ -29,7 +32,7 @@ class ForestCard extends ConsumerWidget {
       ),
 
       data: (forest) {
-        final level = TreeLevel.fromLevel(forest.treeLevel);
+        final level = TreeLevel.fromLevel(summary.treeLevel);
 
         return Card(
           elevation: 2,
@@ -77,7 +80,7 @@ class ForestCard extends ConsumerWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: LinearProgressIndicator(
-                    value: forest.progress,
+                    value: summary.progress,
                     minHeight: 14,
                   ),
                 ),
@@ -99,7 +102,7 @@ class ForestCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "누적 ${forest.totalKm.toStringAsFixed(1)} km",
+                      "누적 ${summary.totalKm.toStringAsFixed(1)} km",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -117,7 +120,7 @@ class ForestCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "Lv.${forest.treeLevel}",
+                      "Lv.${summary.treeLevel}",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
