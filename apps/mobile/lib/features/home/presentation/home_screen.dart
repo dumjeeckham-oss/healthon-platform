@@ -30,7 +30,6 @@ class _HomeScreenState
   Widget build(BuildContext context) {
     ref.watch(walkingSyncProvider);
     final user = ref.watch(currentUserProvider);
-    final forest = ref.watch(forestProvider);
     
     final displayName =
     user?.nickname?.isNotEmpty == true
@@ -143,12 +142,7 @@ class _HomeScreenState
               // AI 코치
               //--------------------------------------------------
 
-              const AiCoachCard(),
-
-              const SizedBox(height: 24),
-              
-              const ChallengeProgressSection(), 
-              
+                            
               const SizedBox(height: 24),
 
               const TeamCheerCard(),
@@ -272,6 +266,8 @@ class _MenuCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+
+  final VoidCallback? onTap;
 
   const _MenuCard({
     required this.icon,
