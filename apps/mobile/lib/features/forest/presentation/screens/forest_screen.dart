@@ -104,6 +104,44 @@ class ForestScreen extends ConsumerWidget {
 }  
           
           data: (summary) {
+            final badges =
+    ref.watch(forestBadgesProvider);
+
+badges.whenData((list){
+
+  final shown =
+      ref.read(shownBadgesProvider);
+
+  for(final badge in list){
+
+    if(!shown.contains(badge.id)){
+
+      WidgetsBinding.instance.addPostFrameCallback((_){
+
+        showDialog(
+          context: context,
+          builder: (_)=>BadgeUnlockDialog(
+            title: badge.title,
+            icon: badge.icon,
+          ),
+        );
+
+      });
+
+      ref
+        .read(shownBadgesProvider.notifier)
+        .state=[
+          ...shown,
+          badge.id,
+        ];
+
+      break;
+
+    }
+
+  }
+
+});
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(20),
