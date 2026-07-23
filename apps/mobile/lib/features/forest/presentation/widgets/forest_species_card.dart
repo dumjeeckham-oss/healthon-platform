@@ -18,36 +18,31 @@ class ForestSpeciesCard extends StatelessWidget {
         : Colors.grey.shade200;
 
     return InkWell(
+  borderRadius: BorderRadius.circular(18),
 
-borderRadius:
+  onTap: () {
+    if (!species.isUnlocked) return;
 
-BorderRadius.circular(18),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ForestSpeciesDetailScreen(
+          species: species,
+        ),
+      ),
+    );
+  },
 
-onTap: (){
+  child: Card(
+    elevation: species.isUnlocked ? 3 : 1,
+    color: color,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(18),
+    ),
 
-if(!species.isUnlocked) return;
-
-Navigator.push(
-
-context,
-
-MaterialPageRoute(
-
-builder: (_)=>
-
-ForestSpeciesDetailScreen(
-
-species: species,
-
-),
-
-),
-
-);
-
-},
-
-child: Card(
+    child: Padding(
+      ...
+    ),
   ),
 );
       elevation: species.isUnlocked ? 3 : 1,
