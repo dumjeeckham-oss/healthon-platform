@@ -5,8 +5,10 @@ import '../domain/models/forest_badge.dart';
 
 class ForestRepository {
   ForestRepository();
-
+  final ForestSpeciesRepository _speciesRepository =
+    ForestSpeciesRepository();
   final SupabaseClient _client = Supabase.instance.client;
+  
 
   /// ===============================
   /// Forest 조회
@@ -37,7 +39,10 @@ class ForestRepository {
   }) async {
     final summary =
         ForestSummary.fromKm(totalKm);
-
+    await _speciesRepository.unlockByLevel(
+  userId: userId,
+  level: summary.treeLevel,
+);
     await _client
         .from('forest_progress')
         .upsert({
