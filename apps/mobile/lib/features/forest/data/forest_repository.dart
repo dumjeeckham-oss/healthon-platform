@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/models/forest_summary.dart';
 import '../domain/models/forest_badge.dart';
+import '../data/forest_species_repository.dart';
 
 class ForestRepository {
   ForestRepository();
@@ -39,10 +40,6 @@ class ForestRepository {
   }) async {
     final summary =
         ForestSummary.fromKm(totalKm);
-    await _speciesRepository.unlockByLevel(
-  userId: userId,
-  level: summary.treeLevel,
-);
     await _client
         .from('forest_progress')
         .upsert({
@@ -53,6 +50,11 @@ class ForestRepository {
       'next_level_exp': summary.nextLevelExp,
       'updated_at':
           DateTime.now().toIso8601String(),
+    await _speciesRepository.unlockByLevel(
+  userId: userId,
+  level: summary.treeLevel,
+);
+    
     });
   }
 
