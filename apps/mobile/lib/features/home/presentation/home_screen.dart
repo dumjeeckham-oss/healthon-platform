@@ -11,6 +11,7 @@ import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
 import '../../forest/presentation/widgets/forest_card.dart';
+import '../../forest/presentation/providers/forest_provider.dart';
 
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -133,6 +134,8 @@ class _HomeScreenState
               const AiCoachCard(),
 
               const SizedBox(height: 24),
+
+              final forest = ref.watch(forestProvider);
 
               const ChallengeProgressSection(), 
               
