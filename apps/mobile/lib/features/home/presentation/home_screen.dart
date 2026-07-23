@@ -12,6 +12,7 @@ import '../../family/presentation/widgets/family_ranking_card.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
 import '../../forest/presentation/widgets/forest_card.dart';
 import '../../forest/presentation/providers/forest_provider.dart';
+import '../../forest/presentation/screens/forest_book_screen.dart';
 
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -173,7 +174,31 @@ class _HomeScreenState
                   fontSize: 20,
                 ),
               ),
+              _MenuCard(
 
+icon: Icons.menu_book,
+
+title: "Forest 도감",
+
+subtitle: "나무 컬렉션",
+
+onTap: (){
+
+Navigator.push(
+
+context,
+
+MaterialPageRoute(
+
+builder: (_)=> const ForestBookScreen(),
+
+),
+
+);
+
+},
+
+),
               const SizedBox(height: 16),
 
               const _QuickMenu(),
@@ -252,6 +277,7 @@ class _MenuCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   @override
@@ -260,9 +286,7 @@ class _MenuCard extends StatelessWidget {
       elevation: 2,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          // TODO
-        },
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
