@@ -1,42 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart';
+import 'package:lottie/lottie.dart';
 
 class TreeAnimation extends StatelessWidget {
-  final int level;
-
   const TreeAnimation({
     super.key,
     required this.level,
   });
 
-  String get animation {
+  final int level;
+
+  String get asset {
+
     if (level >= 20) {
-      return "tree_big";
+      return "assets/animations/big_tree.json";
     }
 
     if (level >= 10) {
-      return "tree_medium";
+      return "assets/animations/tree.json";
     }
 
     if (level >= 5) {
-      return "tree_small";
+      return "assets/animations/young_tree.json";
     }
 
     if (level >= 2) {
-      return "sprout";
+      return "assets/animations/sprout.json";
     }
 
-    return "seed";
+    return "assets/animations/seed.json";
   }
 
   @override
   Widget build(BuildContext context) {
+
     return SizedBox(
-      width: 180,
       height: 180,
-      child: RiveAnimation.asset(
-        "assets/animations/tree.riv",
-        animations: [animation],
+      width: 180,
+      child: Lottie.asset(
+        asset,
+        repeat: true,
+        animate: true,
         fit: BoxFit.contain,
       ),
     );
