@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/forest_provider.dart';
+import '../../domain/models/tree_level.dart';
 
 class ForestCard extends ConsumerWidget {
   const ForestCard({super.key});
@@ -27,7 +28,7 @@ class ForestCard extends ConsumerWidget {
         ),
       ),
 
-      data: (forest) {
+      final level = TreeLevel.fromLevel(forest.treeLevel);
         return Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -54,15 +55,20 @@ class ForestCard extends ConsumerWidget {
                 const SizedBox(height: 20),
 
                 Center(
-                  child: TreeAnimation(
-                    level: summary.treeLevel,
+                  child: Center(
+                      child: Text(
+                        level.emoji,
+                        style: const TextStyle(
+                         fontSize: 80,
+                       ),
+                     ),
                    ),
                  ),
 
                 const SizedBox(height: 16),
 
                 Text(
-                  forest.treeName,
+                  level.name,
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight:
@@ -94,14 +100,5 @@ class ForestCard extends ConsumerWidget {
         );
       },
     );
-  }
-
-  String _treeEmoji(int level) {
-    if (level >= 20) return "🌲";
-    if (level >= 10) return "🌳";
-    if (level >= 5) return "🌴";
-    if (level >= 3) return "🌿";
-    if (level >= 2) return "🌱";
-    return "🌱";
   }
 }
