@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/forest_species.dart';
+import '../screens/forest_species_detail_screen.dart';
 
 class ForestSpeciesCard extends StatelessWidget {
   final ForestSpecies species;
@@ -16,7 +17,39 @@ class ForestSpeciesCard extends StatelessWidget {
         ? Colors.green.shade50
         : Colors.grey.shade200;
 
-    return Card(
+    return InkWell(
+
+borderRadius:
+
+BorderRadius.circular(18),
+
+onTap: (){
+
+if(!species.isUnlocked) return;
+
+Navigator.push(
+
+context,
+
+MaterialPageRoute(
+
+builder: (_)=>
+
+ForestSpeciesDetailScreen(
+
+species: species,
+
+),
+
+),
+
+);
+
+},
+
+child: Card(
+  ),
+);
       elevation: species.isUnlocked ? 3 : 1,
       color: color,
       shape: RoundedRectangleBorder(
