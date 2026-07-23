@@ -29,6 +29,7 @@ class _HomeScreenState
   Widget build(BuildContext context) {
     ref.watch(walkingSyncProvider);
     final user = ref.watch(currentUserProvider);
+    final forest = ref.watch(forestProvider);
     
     final displayName =
     user?.nickname?.isNotEmpty == true
@@ -125,7 +126,17 @@ class _HomeScreenState
 
               const TodayStepCard(),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
+
+              const ForestCard(),
+
+              const SizedBox(height: 24),
+
+              const AiCoachCard(),
+
+              const SizedBox(height: 24),
+
+              const ChallengeProgressSection(),
 
               //--------------------------------------------------
               // AI 코치
@@ -134,9 +145,7 @@ class _HomeScreenState
               const AiCoachCard(),
 
               const SizedBox(height: 24),
-
-              final forest = ref.watch(forestProvider);
-
+              
               const ChallengeProgressSection(), 
               
               const SizedBox(height: 24),
