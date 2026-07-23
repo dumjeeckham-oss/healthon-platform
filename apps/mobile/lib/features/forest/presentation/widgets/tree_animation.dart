@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+
 import '../../../../core/services/sound_service.dart';
 
-class TreeAnimation extends StatelessWidget {
+class TreeAnimation extends StatefulWidget {
+  final int level;
+
   const TreeAnimation({
     super.key,
     required this.level,
   });
 
-@override
-  State<TreeAnimation> createState() =>
-      _TreeAnimationState();
+  @override
+  State<TreeAnimation> createState() => _TreeAnimationState();
 }
 
-class _TreeAnimationState
-    extends State<TreeAnimation> {
-
+class _TreeAnimationState extends State<TreeAnimation> {
   @override
   void initState() {
     super.initState();
 
     SoundService.instance.playForestGrow();
   }
-  
-  final int level;
 
   String get asset {
-
     if (widget.level >= 20) {
       return "assets/animations/big_tree.json";
     }
@@ -48,10 +45,9 @@ class _TreeAnimationState
 
   @override
   Widget build(BuildContext context) {
-
     return SizedBox(
-      height: 180,
       width: 180,
+      height: 180,
       child: Lottie.asset(
         asset,
         repeat: true,
