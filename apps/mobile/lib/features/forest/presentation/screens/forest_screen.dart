@@ -9,11 +9,11 @@ class ForestScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final forest = ref.watch(forestProvider);
+    final forestAsync = ref.watch(forestProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("나의 숲"),
+        title: const Text("건강숲"),
         centerTitle: false,
       ),
       body: RefreshIndicator(
@@ -21,30 +21,52 @@ class ForestScreen extends ConsumerWidget {
           ref.invalidate(forestProvider);
           await ref.read(forestProvider.future);
         },
-        child: forest.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stack) => ListView(
+        child: forestAsync.when(
+          loading: () => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              const SizedBox(height: 120),
-              Icon(
-                Icons.park_outlined,
-                size: 80,
-                color: Colors.grey.shade400,
-              ),
-              const SizedBox(height: 20),
+            children: const [
+              SizedBox(height: 250),
               Center(
+                child: CircularProgressIndicator(),
+              ),
+            ],
+          ),
+
+          error: (e, s) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(24),
+            children: [
+              const SizedBox(height: 80),
+
+              Icon(
+                Icons.park,
+                size: 80,
+                color: Colors.green.shade300,
+              ),
+
+              const SizedBox(height: 24),
+
+              const Center(
                 child: Text(
-                  "숲 정보를 불러오지 못했습니다.",
+                  "숲 정보를 불러올 수 없습니다.",
                   style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontSize: 16,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+
               const SizedBox(height: 12),
+
+              Center(
+                child: Text(
+                  e.toString(),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
               Center(
                 child: ElevatedButton.icon(
                   onPressed: () {
@@ -56,12 +78,16 @@ class ForestScreen extends ConsumerWidget {
               ),
             ],
           ),
+
           data: (summary) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(20),
               children: [
-                const ForestCard(),
+
+                ForestCard(
+                  summary: summary,
+                ),
 
                 const SizedBox(height: 24),
 
@@ -70,47 +96,46 @@ class ForestScreen extends ConsumerWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
+                  child: const Padding(
+                    padding: EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "성장 안내",
+
+                        Text(
+                          "🌳 건강숲 안내",
                           style: TextStyle(
-                            fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            fontSize: 20,
                           ),
                         ),
 
-                        const SizedBox(height: 16),
+                        SizedBox(height: 20),
 
-                        const ListTile(
-                          leading: Icon(
-                            Icons.directions_walk,
-                            color: Colors.green,
-                          ),
-                          title: Text("걸으면 나무가 성장합니다."),
+                        ListTile(
+                          leading: Icon(Icons.directions_walk),
+                          title: Text("걸을수록 나무가 성장합니다."),
                         ),
 
-                        const Divider(),
+                        Divider(),
 
-                        const ListTile(
-                          leading: Icon(
-                            Icons.forest,
-                            color: Colors.green,
-                          ),
-                          title: Text("100km마다 숲이 더욱 풍성해집니다."),
+                        ListTile(
+                          leading: Icon(Icons.park),
+                          title: Text("누적 거리로 레벨이 상승합니다."),
                         ),
 
-                        const Divider(),
+                        Divider(),
 
-                        const ListTile(
-                          leading: Icon(
-                            Icons.emoji_events,
-                            color: Colors.orange,
-                          ),
-                          title: Text("가족과 함께 더 큰 숲을 만들어보세요."),
+                        ListTile(
+                          leading: Icon(Icons.emoji_events),
+                          title: Text("레벨업 시 새로운 나무가 등장합니다."),
+                        ),
+
+                        Divider(),
+
+                        ListTile(
+                          leading: Icon(Icons.groups),
+                          title: Text("가족과 함께 숲을 성장시켜보세요."),
                         ),
                       ],
                     ),
