@@ -61,7 +61,7 @@ class ForestScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(20),
               children: [
-                ForestCard(summary: summary),
+                const ForestCard(),
 
                 const SizedBox(height: 24),
 
