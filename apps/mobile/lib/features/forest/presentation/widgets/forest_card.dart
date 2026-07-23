@@ -55,7 +55,7 @@ class ForestCard extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 Center(
-                  TreeAnimation(
+                   child:  TreeAnimation(
                       level: forest.treeLevel,
                  ),
                     style: const TextStyle(
