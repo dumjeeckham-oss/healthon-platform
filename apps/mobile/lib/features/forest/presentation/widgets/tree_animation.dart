@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/services/sound_service.dart';
-
-class TreeAnimation extends StatefulWidget {
+class TreeAnimation extends StatelessWidget {
   final int level;
 
   const TreeAnimation({
@@ -11,36 +9,24 @@ class TreeAnimation extends StatefulWidget {
     required this.level,
   });
 
-  @override
-  State<TreeAnimation> createState() => _TreeAnimationState();
-}
-
-class _TreeAnimationState extends State<TreeAnimation> {
-  @override
-  void initState() {
-    super.initState();
-
-    SoundService.instance.playForestGrow();
-  }
-
   String get asset {
-    if (widget.level >= 20) {
-      return "assets/animations/big_tree.json";
+    if (level >= 20) {
+      return "assets/animations/big_tree.svg";
     }
 
-    if (widget.level >= 10) {
-      return "assets/animations/tree.json";
+    if (level >= 10) {
+      return "assets/animations/tree.svg";
     }
 
-    if (widget.level >= 5) {
-      return "assets/animations/young_tree.json";
+    if (level >= 5) {
+      return "assets/animations/young_tree.svg";
     }
 
-    if (widget.level >= 2) {
-      return "assets/animations/sprout.json";
+    if (level >= 2) {
+      return "assets/animations/sprout.svg";
     }
 
-    return "assets/animations/seed.json";
+    return "assets/animations/seed.svg";
   }
 
   @override
@@ -48,10 +34,8 @@ class _TreeAnimationState extends State<TreeAnimation> {
     return SizedBox(
       width: 180,
       height: 180,
-      child: Lottie.asset(
+      child: SvgPicture.asset(
         asset,
-        repeat: true,
-        animate: true,
         fit: BoxFit.contain,
       ),
     );
