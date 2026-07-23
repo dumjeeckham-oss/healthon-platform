@@ -1,39 +1,83 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../domain/models/forest_badge.dart';
-
 class ForestBadgeRepository {
-  final _client = Supabase.instance.client;
+  ForestBadgeRepository();
 
-  Future<List<ForestBadge>> getBadges(String userId) async {
-    final rows = await _client
+  final SupabaseClient _client = Supabase.instance.client;
+
+  /// ==========================================================
+  /// Forest Badge 자동 지급
+  /// ==========================================================
+  Future<void> checkAndGrantBadges({
+    required String userId,
+    required double totalKm,
+    required int treeLevel,
+  }) async {
+    final badges = <String>[];
+
+    //----------------------------------------------------------
+    // 거리 배지
+    //----------------------------------------------------------
+
+    if (totalKm >= 10) badges.add("FIRST_STEP");
+
+    if (totalKm >= 50) badges.add("WALKER");
+
+    if (totalKm >= 100) badges.add("MARATHON");
+
+    if (totalKm >= 300) badges.add("EXPLORER");
+
+    if (totalKm >= 500) badges.add("LEGEND");
+
+    //----------------------------------------------------------
+    // 레벨 배지
+    //----------------------------------------------------------
+
+    if (treeLevel >= 5) badges.add("TREE_LV5");
+
+    if (treeLevel >= 10) badges.add("TREE_LV10");
+
+    if (treeLevel >= 20) badges.add("TREE_MASTER");
+
+    //----------------------------------------------------------
+    // 이미 지급된 배지 확인
+    //----------------------------------------------------------
+
+    final granted = await _client
         .from("forest_badges")
-        .select()
+        .select("badge_code")
         .eq("user_id", userId);
 
-    return rows
-        .map<ForestBadge>(
-          (e) => ForestBadge.fromMap(e),
-        )
-        .toList();
+    final owned = granted
+        .map<String>((e) => e["badge_code"] as String)
+        .toSet();
+
+    //----------------------------------------------------------
+    // 신규 배지만 지급
+    //----------------------------------------------------------
+
+    for (final badge in badges) {
+      if (owned.contains(badge)) continue;
+
+      await _client.from("forest_badges").insert({
+        "user_id": userId,
+        "badge_code": badge,
+      });
+    }
   }
 
-  Future<void> earnBadge({
-    required String userId,
-    required String badgeId,
-    required String title,
-    required String description,
-    required String icon,
-  }) async {
-    await _client
+  /// ==========================================================
+  /// 내 배지 목록
+  /// ==========================================================
+  Future<List<String>> getMyBadges(String userId) async {
+    final result = await _client
         .from("forest_badges")
-        .upsert({
-      "user_id": userId,
-      "badge_id": badgeId,
-      "title": title,
-      "description": description,
-      "icon": icon,
-      "earned_at": DateTime.now().toIso8601String(),
-    });
+        .select("badge_code")
+        .eq("user_id", userId)
+        .order("earned_at");
+
+    return result
+        .map<String>((e) => e["badge_code"] as String)
+        .toList();
   }
 }
