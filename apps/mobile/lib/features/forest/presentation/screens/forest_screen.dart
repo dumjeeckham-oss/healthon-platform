@@ -79,6 +79,30 @@ class ForestScreen extends ConsumerWidget {
             ],
           ),
 
+           final previous =
+             ref.read(previousForestLevelProvider);
+
+          if (summary.treeLevel > previous) {
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+
+              showDialog(
+               context: context,
+                builder: (_) => LevelUpDialog(
+                oldLevel: previous,
+                newLevel: summary.treeLevel,
+                treeName: summary.treeName,
+      ),
+    );
+
+    ref
+        .read(previousForestLevelProvider.notifier)
+        .state = summary.treeLevel;
+
+  });
+
+}  
+          
           data: (summary) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
