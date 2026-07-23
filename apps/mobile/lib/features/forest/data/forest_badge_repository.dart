@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../domain/models/forest_badge.dart';
 
 class ForestBadgeRepository {
   ForestBadgeRepository();
@@ -45,11 +46,11 @@ class ForestBadgeRepository {
 
     final granted = await _client
         .from("forest_badges")
-        .select("badge_code")
+        .select("badge.code")
         .eq("user_id", userId);
 
     final owned = granted
-        .map<String>((e) => e["badge_code"] as String)
+        .map<String>((e) => e["badge.code"] as String)
         .toSet();
 
     //----------------------------------------------------------
@@ -61,7 +62,7 @@ class ForestBadgeRepository {
 
       await _client.from("forest_badges").insert({
         "user_id": userId,
-        "badge_code": badge,
+        "badge.code": badge,
       });
     }
   }
@@ -69,15 +70,17 @@ class ForestBadgeRepository {
   /// ==========================================================
   /// 내 배지 목록
   /// ==========================================================
-  Future<List<String>> getMyBadges(String userId) async {
+  Future<List<ForestBadge>> getMyBadges(String userId) async {
     final result = await _client
         .from("forest_badges")
-        .select("badge_code")
+        .select("badge.code")
         .eq("user_id", userId)
         .order("earned_at");
 
     return result
-        .map<String>((e) => e["badge_code"] as String)
-        .toList();
+    .map<ForestBadge>(
+      (e) => ForestBadge.fromMap(e),
+    )
+    .toList();
   }
 }
