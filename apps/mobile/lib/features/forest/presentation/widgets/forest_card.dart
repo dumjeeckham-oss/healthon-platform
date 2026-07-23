@@ -21,78 +21,108 @@ class ForestCard extends ConsumerWidget {
         ),
       ),
 
-      error: (e, s) => Card(
+      error: (error, stack) => Card(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Text(e.toString()),
+          child: Text(error.toString()),
         ),
       ),
 
-      final level = TreeLevel.fromLevel(forest.treeLevel);
+      data: (forest) {
+        final level = TreeLevel.fromLevel(forest.treeLevel);
+
         return Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
-            padding:
-                const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 const Text(
                   "내 건강숲",
                   style: TextStyle(
                     fontSize: 20,
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                Center(
+                  child: Text(
+                    level.emoji,
+                    style: const TextStyle(
+                      fontSize: 90,
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
                 Center(
-                  child: Center(
-                      child: Text(
-                        level.emoji,
-                        style: const TextStyle(
-                         fontSize: 80,
-                       ),
-                     ),
-                   ),
-                 ),
-
-                const SizedBox(height: 16),
-
-                Text(
-                  level.name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight:
-                        FontWeight.bold,
+                  child: Text(
+                    level.name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
 
-                LinearProgressIndicator(
-                  value: forest.progress,
-                  minHeight: 12,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: LinearProgressIndicator(
+                    value: forest.progress,
+                    minHeight: 14,
+                  ),
                 ),
 
                 const SizedBox(height: 10),
 
                 Text(
                   "${forest.treeExp.toStringAsFixed(1)} / ${forest.nextLevelExp.toStringAsFixed(1)} km",
+                  style: const TextStyle(fontSize: 15),
+                ),
+
+                const SizedBox(height: 20),
+
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.route,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "누적 ${forest.totalKm.toStringAsFixed(1)} km",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 8),
 
-                Text(
-                  "누적 ${forest.totalKm.toStringAsFixed(1)} km",
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.park,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Lv.${forest.treeLevel}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
