@@ -69,9 +69,13 @@ class ForestScreen extends ConsumerWidget {
 
               Center(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    ref.invalidate(forestProvider);
-                  },
+                 onPressed: () async {
+
+                   await SoundService.instance.click();
+
+                    ref.invalidate(...);
+
+                 },
                   icon: const Icon(Icons.refresh),
                   label: const Text("다시 시도"),
                 ),
