@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/daily_mission.dart';
 import '../providers/daily_mission_provider.dart';
+import '../../application/reward_flow.dart';
+import '../../../forest/presentation/widgets/levelup_dialog.dart';
+import '../../../forest/presentation/widgets/badge_dialog.dart';
 
 class DailyMissionCard extends ConsumerWidget {
   final List<DailyMission> missions;
@@ -185,24 +188,69 @@ class _MissionTile extends ConsumerWidget {
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.card_giftcard),
                 label: const Text("보상 받기"),
-                onPressed: () async {
+onPressed: () async {
 
-                  await ref.read(
-                    claimMissionProvider(
-                      mission.id,
-                    ).future,
-                  );
+  final rewardFlow = RewardFlow();
 
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
-                      const SnackBar(
-                        content:
-                            Text("🎁 보상을 받았습니다!"),
-                      ),
-                    );
-                  }
-                },
+  final result = await rewardFlow.execute(
+
+    userId: userId,
+
+    mission: mission,
+
+    totalKm: totalKm,
+
+  );
+
+  if(!context.mounted) return;
+
+  //--------------------------------------------------
+  // LevelUp
+  //--------------------------------------------------
+
+  if(result.levelUp){
+
+    await showDialog(
+
+      context: context,
+
+      barrierDismissible: false,
+
+      builder: (_) => LevelUpDialog(
+
+        oldLevel: result.oldLevel,
+
+        newLevel: result.newLevel,
+
+        treeName: result.treeName ?? "새로운 나무",
+
+      ),
+
+    );
+
+  }
+
+  //--------------------------------------------------
+  // Badge
+  //--------------------------------------------------
+
+  if(result.badgeUnlocked){
+
+    await showDialog(
+
+      context: context,
+
+      builder: (_) => BadgeDialog(
+
+        badgeCode: result.badgeCode!,
+
+      ),
+
+    );
+
+  }
+
+},
               ),
             )
           else if (mission.claimed)
