@@ -16,8 +16,8 @@ class ForestGardenRepository {
         .from("forest_garden")
         .select()
         .eq("user_id", userId)
-        .order("y")
-        .order("x");
+        .order("pos_y")
+        .order("pos_x");
 
     if (result.isEmpty) {
       return _createDefaultGarden(userId);
@@ -43,8 +43,18 @@ class ForestGardenRepository {
         tiles.add(tile);
 
         await _client.from("forest_garden").insert({
-          "user_id": userId,
-          ...tile.toMap(),
+         "user_id": userId,
+         "pos_x": tile.x,
+         "pos_y": tile.y,
+         "species_id": tile.objectId,
+         "asset": tile.asset,
+         "planted": tile.planted,
+         "unlocked": tile.unlocked,
+         "level": tile.level,
+         "exp": tile.exp,
+         "progress": tile.progress,
+         "planted_at": tile.plantedAt?.toIso8601String(),
+       });
         });
       }
     }
@@ -101,7 +111,7 @@ class ForestGardenRepository {
         .from("forest_garden")
         .update({
           "type": ForestTileType.tree.name,
-          "object_id": speciesId,
+          "species_id": speciesId,
           "asset": asset,
           "planted": true,
           "unlocked": true,
@@ -112,8 +122,8 @@ class ForestGardenRepository {
               DateTime.now().toIso8601String(),
         })
         .eq("user_id", userId)
-        .eq("x", x)
-        .eq("y", y);
+        .eq("pos_x", x)
+        .eq("pos_y", y)
   }
 
   //---------------------------------------------------------
@@ -132,8 +142,8 @@ class ForestGardenRepository {
           "progress": tile.progress,
         })
         .eq("user_id", userId)
-        .eq("x", tile.x)
-        .eq("y", tile.y);
+        .eq("pos_x", tile.x)
+        .eq("pos_y", tile.y)
   }
 
   //---------------------------------------------------------
@@ -155,8 +165,8 @@ class ForestGardenRepository {
           "asset": asset,
         })
         .eq("user_id", userId)
-        .eq("x", x)
-        .eq("y", y);
+        .eq("pos_x", x)
+        .eq("pos_y", y)
   }
 
   //---------------------------------------------------------
@@ -172,7 +182,7 @@ class ForestGardenRepository {
         .from("forest_garden")
         .update({
           "type": ForestTileType.empty.name,
-          "object_id": null,
+          "species_id": null,
           "asset": null,
           "planted": false,
           "level": 1,
@@ -180,7 +190,7 @@ class ForestGardenRepository {
           "progress": 0,
         })
         .eq("user_id", userId)
-        .eq("x", x)
-        .eq("y", y);
+        .eq("pos_x", x)
+        .eq("pos_y", y)
   }
 }
