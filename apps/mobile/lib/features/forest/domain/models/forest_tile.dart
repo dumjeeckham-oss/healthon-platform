@@ -120,10 +120,10 @@ class ForestTile {
 
   Map<String, dynamic> toMap() {
     return {
-      "x": x,
-      "y": y,
+      "pos_x": x,
+      "pos_y": y,
       "type": type.name,
-      "object_id": objectId,
+      "species_id": objectId,
       "asset": asset,
       "unlocked": unlocked,
       "planted": planted,
