@@ -13,6 +13,8 @@ import '../../notice/presentation/widgets/notice_card.dart';
 import '../../forest/presentation/widgets/forest_card.dart';
 import '../../forest/presentation/providers/forest_provider.dart';
 import '../../forest/presentation/screens/forest_book_screen.dart';
+import '../../daily_mission/presentation/widgets/daily_mission_card.dart';
+import '../../daily_mission/presentation/providers/daily_mission_provider.dart';
 
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -30,6 +32,7 @@ class _HomeScreenState
   Widget build(BuildContext context) {
     ref.watch(walkingSyncProvider);
     final user = ref.watch(currentUserProvider);
+    final missions = ref.watch(dailyMissionProvider);
     
     final displayName =
     user?.nickname?.isNotEmpty == true
@@ -55,70 +58,70 @@ class _HomeScreenState
             ref.invalidate(currentUserProvider);
            },
           child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-
-              //--------------------------------------------------
-              // 인사말
-              //--------------------------------------------------
-
-         Row(
+  padding: const EdgeInsets.all(20),
   children: [
 
-    CircleAvatar(
-      radius: 28,
-      backgroundColor: Colors.green.shade100,
+    //--------------------------------------------------
+    // 인사말
+    //--------------------------------------------------
 
-      backgroundImage: hasPhoto ? NetworkImage(photoUrl!) : null,
+    Row(
+      children: [
 
-      child: !hasPhoto
-          ? const Icon(
-              Icons.person,
-              size: 30,
-              color: Colors.green,
-            )
-          : null,
+        CircleAvatar(
+          radius: 28,
+          backgroundColor: Colors.green.shade100,
+          backgroundImage:
+              hasPhoto ? NetworkImage(photoUrl!) : null,
+          child: !hasPhoto
+              ? const Icon(
+                  Icons.person,
+                  size: 30,
+                  color: Colors.green,
+                )
+              : null,
+        ),
+
+        const SizedBox(width: 16),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+
+              const Text(
+                "안녕하세요 👋",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Text(
+                displayName,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              const Text(
+                "오늘도 건강한 하루를 시작해보세요.",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     ),
-
-    const SizedBox(width: 16),
-
-    Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          const Text(
-            "안녕하세요 👋",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-
-          const SizedBox(height: 4),
-
-          Text(
-            displayName,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          
-          const SizedBox(height: 4),
-
-          const Text(
-            "오늘도 건강한 하루를 시작해보세요.",
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    ),
-  ],
-),
 
               //--------------------------------------------------
               // 오늘 걸음수
@@ -136,12 +139,12 @@ class _HomeScreenState
 
               const SizedBox(height: 24),
 
-              const ChallengeProgressSection(),
+              const ChallengeProgressSection(),  
 
               //--------------------------------------------------
               // AI 코치
               //--------------------------------------------------
-
+             const AiCoachCard(),
                             
               const SizedBox(height: 24),
 
@@ -157,6 +160,30 @@ class _HomeScreenState
 
               const SizedBox(height: 30),
 
+    //--------------------------------------------------
+    // Challenge
+    //--------------------------------------------------
+
+    const ChallengeProgressSection(),
+
+    const SizedBox(height: 24),
+
+    //--------------------------------------------------
+    // Team
+    //--------------------------------------------------
+
+    const TeamCheerCard(),
+
+    const SizedBox(height: 24),
+
+    const FamilyRankingCard(),
+
+    const SizedBox(height: 24),
+
+    const NoticeCard(),
+
+    const SizedBox(height: 30),
+    
               //--------------------------------------------------
               // 빠른 메뉴
               //--------------------------------------------------
