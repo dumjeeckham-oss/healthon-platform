@@ -6,6 +6,9 @@ import '../providers/daily_mission_provider.dart';
 import '../../application/reward_flow.dart';
 import '../../../forest/presentation/widgets/levelup_dialog.dart';
 import '../../../forest/presentation/widgets/badge_dialog.dart';
+import '../../../forest/presentation/providers/forest_provider.dart';
+import '../../../../core/presentation/reward/reward_presentation_manager.dart';
+import '../../../auth/presentation/providers/current_user_provider.dart'
 
 class DailyMissionCard extends ConsumerWidget {
   final List<DailyMission> missions;
@@ -189,6 +192,64 @@ class _MissionTile extends ConsumerWidget {
                 icon: const Icon(Icons.card_giftcard),
                 label: const Text("보상 받기"),
 onPressed: () async {
+
+  //--------------------------------------------------
+  // 현재 로그인 사용자
+  //--------------------------------------------------
+
+  final user =
+      ref.read(currentUserProvider);
+
+  if (user == null) return;
+
+  //--------------------------------------------------
+  // Mission 완료
+  //--------------------------------------------------
+
+  await ref.read(
+    claimMissionProvider(
+      mission.id,
+    ).future,
+  );
+
+  //--------------------------------------------------
+  // Reward Flow 실행
+  //--------------------------------------------------
+
+  final rewardResult =
+      await RewardFlow().execute(
+
+    userId: user.id,
+
+    mission: mission,
+
+    totalKm: mission.currentValue.toDouble(),
+
+  );
+
+  //--------------------------------------------------
+  // Popup 자동 실행
+  //--------------------------------------------------
+
+  if (!context.mounted) return;
+
+  await RewardPresentationManager.show(
+    context,
+    rewardResult,
+  );
+
+  //--------------------------------------------------
+  // Provider 새로고침
+  //--------------------------------------------------
+
+  ref.invalidate(
+    dailyMissionProvider,
+  );
+
+  ref.invalidate(
+    forestProvider,
+  );
+},
 
   final rewardFlow = RewardFlow();
 
