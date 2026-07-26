@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'forest_levelup_effect.dart';
 
 class LevelUpDialog extends StatelessWidget {
   final int oldLevel;
@@ -23,6 +24,9 @@ class LevelUpDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const ForestLevelUpEffect(
+            play: true,
+            ),
 
             const Text(
               "🎉 LEVEL UP!",
