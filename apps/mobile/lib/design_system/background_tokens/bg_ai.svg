@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" fill="none"><title>bg_ai</title>
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="#DDEBFF"/><stop offset="1" stop-color="#F2E9FF"/>
+          </linearGradient>
+          <linearGradient id="mist" x1="0" x2="1">
+            <stop stop-color="#fff" stop-opacity=".05"/><stop offset=".5" stop-color="#fff" stop-opacity=".72"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/>
+          </linearGradient>
+        </defs>
+        <g id="Sky"><rect width="1200" height="800" fill="url(#sky)"/>
+          <circle cx="940" cy="145" r="58" fill="#FFF0A8" opacity=".9"/>
+        </g>
+        <g id="Cloud" fill="#fff" opacity=".7">
+          <path d="M95 190c17-45 75-48 99-11 35-25 83 2 75 45H55c-4-30 16-47 40-34Z"/>
+          <path d="M760 235c18-39 66-43 91-12 32-19 74 5 67 41H728c-3-27 13-42 32-29Z"/>
+        </g>
+        <g id="Mountain" fill="#9CB9D8">
+          <path d="M0 520 212 294l128 133 145-202 270 295Z" opacity=".7"/>
+          <path d="M425 525 690 268l165 174 128-128 217 211Z" opacity=".9"/>
+        </g>
+        <g id="Forest" fill="#426B75">
+          <path d="M0 580v-58l46-91 30 54 48-116 51 119 37-65 52 99 54-145 54 148 43-84 44 92 58-157 60 158 46-109 52 104 47-73 44 93 57-144 63 149 48-86 45 104 58-110 58 105 43-68 44 72v59Z"/>
+        </g>
+        <g id="Ground"><path d="M0 557c174-42 321-11 469 19 210 43 370-50 731-10v234H0Z" fill="#6F9B79"/>
+          <path d="M0 622c230-51 448 45 652 1 202-44 351 2 548 31v146H0Z" fill="#426B75" opacity=".32"/>
+        </g>
+        <g id="Mist"><rect x="80" y="510" width="1040" height="55" rx="28" fill="url(#mist)"/></g>
+        </svg>

@@ -1,0 +1,18 @@
+:root {
+  --health-primary: #4CAF50;
+  --health-primary-dark: #2E7D32;
+  --health-accent: #81C784;
+  --health-forest: #388E3C;
+  --health-leaf: #66BB6A;
+  --health-grass: #A5D6A7;
+  --health-sky: #B3E5FC;
+  --health-earth: #A1887F;
+  --health-warning: #FFB300;
+  --health-danger: #EF5350;
+  --health-success: #43A047;
+  --health-ink: #173B2A;
+  --health-cream: #F7FAF2;
+  --health-radius-card: 24px;
+  --health-shadow-small: 0 2px 6px rgba(23,59,42,.08);
+  --health-space-card: 20px;
+}

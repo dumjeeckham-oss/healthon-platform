@@ -1,0 +1,9 @@
+@import "../tokens/tokens.css";
+.health-button{border:0;border-radius:20px;padding:14px 20px;font:700 16px/1 sans-serif;cursor:pointer}
+.health-button--primary{background:var(--health-primary);color:white}
+.health-button--secondary{background:white;color:var(--health-primary-dark);box-shadow:inset 0 0 0 2px var(--health-primary)}
+.health-button--danger{background:var(--health-danger);color:white}
+.health-button--ghost{background:transparent;color:var(--health-primary-dark)}
+.health-card{background:white;border-radius:24px;padding:20px;box-shadow:var(--health-shadow-small)}
+.health-progress{height:10px;border-radius:999px;background:#E6EFE5;overflow:hidden}
+.health-progress>span{display:block;height:100%;border-radius:inherit;background:var(--health-primary)}

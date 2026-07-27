@@ -1,0 +1,962 @@
+[
+  {
+    "name": "bg_home_spring",
+    "file": "bg_home_spring.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_home_spring.svg"
+  },
+  {
+    "name": "bg_home_summer",
+    "file": "bg_home_summer.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_home_summer.svg"
+  },
+  {
+    "name": "bg_home_autumn",
+    "file": "bg_home_autumn.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_home_autumn.svg"
+  },
+  {
+    "name": "bg_home_winter",
+    "file": "bg_home_winter.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_home_winter.svg"
+  },
+  {
+    "name": "bg_garden_day",
+    "file": "bg_garden_day.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_garden_day.svg"
+  },
+  {
+    "name": "bg_garden_night",
+    "file": "bg_garden_night.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_garden_night.svg"
+  },
+  {
+    "name": "bg_forest_book",
+    "file": "bg_forest_book.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_forest_book.svg"
+  },
+  {
+    "name": "bg_challenge",
+    "file": "bg_challenge.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_challenge.svg"
+  },
+  {
+    "name": "bg_ai",
+    "file": "bg_ai.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_ai.svg"
+  },
+  {
+    "name": "bg_profile",
+    "file": "bg_profile.svg",
+    "category": "backgrounds",
+    "categoryLabel": "배경",
+    "type": "SVG",
+    "url": "/assets/design/backgrounds/bg_profile.svg"
+  },
+  {
+    "name": "ground_grass",
+    "file": "ground_grass.svg",
+    "category": "grounds",
+    "categoryLabel": "그라운드",
+    "type": "SVG",
+    "url": "/assets/design/grounds/ground_grass.svg"
+  },
+  {
+    "name": "ground_dark_grass",
+    "file": "ground_dark_grass.svg",
+    "category": "grounds",
+    "categoryLabel": "그라운드",
+    "type": "SVG",
+    "url": "/assets/design/grounds/ground_dark_grass.svg"
+  },
+  {
+    "name": "ground_snow",
+    "file": "ground_snow.svg",
+    "category": "grounds",
+    "categoryLabel": "그라운드",
+    "type": "SVG",
+    "url": "/assets/design/grounds/ground_snow.svg"
+  },
+  {
+    "name": "ground_fall",
+    "file": "ground_fall.svg",
+    "category": "grounds",
+    "categoryLabel": "그라운드",
+    "type": "SVG",
+    "url": "/assets/design/grounds/ground_fall.svg"
+  },
+  {
+    "name": "ground_sand",
+    "file": "ground_sand.svg",
+    "category": "grounds",
+    "categoryLabel": "그라운드",
+    "type": "SVG",
+    "url": "/assets/design/grounds/ground_sand.svg"
+  },
+  {
+    "name": "ground_flower",
+    "file": "ground_flower.svg",
+    "category": "grounds",
+    "categoryLabel": "그라운드",
+    "type": "SVG",
+    "url": "/assets/design/grounds/ground_flower.svg"
+  },
+  {
+    "name": "seed",
+    "file": "seed.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/seed.svg"
+  },
+  {
+    "name": "sprout",
+    "file": "sprout.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/sprout.svg"
+  },
+  {
+    "name": "young_tree",
+    "file": "young_tree.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/young_tree.svg"
+  },
+  {
+    "name": "tree",
+    "file": "tree.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/tree.svg"
+  },
+  {
+    "name": "big_tree",
+    "file": "big_tree.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/big_tree.svg"
+  },
+  {
+    "name": "ancient_tree",
+    "file": "ancient_tree.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/ancient_tree.svg"
+  },
+  {
+    "name": "oak",
+    "file": "oak.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/oak.svg"
+  },
+  {
+    "name": "pine",
+    "file": "pine.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/pine.svg"
+  },
+  {
+    "name": "cherry",
+    "file": "cherry.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/cherry.svg"
+  },
+  {
+    "name": "maple",
+    "file": "maple.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/maple.svg"
+  },
+  {
+    "name": "birch",
+    "file": "birch.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/birch.svg"
+  },
+  {
+    "name": "ginkgo",
+    "file": "ginkgo.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/ginkgo.svg"
+  },
+  {
+    "name": "bamboo",
+    "file": "bamboo.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/bamboo.svg"
+  },
+  {
+    "name": "apple",
+    "file": "apple.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/apple.svg"
+  },
+  {
+    "name": "gold_tree",
+    "file": "gold_tree.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/gold_tree.svg"
+  },
+  {
+    "name": "crystal_tree",
+    "file": "crystal_tree.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/crystal_tree.svg"
+  },
+  {
+    "name": "rainbow_tree",
+    "file": "rainbow_tree.svg",
+    "category": "trees",
+    "categoryLabel": "나무",
+    "type": "SVG",
+    "url": "/assets/design/trees/rainbow_tree.svg"
+  },
+  {
+    "name": "rock",
+    "file": "rock.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/rock.svg"
+  },
+  {
+    "name": "stone",
+    "file": "stone.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/stone.svg"
+  },
+  {
+    "name": "bench",
+    "file": "bench.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/bench.svg"
+  },
+  {
+    "name": "flower_red",
+    "file": "flower_red.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/flower_red.svg"
+  },
+  {
+    "name": "flower_blue",
+    "file": "flower_blue.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/flower_blue.svg"
+  },
+  {
+    "name": "flower_white",
+    "file": "flower_white.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/flower_white.svg"
+  },
+  {
+    "name": "mushroom",
+    "file": "mushroom.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/mushroom.svg"
+  },
+  {
+    "name": "lantern",
+    "file": "lantern.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/lantern.svg"
+  },
+  {
+    "name": "fence",
+    "file": "fence.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/fence.svg"
+  },
+  {
+    "name": "bridge",
+    "file": "bridge.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/bridge.svg"
+  },
+  {
+    "name": "pond",
+    "file": "pond.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/pond.svg"
+  },
+  {
+    "name": "waterfall",
+    "file": "waterfall.svg",
+    "category": "decorations",
+    "categoryLabel": "장식",
+    "type": "SVG",
+    "url": "/assets/design/decorations/waterfall.svg"
+  },
+  {
+    "name": "sun",
+    "file": "sun.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/sun.svg"
+  },
+  {
+    "name": "cloud",
+    "file": "cloud.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/cloud.svg"
+  },
+  {
+    "name": "rain",
+    "file": "rain.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/rain.svg"
+  },
+  {
+    "name": "snow",
+    "file": "snow.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/snow.svg"
+  },
+  {
+    "name": "wind",
+    "file": "wind.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/wind.svg"
+  },
+  {
+    "name": "leaf",
+    "file": "leaf.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/leaf.svg"
+  },
+  {
+    "name": "petal",
+    "file": "petal.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/petal.svg"
+  },
+  {
+    "name": "rainbow",
+    "file": "rainbow.svg",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "SVG",
+    "url": "/assets/design/weather/rainbow.svg"
+  },
+  {
+    "name": "rabbit",
+    "file": "rabbit.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/rabbit.svg"
+  },
+  {
+    "name": "bird",
+    "file": "bird.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/bird.svg"
+  },
+  {
+    "name": "deer",
+    "file": "deer.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/deer.svg"
+  },
+  {
+    "name": "fox",
+    "file": "fox.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/fox.svg"
+  },
+  {
+    "name": "squirrel",
+    "file": "squirrel.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/squirrel.svg"
+  },
+  {
+    "name": "hedgehog",
+    "file": "hedgehog.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/hedgehog.svg"
+  },
+  {
+    "name": "cat",
+    "file": "cat.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/cat.svg"
+  },
+  {
+    "name": "dog",
+    "file": "dog.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/dog.svg"
+  },
+  {
+    "name": "butterfly",
+    "file": "butterfly.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/butterfly.svg"
+  },
+  {
+    "name": "bee",
+    "file": "bee.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/bee.svg"
+  },
+  {
+    "name": "phoenix",
+    "file": "phoenix.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/phoenix.svg"
+  },
+  {
+    "name": "dragon",
+    "file": "dragon.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/dragon.svg"
+  },
+  {
+    "name": "unicorn",
+    "file": "unicorn.svg",
+    "category": "animals",
+    "categoryLabel": "동물",
+    "type": "SVG",
+    "url": "/assets/design/animals/unicorn.svg"
+  },
+  {
+    "name": "icon_walk",
+    "file": "icon_walk.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_walk.svg"
+  },
+  {
+    "name": "icon_tree",
+    "file": "icon_tree.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_tree.svg"
+  },
+  {
+    "name": "icon_forest",
+    "file": "icon_forest.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_forest.svg"
+  },
+  {
+    "name": "icon_badge",
+    "file": "icon_badge.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_badge.svg"
+  },
+  {
+    "name": "icon_family",
+    "file": "icon_family.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_family.svg"
+  },
+  {
+    "name": "icon_ai",
+    "file": "icon_ai.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_ai.svg"
+  },
+  {
+    "name": "icon_notice",
+    "file": "icon_notice.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_notice.svg"
+  },
+  {
+    "name": "icon_step",
+    "file": "icon_step.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_step.svg"
+  },
+  {
+    "name": "icon_seed",
+    "file": "icon_seed.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_seed.svg"
+  },
+  {
+    "name": "icon_leaf",
+    "file": "icon_leaf.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_leaf.svg"
+  },
+  {
+    "name": "icon_flower",
+    "file": "icon_flower.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_flower.svg"
+  },
+  {
+    "name": "icon_rank",
+    "file": "icon_rank.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_rank.svg"
+  },
+  {
+    "name": "icon_fire",
+    "file": "icon_fire.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_fire.svg"
+  },
+  {
+    "name": "icon_goal",
+    "file": "icon_goal.svg",
+    "category": "icons",
+    "categoryLabel": "아이콘",
+    "type": "SVG",
+    "url": "/assets/design/icons/icon_goal.svg"
+  },
+  {
+    "name": "badge_bronze",
+    "file": "badge_bronze.svg",
+    "category": "badges",
+    "categoryLabel": "배지",
+    "type": "SVG",
+    "url": "/assets/design/badges/badge_bronze.svg"
+  },
+  {
+    "name": "badge_silver",
+    "file": "badge_silver.svg",
+    "category": "badges",
+    "categoryLabel": "배지",
+    "type": "SVG",
+    "url": "/assets/design/badges/badge_silver.svg"
+  },
+  {
+    "name": "badge_gold",
+    "file": "badge_gold.svg",
+    "category": "badges",
+    "categoryLabel": "배지",
+    "type": "SVG",
+    "url": "/assets/design/badges/badge_gold.svg"
+  },
+  {
+    "name": "badge_diamond",
+    "file": "badge_diamond.svg",
+    "category": "badges",
+    "categoryLabel": "배지",
+    "type": "SVG",
+    "url": "/assets/design/badges/badge_diamond.svg"
+  },
+  {
+    "name": "badge_master",
+    "file": "badge_master.svg",
+    "category": "badges",
+    "categoryLabel": "배지",
+    "type": "SVG",
+    "url": "/assets/design/badges/badge_master.svg"
+  },
+  {
+    "name": "badge_legend",
+    "file": "badge_legend.svg",
+    "category": "badges",
+    "categoryLabel": "배지",
+    "type": "SVG",
+    "url": "/assets/design/badges/badge_legend.svg"
+  },
+  {
+    "name": "grow_tree",
+    "file": "grow_tree.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/grow_tree.json"
+  },
+  {
+    "name": "level_up",
+    "file": "level_up.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/level_up.json"
+  },
+  {
+    "name": "badge_unlock",
+    "file": "badge_unlock.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/badge_unlock.json"
+  },
+  {
+    "name": "forest_wind",
+    "file": "forest_wind.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/forest_wind.json"
+  },
+  {
+    "name": "leaf_fall",
+    "file": "leaf_fall.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/leaf_fall.json"
+  },
+  {
+    "name": "petal_fall",
+    "file": "petal_fall.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/petal_fall.json"
+  },
+  {
+    "name": "bird_fly",
+    "file": "bird_fly.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/bird_fly.json"
+  },
+  {
+    "name": "sunrise",
+    "file": "sunrise.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/sunrise.json"
+  },
+  {
+    "name": "sunset",
+    "file": "sunset.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/sunset.json"
+  },
+  {
+    "name": "rain",
+    "file": "rain.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/rain.json"
+  },
+  {
+    "name": "snow",
+    "file": "snow.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/snow.json"
+  },
+  {
+    "name": "confetti",
+    "file": "confetti.json",
+    "category": "animations",
+    "categoryLabel": "Lottie",
+    "type": "JSON",
+    "url": "/assets/design/animations/confetti.json"
+  },
+  {
+    "name": "weather_rain",
+    "file": "rain.json",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "JSON",
+    "url": "/assets/design/weather/rain.json"
+  },
+  {
+    "name": "weather_snow",
+    "file": "snow.json",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "JSON",
+    "url": "/assets/design/weather/snow.json"
+  },
+  {
+    "name": "weather_leaf",
+    "file": "leaf.json",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "JSON",
+    "url": "/assets/design/weather/leaf.json"
+  },
+  {
+    "name": "weather_petal",
+    "file": "petal.json",
+    "category": "weather",
+    "categoryLabel": "날씨",
+    "type": "JSON",
+    "url": "/assets/design/weather/petal.json"
+  },
+  {
+    "name": "tap",
+    "file": "tap.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/tap.mp3"
+  },
+  {
+    "name": "grow",
+    "file": "grow.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/grow.mp3"
+  },
+  {
+    "name": "badge",
+    "file": "badge.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/badge.mp3"
+  },
+  {
+    "name": "levelup",
+    "file": "levelup.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/levelup.mp3"
+  },
+  {
+    "name": "unlock",
+    "file": "unlock.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/unlock.mp3"
+  },
+  {
+    "name": "bird",
+    "file": "bird.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/bird.mp3"
+  },
+  {
+    "name": "wind",
+    "file": "wind.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/wind.mp3"
+  },
+  {
+    "name": "forest",
+    "file": "forest.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/forest.mp3"
+  },
+  {
+    "name": "rain",
+    "file": "rain.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/rain.mp3"
+  },
+  {
+    "name": "spring",
+    "file": "spring.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/spring.mp3"
+  },
+  {
+    "name": "summer",
+    "file": "summer.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/summer.mp3"
+  },
+  {
+    "name": "autumn",
+    "file": "autumn.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/autumn.mp3"
+  },
+  {
+    "name": "winter",
+    "file": "winter.mp3",
+    "category": "sounds",
+    "categoryLabel": "사운드",
+    "type": "MP3",
+    "url": "/assets/design/sounds/winter.mp3"
+  },
+  {
+    "name": "design_tokens",
+    "file": "tokens.json",
+    "category": "tokens",
+    "categoryLabel": "토큰",
+    "type": "JSON",
+    "url": "/assets/design/tokens/tokens.json"
+  },
+  {
+    "name": "css_variables",
+    "file": "tokens.css",
+    "category": "tokens",
+    "categoryLabel": "토큰",
+    "type": "CSS",
+    "url": "/assets/design/tokens/tokens.css"
+  },
+  {
+    "name": "typescript_tokens",
+    "file": "tokens.ts",
+    "category": "tokens",
+    "categoryLabel": "토큰",
+    "type": "TS",
+    "url": "/assets/design/tokens/tokens.ts"
+  },
+  {
+    "name": "health_components",
+    "file": "HealthComponents.tsx",
+    "category": "components",
+    "categoryLabel": "컴포넌트",
+    "type": "TSX",
+    "url": "/assets/design/components/HealthComponents.tsx"
+  },
+  {
+    "name": "component_styles",
+    "file": "health-components.css",
+    "category": "components",
+    "categoryLabel": "컴포넌트",
+    "type": "CSS",
+    "url": "/assets/design/components/health-components.css"
+  }
+]
