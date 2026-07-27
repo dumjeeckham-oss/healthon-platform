@@ -181,6 +181,12 @@ class RewardRepository {
 
     final current = await getRewards(userId);
 
+    Future<void> addReward(...)
+
+   Future<bool> spendReward(...)
+
+   Future<Map<String,dynamic>> inventory(...)
+    
     await _client.from(_table).update({
       "xp": (current["xp"] ?? 0) + xp,
       "leaf": (current["leaf"] ?? 0) + leaf,
