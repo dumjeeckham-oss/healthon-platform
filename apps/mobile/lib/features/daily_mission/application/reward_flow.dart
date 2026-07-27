@@ -1,5 +1,5 @@
-import '../domain/models/reward_result.dart';
 import '../domain/models/daily_mission.dart';
+import '../domain/models/reward_result.dart';
 
 import 'reward_engine.dart';
 
@@ -25,17 +25,27 @@ class RewardFlow {
   final ForestBadgeRepository _badgeRepository;
   final ForestSpeciesRepository _speciesRepository;
 
-  //------------------------------------------------------------
+  //----------------------------------------------------------
   // Mission Reward 실행
-  //------------------------------------------------------------
+  //----------------------------------------------------------
 
   Future<RewardResult> execute({
     required String userId,
     required DailyMission mission,
     required double totalKm,
   }) async {
+
     //----------------------------------------------------------
-    // 1. Reward 지급
+    // 현재 Forest 상태 저장
+    //----------------------------------------------------------
+
+    final beforeForest =
+        await _forestRepository.getSummary(userId);
+
+    final oldLevel = beforeForest.treeLevel;
+
+    //----------------------------------------------------------
+    // Reward 지급
     //----------------------------------------------------------
 
     await _rewardEngine.claimReward(
@@ -45,7 +55,7 @@ class RewardFlow {
     );
 
     //----------------------------------------------------------
-    // 2. Forest 갱신
+    // Forest 업데이트
     //----------------------------------------------------------
 
     await _forestRepository.updateDistance(
@@ -53,30 +63,56 @@ class RewardFlow {
       totalKm: totalKm,
     );
 
-    final forest =
+    //----------------------------------------------------------
+    // 업데이트된 Forest 다시 조회
+    //----------------------------------------------------------
+
+    final afterForest =
         await _forestRepository.getSummary(userId);
 
+    final newLevel = afterForest.treeLevel;
+
+    final levelUp = newLevel > oldLevel;
+
     //----------------------------------------------------------
-    // 3. Badge 검사
+    // Badge 검사
     //----------------------------------------------------------
 
     await _badgeRepository.checkAndGrantBadges(
       userId: userId,
       totalKm: totalKm,
-      treeLevel: forest.treeLevel,
+      treeLevel: newLevel,
     );
 
     //----------------------------------------------------------
-    // 4. 나무 해금
+    // Tree Unlock
     //----------------------------------------------------------
 
     await _speciesRepository.unlockByLevel(
       userId: userId,
-      level: forest.treeLevel,
+      level: newLevel,
     );
 
     //----------------------------------------------------------
-    // 5. 결과 반환
+    // Presentation Queue 생성
+    //----------------------------------------------------------
+
+    final queue = <RewardPresentationType>[];
+
+    if (levelUp) {
+      queue.add(
+        RewardPresentationType.levelUp,
+      );
+    }
+
+    //----------------------------------------------------------
+    // TODO
+    // 이후 Badge, Tree, Garden Unlock 검사 후
+    // queue.add(...)
+    //----------------------------------------------------------
+
+    //----------------------------------------------------------
+    // RewardResult 반환
     //----------------------------------------------------------
 
     return RewardResult(
@@ -98,17 +134,25 @@ class RewardFlow {
 
       gainedExp: mission.rewardValue,
 
-      oldLevel: forest.treeLevel,
+      oldLevel: oldLevel,
 
-      newLevel: forest.treeLevel,
+      newLevel: newLevel,
 
-      levelUp: false,
+      levelUp: levelUp,
 
       badgeUnlocked: false,
 
+      badgeCode: null,
+
       newTreeUnlocked: false,
 
+      treeName: null,
+
       gardenUnlocked: false,
+
+      gardenTileId: null,
+
+      queue: queue,
     );
   }
 }
