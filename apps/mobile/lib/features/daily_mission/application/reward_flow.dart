@@ -266,3 +266,179 @@ class RewardFlow {
     return result;
 
   } // execute 끝
+
+    ////////////////////////////////////////////////////////////////
+  ///
+  /// Helper
+  ///
+  ////////////////////////////////////////////////////////////////
+
+  bool _needLevelUp(
+    int oldLevel,
+    int newLevel,
+  ) {
+    return newLevel > oldLevel;
+  }
+
+  bool _needTreeUnlock(
+    bool unlocked,
+  ) {
+    return unlocked;
+  }
+
+  bool _needBadge(
+    bool unlocked,
+  ) {
+    return unlocked;
+  }
+
+  bool _needGarden(
+    bool unlocked,
+  ) {
+    return unlocked;
+  }
+
+  List<RewardPresentationType> _createQueue({
+
+    required bool levelUp,
+
+    required bool tree,
+
+    required bool badge,
+
+    required bool garden,
+
+  }) {
+
+    final queue = <RewardPresentationType>[];
+
+    if (levelUp) {
+      queue.add(
+        RewardPresentationType.levelUp,
+      );
+    }
+
+    if (tree) {
+      queue.add(
+        RewardPresentationType.treeUnlock,
+      );
+    }
+
+    if (badge) {
+      queue.add(
+        RewardPresentationType.badge,
+      );
+    }
+
+    if (garden) {
+      queue.add(
+        RewardPresentationType.gardenUnlock,
+      );
+    }
+
+    return queue;
+  }
+
+  ////////////////////////////////////////////////////////////////
+  /// Rare Animal
+  ////////////////////////////////////////////////////////////////
+
+  bool _checkRareAnimal(
+    int level,
+  ) {
+
+    if (level >= 30) {
+      return true;
+    }
+
+    return false;
+  }
+
+  ////////////////////////////////////////////////////////////////
+  /// Season Reward
+  ////////////////////////////////////////////////////////////////
+
+  bool _checkSeasonReward(
+    int level,
+  ) {
+
+    if (level % 10 == 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  ////////////////////////////////////////////////////////////////
+  /// XP Bonus
+  ////////////////////////////////////////////////////////////////
+
+  int _calculateBonusXp(
+    DailyMission mission,
+  ) {
+
+    switch (mission.rewardType.toUpperCase()) {
+
+      case "XP":
+        return mission.rewardValue;
+
+      default:
+        return 0;
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////
+  /// Leaf Bonus
+  ////////////////////////////////////////////////////////////////
+
+  int _calculateLeaf(
+    DailyMission mission,
+  ) {
+
+    switch (mission.rewardType.toUpperCase()) {
+
+      case "LEAF":
+        return mission.rewardValue;
+
+      default:
+        return 0;
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////
+  /// Seed Bonus
+  ////////////////////////////////////////////////////////////////
+
+  int _calculateSeed(
+    DailyMission mission,
+  ) {
+
+    switch (mission.rewardType.toUpperCase()) {
+
+      case "SEED":
+        return mission.rewardValue;
+
+      default:
+        return 0;
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////
+  /// Coin Bonus
+  ////////////////////////////////////////////////////////////////
+
+  int _calculateCoin(
+    DailyMission mission,
+  ) {
+
+    switch (mission.rewardType.toUpperCase()) {
+
+      case "COIN":
+        return mission.rewardValue;
+
+      default:
+        return 0;
+    }
+  }
+
+}
