@@ -217,15 +217,13 @@ onPressed: () async {
   //--------------------------------------------------
 
   final rewardResult =
-      await RewardFlow().execute(
+    await RewardFlow().execute(
+  userId: user.id,
+  mission: mission,
 
-    userId: user.id,
-
-    mission: mission,
-
-    totalKm: mission.currentValue.toDouble(),
-
-  );
+  // 임시
+  totalKm: mission.progress.toDouble(),
+);
 
   //--------------------------------------------------
   // Popup 자동 실행
