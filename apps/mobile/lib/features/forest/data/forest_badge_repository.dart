@@ -9,7 +9,7 @@ class ForestBadgeRepository {
   /// ==========================================================
   /// Forest Badge 자동 지급
   /// ==========================================================
-  Future<void> checkAndGrantBadges({
+  Future<ForestBadge?> checkAndGrantBadges({
     required String userId,
     required double totalKm,
     required int treeLevel,
