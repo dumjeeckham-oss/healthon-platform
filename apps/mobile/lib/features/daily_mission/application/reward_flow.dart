@@ -4,98 +4,164 @@ import '../domain/models/reward_result.dart';
 import 'reward_engine.dart';
 
 import '../../forest/data/forest_repository.dart';
-import '../../forest/data/forest_badge_repository.dart';
 import '../../forest/data/forest_species_repository.dart';
+import '../../forest/data/forest_badge_repository.dart';
+import '../../forest/data/forest_garden_repository.dart';
 
 class RewardFlow {
+
   RewardFlow({
     RewardEngine? rewardEngine,
     ForestRepository? forestRepository,
-    ForestBadgeRepository? badgeRepository,
     ForestSpeciesRepository? speciesRepository,
-  })  : _rewardEngine = rewardEngine ?? RewardEngine(),
-        _forestRepository = forestRepository ?? ForestRepository(),
-        _badgeRepository =
-            badgeRepository ?? ForestBadgeRepository(),
+    ForestBadgeRepository? badgeRepository,
+    ForestGardenRepository? gardenRepository,
+  })  : _rewardEngine =
+            rewardEngine ?? RewardEngine(),
+        _forestRepository =
+            forestRepository ?? ForestRepository(),
         _speciesRepository =
-            speciesRepository ?? ForestSpeciesRepository();
+            speciesRepository ??
+                ForestSpeciesRepository(),
+        _badgeRepository =
+            badgeRepository ??
+                ForestBadgeRepository(),
+        _gardenRepository =
+            gardenRepository ??
+                ForestGardenRepository();
 
   final RewardEngine _rewardEngine;
-  final ForestRepository _forestRepository;
-  final ForestBadgeRepository _badgeRepository;
-  final ForestSpeciesRepository _speciesRepository;
 
-  //----------------------------------------------------------
-  // Mission Reward 실행
-  //----------------------------------------------------------
+  final ForestRepository _forestRepository;
+
+  final ForestSpeciesRepository
+      _speciesRepository;
+
+  final ForestBadgeRepository
+      _badgeRepository;
+
+  final ForestGardenRepository
+      _gardenRepository;
+
+  ////////////////////////////////////////////////////////////////
+  ///
+  /// Execute Reward Flow
+  ///
+  ////////////////////////////////////////////////////////////////
 
   Future<RewardResult> execute({
+
     required String userId,
+
     required DailyMission mission,
+
     required double totalKm,
+
   }) async {
 
-    //----------------------------------------------------------
-    // 현재 Forest 상태 저장
-    //----------------------------------------------------------
-
-    final beforeForest =
-        await _forestRepository.getSummary(userId);
-
-    final oldLevel = beforeForest.treeLevel;
-
-    //----------------------------------------------------------
-    // Reward 지급
-    //----------------------------------------------------------
+    ////////////////////////////////////////////////////////////
+    // 1 Mission Reward
+    ////////////////////////////////////////////////////////////
 
     await _rewardEngine.claimReward(
+
       userId: userId,
+
       rewardType: mission.rewardType,
+
       rewardValue: mission.rewardValue,
+
     );
 
-    //----------------------------------------------------------
-    // Forest 업데이트
-    //----------------------------------------------------------
+    ////////////////////////////////////////////////////////////
+    // 2 Forest Update
+    ////////////////////////////////////////////////////////////
+
+    final oldSummary =
+        await _forestRepository.getSummary(
+      userId,
+    );
+
+    final oldLevel =
+        oldSummary.treeLevel;
 
     await _forestRepository.updateDistance(
+
       userId: userId,
+
       totalKm: totalKm,
+
     );
 
-    //----------------------------------------------------------
-    // 업데이트된 Forest 다시 조회
-    //----------------------------------------------------------
+    final newSummary =
+        await _forestRepository.getSummary(
+      userId,
+    );
 
-    final afterForest =
-        await _forestRepository.getSummary(userId);
+    final newLevel =
+        newSummary.treeLevel;
 
-    final newLevel = afterForest.treeLevel;
+    final levelUp =
+        newLevel > oldLevel;
 
-    final levelUp = newLevel > oldLevel;
+      ////////////////////////////////////////////////////////////
+    // 3 Tree Unlock
+    ////////////////////////////////////////////////////////////
 
-    //----------------------------------------------------------
-    // Badge 검사
-    //----------------------------------------------------------
+    bool treeUnlocked = false;
+    String? unlockedTreeName;
 
-    await _badgeRepository.checkAndGrantBadges(
+    final unlockedTree =
+        await _speciesRepository.unlockByLevel(
+      userId: userId,
+      level: newLevel,
+    );
+
+    if (unlockedTree != null) {
+      treeUnlocked = true;
+      unlockedTreeName = unlockedTree.name;
+    }
+
+    ////////////////////////////////////////////////////////////
+    // 4 Badge Check
+    ////////////////////////////////////////////////////////////
+
+    bool badgeUnlocked = false;
+    String? badgeCode;
+
+    final newBadge =
+        await _badgeRepository.checkAndGrantBadges(
       userId: userId,
       totalKm: totalKm,
       treeLevel: newLevel,
     );
 
-    //----------------------------------------------------------
-    // Tree Unlock
-    //----------------------------------------------------------
+    if (newBadge != null) {
+      badgeUnlocked = true;
+      badgeCode = newBadge.code;
+    }
 
-    await _speciesRepository.unlockByLevel(
+    ////////////////////////////////////////////////////////////
+    // 5 Garden Unlock
+    ////////////////////////////////////////////////////////////
+
+    bool gardenUnlocked = false;
+    String? gardenTileId;
+
+    final tile =
+        await _gardenRepository.unlockTileByLevel(
       userId: userId,
       level: newLevel,
     );
 
-    //----------------------------------------------------------
-    // Presentation Queue 생성
-    //----------------------------------------------------------
+    if (tile != null) {
+      gardenUnlocked = true;
+      gardenTileId = tile.id;
+    }
+
+    ////////////////////////////////////////////////////////////
+    // 6 Reward Queue 생성
+    ////////////////////////////////////////////////////////////
 
     final queue = <RewardPresentationType>[];
 
@@ -105,34 +171,55 @@ class RewardFlow {
       );
     }
 
-    //----------------------------------------------------------
-    // TODO
-    // 이후 Badge, Tree, Garden Unlock 검사 후
-    // queue.add(...)
-    //----------------------------------------------------------
+    if (treeUnlocked) {
+      queue.add(
+        RewardPresentationType.treeUnlock,
+      );
+    }
 
-    //----------------------------------------------------------
-    // RewardResult 반환
-    //----------------------------------------------------------
+    if (badgeUnlocked) {
+      queue.add(
+        RewardPresentationType.badge,
+      );
+    }
 
-    return RewardResult(
-      xp: mission.rewardType == "XP"
+    if (gardenUnlocked) {
+      queue.add(
+        RewardPresentationType.gardenUnlock,
+      );
+    }
+
+        ////////////////////////////////////////////////////////////
+    // 7 RewardResult 생성
+    ////////////////////////////////////////////////////////////
+
+    final result = RewardResult(
+
+      //--------------------------------------------------------
+      // 기본 보상
+      //--------------------------------------------------------
+
+      xp: mission.rewardType.toUpperCase() == "XP"
           ? mission.rewardValue
           : 0,
 
-      leaf: mission.rewardType == "LEAF"
+      leaf: mission.rewardType.toUpperCase() == "LEAF"
           ? mission.rewardValue
           : 0,
 
-      seed: mission.rewardType == "SEED"
+      seed: mission.rewardType.toUpperCase() == "SEED"
           ? mission.rewardValue
           : 0,
 
-      coin: mission.rewardType == "COIN"
+      coin: mission.rewardType.toUpperCase() == "COIN"
           ? mission.rewardValue
           : 0,
 
-      gainedExp: mission.rewardValue,
+      //--------------------------------------------------------
+      // Forest
+      //--------------------------------------------------------
+
+      gainedExp: newSummary.treeExp,
 
       oldLevel: oldLevel,
 
@@ -140,19 +227,42 @@ class RewardFlow {
 
       levelUp: levelUp,
 
-      badgeUnlocked: false,
+      //--------------------------------------------------------
+      // Tree
+      //--------------------------------------------------------
 
-      badgeCode: null,
+      newTreeUnlocked: treeUnlocked,
 
-      newTreeUnlocked: false,
+      treeName: unlockedTreeName,
 
-      treeName: null,
+      //--------------------------------------------------------
+      // Badge
+      //--------------------------------------------------------
 
-      gardenUnlocked: false,
+      badgeUnlocked: badgeUnlocked,
 
-      gardenTileId: null,
+      badgeCode: badgeCode,
+
+      //--------------------------------------------------------
+      // Garden
+      //--------------------------------------------------------
+
+      gardenUnlocked: gardenUnlocked,
+
+      gardenTileId: gardenTileId,
+
+      //--------------------------------------------------------
+      // Queue
+      //--------------------------------------------------------
 
       queue: queue,
+
     );
-  }
-}
+
+    ////////////////////////////////////////////////////////////
+    // 8 Return
+    ////////////////////////////////////////////////////////////
+
+    return result;
+
+  } // execute 끝
