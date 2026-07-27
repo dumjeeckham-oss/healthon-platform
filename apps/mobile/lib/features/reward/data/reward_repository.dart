@@ -181,11 +181,6 @@ class RewardRepository {
 
     final current = await getRewards(userId);
 
-    Future<void> addReward(...)
-
-   Future<bool> spendReward(...)
-
-   Future<Map<String,dynamic>> inventory(...)
     
     await _client.from(_table).update({
       "xp": (current["xp"] ?? 0) + xp,
@@ -199,6 +194,48 @@ class RewardRepository {
     );
   }
 
+  Future<bool> spendReward({
+  required String userId,
+  int xp = 0,
+  int leaf = 0,
+  int seed = 0,
+  int coin = 0,
+}) async {
+
+  final reward = await getRewards(userId);
+
+  if ((reward["xp"] ?? 0) < xp) return false;
+  if ((reward["leaf"] ?? 0) < leaf) return false;
+  if ((reward["seed"] ?? 0) < seed) return false;
+  if ((reward["coin"] ?? 0) < coin) return false;
+
+  await _client.from(_table).update({
+
+    "xp": (reward["xp"] ?? 0) - xp,
+
+    "leaf": (reward["leaf"] ?? 0) - leaf,
+
+    "seed": (reward["seed"] ?? 0) - seed,
+
+    "coin": (reward["coin"] ?? 0) - coin,
+
+    "updated_at": DateTime.now().toIso8601String(),
+
+  }).eq(
+    "user_id",
+    userId,
+  );
+
+  return true;
+}
+  
+Future<Map<String, dynamic>> inventory(
+  String userId,
+) async {
+
+  return await getRewards(userId);
+
+}
   /// ===============================================================
   /// 재화 차감
   /// ===============================================================
