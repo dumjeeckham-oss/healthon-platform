@@ -93,6 +93,9 @@ final List<RewardPresentationType> queue;
     this.gainedExp = 0,
   });
 
+    this.queue = const [],
+  });
+
   /// ===============================================================
   /// Empty
   /// ===============================================================
@@ -126,6 +129,7 @@ final List<RewardPresentationType> queue;
     String? gardenTileId,
 
     int? gainedExp,
+    List<RewardPresentationType>? queue,
   }) {
     return RewardResult(
       xp: xp ?? this.xp,
@@ -134,7 +138,7 @@ final List<RewardPresentationType> queue;
       coin: coin ?? this.coin,
 
       levelUp: levelUp ?? this.levelUp,
-
+      
       oldLevel: oldLevel ?? this.oldLevel,
       newLevel: newLevel ?? this.newLevel,
 
@@ -156,6 +160,8 @@ final List<RewardPresentationType> queue;
 
       gainedExp:
           gainedExp ?? this.gainedExp,
+
+      queue: queue ?? this.queue,
     );
   }
 
@@ -208,6 +214,8 @@ RewardResult(
   gardenTileId: $gardenTileId,
 
   gainedExp: $gainedExp,
+
+  queue: $queue,
 )
 ''';
   }
