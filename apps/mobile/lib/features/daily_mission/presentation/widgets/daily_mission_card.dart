@@ -8,7 +8,7 @@ import '../../../forest/presentation/widgets/levelup_dialog.dart';
 import '../../../forest/presentation/widgets/badge_dialog.dart';
 import '../../../forest/presentation/providers/forest_provider.dart';
 import '../../../../core/presentation/reward/reward_presentation_manager.dart';
-import '../../../auth/presentation/providers/current_user_provider.dart'
+import '../../../auth/presentation/providers/current_user_provider.dart';
 
 class DailyMissionCard extends ConsumerWidget {
   final List<DailyMission> missions;
@@ -251,25 +251,13 @@ onPressed: () async {
   );
 },
 
-  final rewardFlow = RewardFlow();
-
-  final result = await rewardFlow.execute(
-
-    userId: userId,
-
-    mission: mission,
-
-    totalKm: totalKm,
-
-  );
-
-  if(!context.mounted) return;
+  
 
   //--------------------------------------------------
   // LevelUp
   //--------------------------------------------------
 
-  if(result.levelUp){
+
 
     await showDialog(
 
@@ -295,7 +283,7 @@ onPressed: () async {
   // Badge
   //--------------------------------------------------
 
-  if(result.badgeUnlocked){
+
 
     await showDialog(
 
