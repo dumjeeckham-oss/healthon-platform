@@ -13,7 +13,10 @@ class ForestBadgeRepository {
     required String userId,
     required double totalKm,
     required int treeLevel,
-  }) async {
+  }
+ Future<List<ForestBadge>> getBadges(
+  String userId,
+   ) async {
     final badges = <String>[];
 
     //----------------------------------------------------------
