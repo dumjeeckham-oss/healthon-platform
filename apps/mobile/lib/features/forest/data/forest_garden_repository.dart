@@ -66,7 +66,7 @@ class ForestGardenRepository {
   // 타일 저장
   //---------------------------------------------------------
 
-  Future<void> saveTile({
+  Future<GardenTile?> saveTile({
     required String userId,
     required ForestTile tile,
   }) async {
@@ -80,7 +80,7 @@ class ForestGardenRepository {
   // 여러 타일 저장
   //---------------------------------------------------------
 
-  Future<void> saveGarden({
+  Future<GardenTile?> saveGarden({
     required String userId,
     required List<ForestTile> tiles,
   }) async {
@@ -100,7 +100,7 @@ class ForestGardenRepository {
   // 나무 심기
   //---------------------------------------------------------
 
-  Future<void> plantTree({
+  Future<GardenTile?> plantTree({
     required String userId,
     required int x,
     required int y,
@@ -130,7 +130,7 @@ class ForestGardenRepository {
   // 성장
   //---------------------------------------------------------
 
-  Future<void> updateGrowth({
+  Future<GardenTile?> updateGrowth({
     required String userId,
     required ForestTile tile,
   }) async {
@@ -150,7 +150,7 @@ class ForestGardenRepository {
   // 장식 배치
   //---------------------------------------------------------
 
-  Future<void> placeDecoration({
+  Future<GardenTile?> placeDecoration({
     required String userId,
     required int x,
     required int y,
@@ -173,7 +173,7 @@ class ForestGardenRepository {
   // 타일 제거
   //---------------------------------------------------------
 
-  Future<void> clearTile({
+  Future<GardenTile?> clearTile({
     required String userId,
     required int x,
     required int y,
