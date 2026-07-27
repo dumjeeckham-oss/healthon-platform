@@ -1,3 +1,19 @@
+enum RewardPresentationType {
+
+  levelUp,
+
+  treeUnlock,
+
+  badge,
+
+  gardenUnlock,
+
+  seasonReward,
+
+  rareAnimal,
+
+}
+
 /// ===============================================================
 ///
 /// HealthON Reward Result
@@ -50,6 +66,9 @@ class RewardResult {
 
   /// Forest 경험치
   final int gainedExp;
+
+  /// 여러 개의 연출을 큐로 관리
+final List<RewardPresentationType> queue;
 
   const RewardResult({
     this.xp = 0,
@@ -155,12 +174,11 @@ class RewardResult {
   /// Popup 필요 여부
   /// ===============================================================
 
-  bool get hasPopup {
-    return levelUp ||
-        badgeUnlocked ||
-        newTreeUnlocked ||
-        gardenUnlocked;
-  }
+bool get hasPopup {
+
+  return queue.isNotEmpty;
+
+}
 
   /// ===============================================================
   /// 디버그 출력
