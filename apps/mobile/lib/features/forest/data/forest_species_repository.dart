@@ -50,7 +50,10 @@ class ForestSpeciesRepository {
   Future<ForestSpecies?> unlockByLevel({
     required String userId,
     required int level,
-  }) async {
+  }
+  Future<List<ForestSpecies>> getUnlockedSpecies(
+  String userId,                                     
+    ) async {
     final species = await _client
         .from("forest_species")
         .select()
@@ -78,4 +81,5 @@ class ForestSpeciesRepository {
       }
     }
   }
+ Future<List<ForestSpecies>> getAllSpecies() async {                                   
 }
