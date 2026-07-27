@@ -44,10 +44,10 @@ class ForestSpeciesRepository {
   }
 
   /// --------------------------------------------
-  /// 레벨에 따른 자동 해금
+  /// 레벨에 따른 자동 해금 이미 해금 → null 새로 해금 → ForestSpecies 
   /// --------------------------------------------
 
-  Future<void> unlockByLevel({
+  Future<ForestSpecies?> unlockByLevel({
     required String userId,
     required int level,
   }) async {
