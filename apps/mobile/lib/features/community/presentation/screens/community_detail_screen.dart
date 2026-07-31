@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/community_post.dart';
-import '../../domain/models/community_comment.dart';
 import '../providers/community_provider.dart';
 import '../widgets/community_post_card.dart';
+import '../widgets/comment_section.dart';
 
 class CommunityDetailScreen extends ConsumerStatefulWidget {
   final String postId;
@@ -301,17 +301,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
   bool _bookmarked = false;
 
-  final TextEditingController _commentCtrl = TextEditingController();
-
-  final FocusNode _commentFocus = FocusNode();
-
-  String? _replyToId;
-
-  String? _replyToUserName;
-
   String? _selectedReaction;
-
-  bool _commentHasText = false;
 
   final Map<String, int> _reactions = {
     '👍': 3,
@@ -349,22 +339,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   @override
   void initState() {
     super.initState();
-
-    _commentCtrl.addListener(() {
-      final bool hasText = _commentCtrl.text.trim().isNotEmpty;
-      if (_commentHasText != hasText) {
-        setState(() {
-          _commentHasText = hasText;
-        });
-      }
-    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _commentCtrl.dispose();
-    _commentFocus.dispose();
     super.dispose();
   }
 
@@ -385,45 +364,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     });
   }
 
-  void _submitComment() {
-    final String text = _commentCtrl.text.trim();
-    if (text.isEmpty) return;
-
-    final comment = CommunityComment(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      postId: widget.post.id,
-      userId: 'current_user',
-      parentId: _replyToId,
-      content: text,
-      createdAt: DateTime.now(),
-    );
-
-    ref.read(addCommentProvider(comment).future);
-    _commentCtrl.clear();
-    _commentFocus.unfocus();
-
-    setState(() {
-      _replyToId = null;
-      _replyToUserName = null;
-      _commentHasText = false;
-    });
-  }
-
-  void _replyTo(String id, String name) {
-    setState(() {
-      _replyToId = id;
-      _replyToUserName = name;
-    });
-    _commentFocus.requestFocus();
-  }
-
-  void _cancelReply() {
-    setState(() {
-      _replyToId = null;
-      _replyToUserName = null;
-    });
-  }
-
   String _timeAgo(DateTime dt) {
     final d = DateTime.now().difference(dt);
     if (d.inSeconds < 60) return '방금 전';
@@ -434,6 +374,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     if (d.inDays < 365) return '${d.inDays ~/ 30}개월 전';
     return '${d.inDays ~/ 365}년 전';
   }
+
+  void _handleReaction(String key) {
 
   @override
   Widget build(BuildContext context) {
@@ -1102,23 +1044,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 // ⑪ Comment Section
                 // =====================================================
 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
-                  child: Text(
-                    '댓글',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                _CommentListSection(
-                  postId: post.id,
-                  onReply: _replyTo,
-                ),
+                CommentSection(postId: post.id),
 
                 const SizedBox(height: 8),
 
@@ -1203,125 +1129,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             ),
           ),
         ],
-      ),
-
-      // ===============================================================
-      // ⑬ Bottom Composer
-      // ===============================================================
-
-      bottomSheet: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // --- Reply indicator ---
-
-                if (_replyToId != null)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          '@${_replyToUserName ?? ''}님에게 답글',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.green.shade700,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: _cancelReply,
-                          child: Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Colors.green.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // --- Input row ---
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _commentCtrl,
-                        focusNode: _commentFocus,
-                        cursorColor: const Color(0xFF2E7D32),
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: '댓글을 입력하세요...',
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 14,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF6F8F7),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        onChanged: (_) => setState(() {}),
-                        onSubmitted: (_) => _submitComment(),
-                      ),
-                    ),
-
-                    const SizedBox(width: 8),
-
-                    GestureDetector(
-                      onTap: _submitComment,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: _commentHasText
-                              ? const Color(0xFF2E7D32)
-                              : Colors.grey.shade300,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.send_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -1445,233 +1252,6 @@ class _SnapshotDetailCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-// ===================================================================
-// ⑪ Comment List Section
-// ===================================================================
-
-class _CommentListSection extends ConsumerWidget {
-  final String postId;
-  final void Function(String commentId, String userName) onReply;
-
-  const _CommentListSection({
-    required this.postId,
-    required this.onReply,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<CommunityComment>> asyncComments =
-        ref.watch(communityCommentsProvider(postId));
-
-    return asyncComments.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.all(24),
-        child: Center(
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Color(0xFF4CAF50),
-            ),
-          ),
-        ),
-      ),
-
-      error: (e, _) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(
-          '댓글을 불러올 수 없습니다',
-          style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-        ),
-      ),
-
-      data: (comments) {
-        if (comments.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Center(
-              child: Text(
-                '아직 댓글이 없어요\n첫 번째 댓글을 작성해보세요',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade400,
-                ),
-              ),
-            ),
-          );
-        }
-
-        final roots = comments.where((c) => c.isRoot).toList();
-
-        return Column(
-          children: roots.map((root) {
-            final replies = comments
-                .where((c) => c.parentId == root.id)
-                .toList();
-
-            return Column(
-              children: [
-                _CommentTile(
-                  comment: root,
-                  onReply: () => onReply(
-                    root.id,
-                    root.userId,
-                  ),
-                ),
-
-                // --- Replies ---
-
-                if (replies.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 52),
-                    child: Column(
-                      children: replies.map((r) {
-                        return _CommentTile(
-                          comment: r,
-                          isReply: true,
-                          onReply: () => onReply(
-                            r.id,
-                            r.userId,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-              ],
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-}
-
-// ===================================================================
-// Comment Tile
-// ===================================================================
-
-class _CommentTile extends StatelessWidget {
-  final CommunityComment comment;
-  final bool isReply;
-  final VoidCallback onReply;
-
-  const _CommentTile({
-    required this.comment,
-    this.isReply = false,
-    required this.onReply,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: isReply ? 14 : 16,
-            backgroundColor: Colors.green.shade100,
-            child: Icon(
-              Icons.person,
-              size: isReply ? 14 : 16,
-              color: const Color(0xFF2E7D32),
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      comment.userId,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: isReply ? 12 : 13,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _commentTimeAgo(comment.createdAt),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 2),
-
-                Text(
-                  comment.content,
-                  style: TextStyle(
-                    fontSize: isReply ? 13 : 14,
-                    height: 1.3,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: onReply,
-                      child: Text(
-                        '답글 달기',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Text(
-                        '좋아요 ${comment.likeCount}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          GestureDetector(
-            onTap: () {},
-            child: Icon(
-              Icons.favorite_border,
-              size: 14,
-              color: Colors.grey.shade400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _commentTimeAgo(DateTime dt) {
-    final d = DateTime.now().difference(dt);
-    if (d.inSeconds < 60) return '방금 전';
-    if (d.inMinutes < 60) return '${d.inMinutes}분 전';
-    if (d.inHours < 24) return '${d.inHours}시간 전';
-    if (d.inDays < 7) return '${d.inDays}일 전';
-    if (d.inDays < 30) return '${d.inDays ~/ 7}주 전';
-    return '${d.inDays ~/ 30}개월 전';
   }
 }
 
