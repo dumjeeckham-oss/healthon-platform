@@ -26,6 +26,34 @@ class _CommunityPostCardState
 
   bool bookmarked = false;
 
+  //----------------------------------------------------
+  // ③ Emoji Reaction State
+  //----------------------------------------------------
+  final Map<String, int> _reactionCounts = {
+    '👍': 0,
+    '❤️': 0,
+    '🔥': 0,
+    '👏': 0,
+    '😂': 0,
+    '😲': 0,
+  };
+
+  String? _selectedReactionKey;
+
+  //----------------------------------------------------
+  // ① Forest Badge State
+  //----------------------------------------------------
+  bool _badgesExpanded = false;
+
+  //----------------------------------------------------
+  // ② Challenge Ribbon (mock — 모델 확장 시 교체)
+  //----------------------------------------------------
+  static const List<Map<String, String>> _challengeRibbons = [
+    {'icon': '🎯', 'title': '100K Challenge'},
+    {'icon': '🔥', 'title': '10일 연속걷기'},
+    {'icon': '🏆', 'title': '주간랭킹'},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -563,4 +591,503 @@ class _CommunityPostCardState
 
           const SizedBox(height: 10),
 
-          
+          //----------------------------------------------------
+          // ① Forest Badge
+          //----------------------------------------------------
+
+          if (post.badgeSnapshot != null)
+            _ForestBadgeSection(
+              badgeSnapshot: post.badgeSnapshot!,
+              badgesExpanded: _badgesExpanded,
+              onToggle: () {
+                setState(() {
+                  _badgesExpanded = !_badgesExpanded;
+                });
+              },
+            ),
+
+          //----------------------------------------------------
+          // ② Challenge Ribbon
+          //----------------------------------------------------
+
+          const _ChallengeRibbonSection(
+            ribbons: _challengeRibbons,
+          ),
+
+          const SizedBox(height: 10),
+
+          //----------------------------------------------------
+          // ③ Emoji Reaction
+          //----------------------------------------------------
+
+          _EmojiReactionBar(
+            reactionCounts: _reactionCounts,
+            selectedKey: _selectedReactionKey,
+            onReaction: (key) {
+              setState(() {
+                if (_selectedReactionKey == key) {
+                  _selectedReactionKey = null;
+                  _reactionCounts[key] =
+                      (_reactionCounts[key] ?? 1) - 1;
+                } else {
+                  if (_selectedReactionKey != null) {
+                    _reactionCounts[
+                        _selectedReactionKey!] =
+                        (_reactionCounts[
+                                _selectedReactionKey!] ??
+                            1) -
+                            1;
+                  }
+                  _selectedReactionKey = key;
+                  _reactionCounts[key] =
+                      (_reactionCounts[key] ?? 0) + 1;
+                }
+              });
+            },
+          ),
+
+          const SizedBox(height: 8),
+
+          //----------------------------------------------------
+          // ④ Footer — Hashtags
+          //----------------------------------------------------
+
+          const _HashtagFooter(),
+
+          const SizedBox(height: 18),
+        ],
+
+      ),
+
+    );
+
+  }
+
+  // ===========================================================
+  // _timeAgo
+  // ===========================================================
+
+  String _timeAgo(DateTime dateTime) {
+    final Duration diff = DateTime.now().difference(dateTime);
+
+    if (diff.inSeconds < 60) return "방금 전";
+
+    if (diff.inMinutes < 60) return "${diff.inMinutes}분 전";
+
+    if (diff.inHours < 24) return "${diff.inHours}시간 전";
+
+    if (diff.inDays < 7) return "${diff.inDays}일 전";
+
+    if (diff.inDays < 30) return "${diff.inDays ~/ 7}주 전";
+
+    if (diff.inDays < 365) return "${diff.inDays ~/ 30}개월 전";
+
+    return "${diff.inDays ~/ 365}년 전";
+  }
+
+}
+
+// ===============================================================
+// ① Forest Badge Section — Stateless Widget
+// ===============================================================
+
+class _ForestBadgeSection extends StatelessWidget {
+  final Map<String, dynamic> badgeSnapshot;
+  final bool badgesExpanded;
+  final VoidCallback onToggle;
+
+  const _ForestBadgeSection({
+    required this.badgeSnapshot,
+    required this.badgesExpanded,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> badges =
+        _parseBadgeList(badgeSnapshot);
+
+    if (badges.isEmpty) return const SizedBox.shrink();
+
+    final List<Map<String, dynamic>> visibleBadges =
+        badgesExpanded ? badges : badges.take(3).toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- Label ---
+
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              '🏅 Forest Badge',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+
+          // --- Badge Chips (Wrap) ---
+
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topLeft,
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: List.generate(visibleBadges.length, (i) {
+                final Map<String, dynamic> b = visibleBadges[i];
+
+                final String icon = b['icon']?.toString() ?? '🏅';
+                final String label = b['label']?.toString() ?? 'Badge';
+                final String? colorHex = b['color']?.toString();
+
+                final Color chipColor = colorHex != null
+                    ? _colorFromHex(colorHex)
+                    : Colors.green;
+
+                return FadeTransition(
+                  opacity: CurvedAnimation(
+                    parent: const _AlwaysCompleteAnimation(),
+                    curve: Curves.easeIn,
+                  ),
+                  child: ScaleTransition(
+                    scale: const _AlwaysCompleteAnimation(),
+                    child: Chip(
+                      avatar: Text(
+                        icon,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      label: Text(
+                        label,
+                        style: TextStyle(
+                          color: chipColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                      side: BorderSide(
+                        color: chipColor.withOpacity(0.35),
+                      ),
+                      backgroundColor:
+                          chipColor.withOpacity(0.06),
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+
+          // --- More / Less ---
+
+          if (badges.length > 3)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: GestureDetector(
+                onTap: onToggle,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    badgesExpanded ? '접기 ▲' : '더보기 ▼',
+                    key: ValueKey<bool>(badgesExpanded),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 14),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // Parse
+  // -------------------------------------------------------------
+
+  static List<Map<String, dynamic>> _parseBadgeList(
+    Map<String, dynamic> snapshot,
+  ) {
+    final dynamic items = snapshot['items'];
+
+    if (items is List) {
+      return items
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    }
+
+    return [snapshot];
+  }
+
+  static Color _colorFromHex(String hex) {
+    String h = hex.replaceFirst('#', '');
+
+    if (h.length == 6) h = 'FF$h';
+
+    return Color(int.parse(h, radix: 16));
+  }
+}
+
+// ===============================================================
+// ② Challenge Ribbon Section — Stateless Widget
+// ===============================================================
+
+class _ChallengeRibbonSection extends StatelessWidget {
+  final List<Map<String, String>> ribbons;
+
+  const _ChallengeRibbonSection({required this.ribbons});
+
+  @override
+  Widget build(BuildContext context) {
+    if (ribbons.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              '📋 참여 중인 챌린지',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(ribbons.length, (i) {
+                final Map<String, String> r = ribbons[i];
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: i < ribbons.length - 1 ? 8 : 0,
+                  ),
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(
+                        parent: const _AlwaysCompleteAnimation(),
+                        curve: const Interval(
+                          0.1 * (i + 1).toDouble(),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF4CAF50),
+                            Color(0xFF81C784),
+                          ],
+                        ),
+                        borderRadius:
+                            BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF4CAF50)
+                                .withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '${r['icon'] ?? ''}  ${r['title'] ?? ''}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+
+          const SizedBox(height: 14),
+        ],
+      ),
+    );
+  }
+}
+
+// ===============================================================
+// ③ Emoji Reaction Bar — Stateless Widget
+// ===============================================================
+
+class _EmojiReactionBar extends StatelessWidget {
+  final Map<String, int> reactionCounts;
+  final String? selectedKey;
+  final ValueChanged<String> onReaction;
+
+  const _EmojiReactionBar({
+    required this.reactionCounts,
+    required this.selectedKey,
+    required this.onReaction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: reactionCounts.entries.map((entry) {
+            final String key = entry.key;
+            final int count = entry.value;
+            final bool isSelected = selectedKey == key;
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: GestureDetector(
+                onTap: () => onReaction(key),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutBack,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? Colors.green.shade50
+                        : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? Colors.green.shade300
+                          : Colors.grey.shade300,
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        key,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      if (count > 0) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '$count',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected
+                                ? Colors.green.shade700
+                                : Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+// ===============================================================
+// ④ Footer — Hashtag
+// ===============================================================
+
+class _HashtagFooter extends StatelessWidget {
+  const _HashtagFooter();
+
+  static const List<String> _hashtags = [
+    'HealthON',
+    'Forest',
+    'Walking',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        children: _hashtags.map((String tag) {
+          return GestureDetector(
+            onTap: () {
+              // TODO — navigate to tag search
+            },
+            child: Text(
+              '#$tag',
+              style: TextStyle(
+                color: Colors.green.shade700,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ===============================================================
+// ⑤ Always-Complete Animation (for static entry transitions)
+// ===============================================================
+
+class _AlwaysCompleteAnimation extends Animation<double> {
+  const _AlwaysCompleteAnimation();
+
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
+
+  @override
+  void addStatusListener(AnimationStatusListener listener) {}
+
+  @override
+  void removeStatusListener(AnimationStatusListener listener) {}
+
+  @override
+  AnimationStatus get status => AnimationStatus.completed;
+
+  @override
+  double get value => 1.0;
+}
+
