@@ -45,9 +45,6 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
 
   bool _composerHasText = false;
 
-  // Scroll
-  final ScrollController _scrollCtrl = ScrollController();
-
   @override
   void initState() {
     super.initState();
@@ -66,7 +63,6 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
   void dispose() {
     _composerCtrl.dispose();
     _composerFocus.dispose();
-    _scrollCtrl.dispose();
     super.dispose();
   }
 
@@ -138,15 +134,10 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
     );
 
     if (confirmed == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('댓글이 삭제되었습니다'),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
+      ref.read(
+        deleteCommentProvider(
+          (postId: widget.postId, commentId: commentId),
+        ).future,
       );
     }
   }
@@ -177,7 +168,6 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
           replyToUserName: _replyToUserName,
           onCancelReply: _cancelReply,
           onSubmit: _submitComment,
-          onChanged: () {},
         ),
       ],
     );
@@ -236,10 +226,13 @@ class _CommentListCore extends StatelessWidget {
             List<CommunityComment>.from(roots)
               ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
+        final String lastId =
+                comments.isNotEmpty ? comments.last.id : '';
+
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Column(
-            key: ValueKey('comments_${comments.length}_${comments.lastOrNull?.id ?? ''}'),
+            key: ValueKey('comments_${comments.length}_$lastId'),
             children: sortedRoots.map((root) {
               final List<CommunityComment> replies = comments
                   .where((c) => c.parentId == root.id)

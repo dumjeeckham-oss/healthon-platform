@@ -369,7 +369,6 @@ class CommentComposer extends StatelessWidget {
   final String? replyToUserName;
   final VoidCallback onCancelReply;
   final VoidCallback onSubmit;
-  final VoidCallback onChanged;
 
   const CommentComposer({
     super.key,
@@ -379,7 +378,6 @@ class CommentComposer extends StatelessWidget {
     required this.replyToUserName,
     required this.onCancelReply,
     required this.onSubmit,
-    required this.onChanged,
   });
 
   @override
@@ -476,7 +474,7 @@ class CommentComposer extends StatelessWidget {
                                 : BorderSide.none,
                           ),
                         ),
-                        onChanged: (_) => onChanged(),
+                        onChanged: (_) {},
                         onSubmitted: (_) => onSubmit(),
                       ),
                     ),
