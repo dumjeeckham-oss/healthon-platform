@@ -65,28 +65,6 @@ class _CommunityDetailScreenState
   String? _replyToId;
   String? _replyToUserName;
 
-  // ===============================================================
-  // Related Posts mock
-  // ===============================================================
-
-  static const List<Map<String, String>> _relatedMock = [
-    {
-      'icon': '🌱',
-      'title': '새싹이 자랐어요',
-      'sub': 'Forest · 2시간 전',
-    },
-    {
-      'icon': '🚶',
-      'title': '오늘 10,000보 달성!',
-      'sub': 'Walking · 30분 전',
-    },
-    {
-      'icon': '🎯',
-      'title': '챌린지 100K 도전중',
-      'sub': 'Challenge · 1일 전',
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -146,7 +124,7 @@ class _CommunityDetailScreenState
       createdAt: DateTime.now(),
     );
 
-    ref.read(addCommentProvider(comment));
+    ref.read(addCommentProvider(comment).future);
 
     _commentController.clear();
     _commentFocusNode.unfocus();
@@ -333,6 +311,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
   String? _selectedReaction;
 
+  bool _commentHasText = false;
+
   final Map<String, int> _reactions = {
     '👍': 3,
     '❤️': 7,
@@ -343,6 +323,42 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   };
 
   bool _showReactionBar = false;
+
+  // ===============================================================
+  // Related Posts mock
+  // ===============================================================
+
+  static const List<Map<String, String>> _relatedMock = [
+    {
+      'icon': '🌱',
+      'title': '새싹이 자랐어요',
+      'sub': 'Forest · 2시간 전',
+    },
+    {
+      'icon': '🚶',
+      'title': '오늘 10,000보 달성!',
+      'sub': 'Walking · 30분 전',
+    },
+    {
+      'icon': '🎯',
+      'title': '챌린지 100K 도전중',
+      'sub': 'Challenge · 1일 전',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _commentCtrl.addListener(() {
+      final bool hasText = _commentCtrl.text.trim().isNotEmpty;
+      if (_commentHasText != hasText) {
+        setState(() {
+          _commentHasText = hasText;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -382,13 +398,14 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       createdAt: DateTime.now(),
     );
 
-    ref.read(addCommentProvider(comment));
+    ref.read(addCommentProvider(comment).future);
     _commentCtrl.clear();
     _commentFocus.unfocus();
 
     setState(() {
       _replyToId = null;
       _replyToUserName = null;
+      _commentHasText = false;
     });
   }
 
@@ -421,7 +438,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8F7),
@@ -441,7 +457,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               icon: Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.black26,
                   shape: BoxShape.circle,
                 ),
@@ -490,11 +506,49 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                               Icons.delete_outline,
                               '삭제',
                               isRed: true,
+                              onTap: () async {
+                                Navigator.pop(context);
+                                final bool? confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    title: const Text('게시글 삭제'),
+                                    content: const Text('정말 삭제하시겠습니까?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, false),
+                                        child: const Text('취소'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: const Text('삭제', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true && mounted) {
+                                  Navigator.pop(context);
+                                }
+                              },
                             ),
                             _bottomMenuItem(
                               Icons.report_outlined,
                               '신고',
                               isRed: true,
+                              onTap: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('신고가 접수되었습니다'),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                             _bottomMenuItem(
                               Icons.block_outlined,
@@ -775,7 +829,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   ),
 
                 // =====================================================
-                // ⑥ Mission Snapshot
+                // ⑥ Mission / Badge Snapshot
                 // =====================================================
 
                 if (post.badgeSnapshot != null)
@@ -1093,7 +1147,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     itemCount: 3,
                     separatorBuilder: (_, __) => const SizedBox(width: 10),
                     itemBuilder: (_, i) {
-                      final m = _DetailBodyState._relatedMock[i];
+                      final m = _relatedMock[i];
 
                       return Container(
                         width: 200,
@@ -1235,6 +1289,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             borderSide: BorderSide.none,
                           ),
                         ),
+                        onChanged: (_) => setState(() {}),
                         onSubmitted: (_) => _submitComment(),
                       ),
                     ),
@@ -1248,7 +1303,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: _commentCtrl.text.trim().isNotEmpty
+                          color: _commentHasText
                               ? const Color(0xFF2E7D32)
                               : Colors.grey.shade300,
                           shape: BoxShape.circle,
@@ -1274,6 +1329,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     IconData icon,
     String label, {
     bool isRed = false,
+    VoidCallback? onTap,
   }) {
     return ListTile(
       leading: Icon(
@@ -1288,7 +1344,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           color: isRed ? Colors.red : Colors.black87,
         ),
       ),
-      onTap: () => Navigator.pop(context),
+      onTap: onTap ?? () => Navigator.pop(context),
     );
   }
 }
@@ -1352,12 +1408,15 @@ class _SnapshotDetailCard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color: color.shade700,
+                      color: color.withOpacity(0.9),
                     ),
                   ),
                   const SizedBox(height: 4),
                   ...snapshot.entries
-                      .where((e) => e.key != 'icon' && e.key != 'color')
+                      .where(
+                        (MapEntry<String, dynamic> e) =>
+                            e.key != 'icon' && e.key != 'color',
+                      )
                       .take(4)
                       .map(
                         (e) => Padding(
