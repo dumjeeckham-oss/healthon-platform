@@ -151,6 +151,8 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
       children: [
         const SizedBox(height: 12),
         const CommentHeader(),
+        const SizedBox(height: 4),
+        const CommentSortDropdown(),
         const SizedBox(height: 8),
 
         _CommentListCore(
@@ -175,10 +177,10 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
 }
 
 // ===================================================================
-// Comment List Core
+// Comment List Core — with reply expand/collapse
 // ===================================================================
 
-class _CommentListCore extends StatelessWidget {
+class _CommentListCore extends StatefulWidget {
   final AsyncValue<List<CommunityComment>> asyncComments;
   final void Function({required String commentId, required String userName}) onReply;
   final void Function(String commentId) onDelete;
@@ -190,8 +192,17 @@ class _CommentListCore extends StatelessWidget {
   });
 
   @override
+  State<_CommentListCore> createState() => _CommentListCoreState();
+}
+
+class _CommentListCoreState extends State<_CommentListCore> {
+  final Set<String> _expandedReplyRoots = {};
+
+  static const int _maxRepliesCollapsed = 3;
+
+  @override
   Widget build(BuildContext context) {
-    return asyncComments.when(
+    return widget.asyncComments.when(
       loading: () => const Padding(
         padding: EdgeInsets.all(24),
         child: Center(
@@ -222,48 +233,110 @@ class _CommentListCore extends StatelessWidget {
         final List<CommunityComment> roots =
             comments.where((c) => c.isRoot).toList();
 
-        final List<CommunityComment> sortedRoots =
-            List<CommunityComment>.from(roots)
-              ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
         final String lastId =
-                comments.isNotEmpty ? comments.last.id : '';
+            comments.isNotEmpty ? comments.last.id : '';
 
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Column(
             key: ValueKey('comments_${comments.length}_$lastId'),
-            children: sortedRoots.map((root) {
+            children: roots.map((root) {
               final List<CommunityComment> replies = comments
                   .where((c) => c.parentId == root.id)
                   .toList();
+
+              final bool hasReplies = replies.isNotEmpty;
+              final bool repliesExpanded =
+                  _expandedReplyRoots.contains(root.id);
+              final bool shouldCollapse =
+                  hasReplies && replies.length > _maxRepliesCollapsed;
 
               return Column(
                 key: ValueKey('root_${root.id}'),
                 children: [
                   CommentTile(
                     comment: root,
-                    onReply: () => onReply(
+                    onReply: () => widget.onReply(
                       commentId: root.id,
                       userName: root.userId,
                     ),
+                    onDelete: () => widget.onDelete(root.id),
                   ),
 
-                  if (replies.isNotEmpty)
+                  if (hasReplies)
                     Padding(
                       padding: const EdgeInsets.only(left: 52),
                       child: Column(
-                        children: replies.map((r) {
-                          return CommentTile(
-                            key: ValueKey('reply_${r.id}'),
-                            comment: r,
-                            isReply: true,
-                            onReply: () => onReply(
-                              commentId: r.id,
-                              userName: r.userId,
+                        children: [
+                          ...replies
+                              .take(repliesExpanded
+                                  ? replies.length
+                                  : _maxRepliesCollapsed)
+                              .map((r) {
+                            return CommentTile(
+                              key: ValueKey('reply_${r.id}'),
+                              comment: r,
+                              isReply: true,
+                              onReply: () => widget.onReply(
+                                commentId: r.id,
+                                userName: r.userId,
+                              ),
+                              onDelete: () => widget.onDelete(r.id),
+                            );
+                          }),
+
+                          // --- Expand / Collapse button ---
+                          if (shouldCollapse)
+                            AnimatedSize(
+                              duration:
+                                  const Duration(milliseconds: 250),
+                              curve: Curves.easeInOut,
+                              alignment: Alignment.topCenter,
+                              child: Semantics(
+                                button: true,
+                                label: repliesExpanded
+                                    ? '답글 접기'
+                                    : '답글 ${replies.length}개 보기',
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      if (repliesExpanded) {
+                                        _expandedReplyRoots
+                                            .remove(root.id);
+                                      } else {
+                                        _expandedReplyRoots
+                                            .add(root.id);
+                                      }
+                                    });
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 4, left: 16),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 24,
+                                          height: 1,
+                                          color: Colors.grey.shade300,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          repliesExpanded
+                                              ? '답글 접기'
+                                              : '답글 ${replies.length}개 보기',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey.shade600,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          );
-                        }).toList(),
+                        ],
                       ),
                     ),
                 ],

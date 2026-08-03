@@ -31,6 +31,9 @@ class CommunityComment {
   /// 작성시간
   final DateTime createdAt;
 
+  /// 수정시간
+  final DateTime? updatedAt;
+
   const CommunityComment({
     required this.id,
     required this.postId,
@@ -39,6 +42,7 @@ class CommunityComment {
     required this.content,
     this.likeCount = 0,
     required this.createdAt,
+    this.updatedAt,
   });
 
   /// ===============================================================
@@ -69,6 +73,12 @@ class CommunityComment {
   bool get isReply => parentId != null;
 
   /// ===============================================================
+  /// 수정되었는가?
+  /// ===============================================================
+
+  bool get isEdited => updatedAt != null;
+
+  /// ===============================================================
   /// Supabase -> Model
   /// ===============================================================
 
@@ -77,20 +87,17 @@ class CommunityComment {
   ) {
     return CommunityComment(
       id: map["id"] ?? "",
-
       postId: map["post_id"] ?? "",
-
       userId: map["user_id"] ?? "",
-
       parentId: map["parent_id"],
-
       content: map["content"] ?? "",
-
       likeCount: map["like_count"] ?? 0,
-
       createdAt: map["created_at"] != null
           ? DateTime.parse(map["created_at"])
           : DateTime.now(),
+      updatedAt: map["updated_at"] != null
+          ? DateTime.parse(map["updated_at"])
+          : null,
     );
   }
 
@@ -107,6 +114,7 @@ class CommunityComment {
       "content": content,
       "like_count": likeCount,
       "created_at": createdAt.toIso8601String(),
+      if (updatedAt != null) "updated_at": updatedAt!.toIso8601String(),
     };
   }
 
@@ -122,6 +130,7 @@ class CommunityComment {
     String? content,
     int? likeCount,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return CommunityComment(
       id: id ?? this.id,
@@ -131,6 +140,7 @@ class CommunityComment {
       content: content ?? this.content,
       likeCount: likeCount ?? this.likeCount,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -147,4 +157,17 @@ CommunityComment(
 )
 ''';
   }
+}
+
+// ===============================================================
+// Comment Sort Type
+// ===============================================================
+
+enum CommentSortType {
+  latest('최신순'),
+  oldest('오래된순'),
+  mostLiked('좋아요순');
+
+  const CommentSortType(this.label);
+  final String label;
 }

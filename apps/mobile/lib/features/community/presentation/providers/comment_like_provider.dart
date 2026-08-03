@@ -19,8 +19,7 @@ class CommentLikeState {
 class CommentLikeNotifier extends StateNotifier<CommentLikeState> {
   CommentLikeNotifier() : super(CommentLikeState.initial());
 
-  bool isLiked(String commentId) =>
-      state.likedIds.contains(commentId);
+  bool isLiked(String commentId) => state.likedIds.contains(commentId);
 
   void toggle(String commentId) {
     final Set<String> next = Set<String>.from(state.likedIds);
@@ -29,6 +28,18 @@ class CommentLikeNotifier extends StateNotifier<CommentLikeState> {
       next.remove(commentId);
     } else {
       next.add(commentId);
+    }
+
+    state = CommentLikeState._(next);
+  }
+
+  void setLiked(String commentId, bool liked) {
+    final Set<String> next = Set<String>.from(state.likedIds);
+
+    if (liked) {
+      next.add(commentId);
+    } else {
+      next.remove(commentId);
     }
 
     state = CommentLikeState._(next);

@@ -1,8 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../data/community_repository.dart';
+import '../../data/community_mapper.dart';
+import '../../data/supabase_community_repository.dart';
 import '../../domain/models/community_post.dart';
 import '../../domain/models/community_comment.dart';
+
+// ===============================================================
+// Community Repository Exception
+// ===============================================================
+
+class CommunityRepositoryException implements Exception {
+  final String message;
+  final Object? cause;
+  final StackTrace? stackTrace;
+
+  const CommunityRepositoryException(
+    this.message, {
+    this.cause,
+    this.stackTrace,
+  });
+
+  @override
+  String toString() => 'CommunityRepositoryException: $message';
+}
 
 // ===============================================================
 // Community Repository Interface
@@ -19,9 +41,13 @@ abstract class ICommunityRepository {
 
   Future<void> deletePost(String postId);
 
-  Future<List<CommunityComment>> loadComments(String postId);
+  Future<List<CommunityComment>> loadComments(String postId, {CommentSortType sort = CommentSortType.oldest});
+
+  Future<List<CommunityComment>> loadCommentsPaged(String postId, {CommentSortType sort = CommentSortType.oldest, int offset = 0, int limit = 20});
 
   Future<void> addComment(CommunityComment comment);
+
+  Future<void> updateComment(CommunityComment comment);
 
   Future<void> deleteComment(String commentId);
 
@@ -32,6 +58,33 @@ abstract class ICommunityRepository {
   Future<void> bookmark({required String userId, required String postId});
 
   Future<void> unBookmark({required String userId, required String postId});
+
+  Future<bool> isPostLiked(String userId, String postId);
+
+  Future<bool> isBookmarked(String userId, String postId);
+
+  Future<void> toggleCommentLike({required String userId, required String commentId});
+
+  Future<bool> isCommentLiked(String userId, String commentId);
+
+  Future<void> reportPost({required String reporterId, required String postId, required String reason});
+
+  Future<void> reportComment({required String reporterId, required String commentId, required String reason});
+}
+
+// ===============================================================
+// Report Reason Constants
+// ===============================================================
+
+enum ReportReason {
+  spam('스팸'),
+  abusive('욕설'),
+  advertising('광고'),
+  inappropriate('음란물'),
+  other('기타');
+
+  const ReportReason(this.label);
+  final String label;
 }
 
 // ===============================================================
@@ -43,6 +96,7 @@ class MockCommunityRepository implements ICommunityRepository {
   final Map<String, List<CommunityComment>> _comments = {};
   final Set<String> _likedPostIds = {};
   final Set<String> _bookmarkedPostIds = {};
+  final Set<String> _likedCommentIds = {};
 
   /// 게시글 더미 데이터
   MockCommunityRepository() {
@@ -136,81 +190,58 @@ class MockCommunityRepository implements ICommunityRepository {
   }) async {
     try {
       List<CommunityPost> result = List<CommunityPost>.from(_posts);
-
       if (category != null) {
         result = result.where((p) => p.category == category).toList();
       }
-
       result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      if (result.length > limit) {
-        result = result.sublist(0, limit);
-      }
-
+      if (result.length > limit) result = result.sublist(0, limit);
       return result;
-    } catch (e) {
-      rethrow;
-    }
+    } catch (e) { rethrow; }
   }
 
   @override
   Future<CommunityPost> getPost(String postId) async {
     try {
-      final post = _posts.firstWhere(
-        (p) => p.id == postId,
-        orElse: () => CommunityPost.empty(),
-      );
-
-      return post;
-    } catch (e) {
-      rethrow;
-    }
+      return _posts.firstWhere((p) => p.id == postId, orElse: () => CommunityPost.empty());
+    } catch (e) { rethrow; }
   }
 
   @override
   Future<void> createPost(CommunityPost post) async {
-    try {
-      _posts.insert(0, post);
-      _comments[post.id] = [];
-    } catch (e) {
-      rethrow;
-    }
+    try { _posts.insert(0, post); _comments[post.id] = []; } catch (e) { rethrow; }
   }
 
   @override
   Future<void> updatePost(CommunityPost post) async {
     try {
-      final index = _posts.indexWhere((p) => p.id == post.id);
-      if (index != -1) {
-        _posts[index] = post;
-      }
-    } catch (e) {
-      rethrow;
-    }
+      final idx = _posts.indexWhere((p) => p.id == post.id);
+      if (idx != -1) _posts[idx] = post;
+    } catch (e) { rethrow; }
   }
 
   @override
   Future<void> deletePost(String postId) async {
-    try {
-      _posts.removeWhere((p) => p.id == postId);
-      _comments.remove(postId);
-    } catch (e) {
-      rethrow;
-    }
+    try { _posts.removeWhere((p) => p.id == postId); _comments.remove(postId); } catch (e) { rethrow; }
   }
 
   @override
-  Future<List<CommunityComment>> loadComments(String postId) async {
+  Future<List<CommunityComment>> loadComments(String postId, {CommentSortType sort = CommentSortType.oldest}) async {
     try {
-      final List<CommunityComment> list =
-          List<CommunityComment>.from(_comments[postId] ?? []);
-
-      list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
+      final List<CommunityComment> list = List<CommunityComment>.from(_comments[postId] ?? []);
+      switch (sort) {
+        case CommentSortType.latest: list.sort((a, b) => b.createdAt.compareTo(a.createdAt)); break;
+        case CommentSortType.oldest: list.sort((a, b) => a.createdAt.compareTo(b.createdAt)); break;
+        case CommentSortType.mostLiked: list.sort((a, b) => b.likeCount.compareTo(a.likeCount)); break;
+      }
       return list;
-    } catch (e) {
-      rethrow;
-    }
+    } catch (e) { rethrow; }
+  }
+
+  @override
+  Future<List<CommunityComment>> loadCommentsPaged(String postId, {CommentSortType sort = CommentSortType.oldest, int offset = 0, int limit = 20}) async {
+    final all = await loadComments(postId, sort: sort);
+    if (offset >= all.length) return [];
+    return all.skip(offset).take(limit).toList();
   }
 
   @override
@@ -218,16 +249,22 @@ class MockCommunityRepository implements ICommunityRepository {
     try {
       _comments.putIfAbsent(comment.postId, () => []);
       _comments[comment.postId]!.add(comment);
+      final pi = _posts.indexWhere((p) => p.id == comment.postId);
+      if (pi != -1) _posts[pi] = _posts[pi].copyWith(commentCount: _posts[pi].commentCount + 1);
+    } catch (e) { rethrow; }
+  }
 
-      final postIndex = _posts.indexWhere((p) => p.id == comment.postId);
-      if (postIndex != -1) {
-        _posts[postIndex] = _posts[postIndex].copyWith(
-          commentCount: _posts[postIndex].commentCount + 1,
-        );
+  @override
+  Future<void> updateComment(CommunityComment comment) async {
+    try {
+      for (final entry in _comments.entries) {
+        final idx = entry.value.indexWhere((c) => c.id == comment.id);
+        if (idx != -1) {
+          entry.value[idx] = entry.value[idx].copyWith(content: comment.content, updatedAt: DateTime.now());
+          break;
+        }
       }
-    } catch (e) {
-      rethrow;
-    }
+    } catch (e) { rethrow; }
   }
 
   @override
@@ -235,508 +272,344 @@ class MockCommunityRepository implements ICommunityRepository {
     try {
       String? postId;
       for (final entry in _comments.entries) {
-        final index = entry.value.indexWhere((c) => c.id == commentId);
-        if (index != -1) {
-          postId = entry.key;
-          entry.value.removeAt(index);
-          break;
-        }
+        final idx = entry.value.indexWhere((c) => c.id == commentId);
+        if (idx != -1) { postId = entry.key; entry.value.removeAt(idx); break; }
       }
-
       if (postId != null) {
-        final postIndex = _posts.indexWhere((p) => p.id == postId);
-        if (postIndex != -1) {
-          _posts[postIndex] = _posts[postIndex].copyWith(
-            commentCount: (_posts[postIndex].commentCount - 1).clamp(0, 999999),
-          );
-        }
+        final pi = _posts.indexWhere((p) => p.id == postId);
+        if (pi != -1) _posts[pi] = _posts[pi].copyWith(commentCount: (_posts[pi].commentCount - 1).clamp(0, 999999));
       }
-    } catch (e) {
-      rethrow;
-    }
+    } catch (e) { rethrow; }
   }
 
   @override
-  Future<void> likePost({
-    required String userId,
-    required String postId,
-  }) async {
+  Future<void> likePost({required String userId, required String postId}) async {
     try {
-      final key = '${userId}_$postId';
-      _likedPostIds.add(key);
-
-      final index = _posts.indexWhere((p) => p.id == postId);
-      if (index != -1) {
-        _posts[index] = _posts[index].copyWith(
-          likeCount: _posts[index].likeCount + 1,
-        );
-      }
-    } catch (e) {
-      rethrow;
-    }
+      _likedPostIds.add('${userId}_$postId');
+      final idx = _posts.indexWhere((p) => p.id == postId);
+      if (idx != -1) _posts[idx] = _posts[idx].copyWith(likeCount: _posts[idx].likeCount + 1);
+    } catch (e) { rethrow; }
   }
 
   @override
-  Future<void> unlikePost({
-    required String userId,
-    required String postId,
-  }) async {
+  Future<void> unlikePost({required String userId, required String postId}) async {
     try {
-      final key = '${userId}_$postId';
-      if (_likedPostIds.contains(key)) {
-        _likedPostIds.remove(key);
-
-        final index = _posts.indexWhere((p) => p.id == postId);
-        if (index != -1) {
-          _posts[index] = _posts[index].copyWith(
-            likeCount: (_posts[index].likeCount - 1).clamp(0, 999999),
-          );
-        }
+      final k = '${userId}_$postId';
+      if (_likedPostIds.contains(k)) {
+        _likedPostIds.remove(k);
+        final idx = _posts.indexWhere((p) => p.id == postId);
+        if (idx != -1) _posts[idx] = _posts[idx].copyWith(likeCount: (_posts[idx].likeCount - 1).clamp(0, 999999));
       }
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// 게시글 좋아요 여부 반환
-  bool isPostLiked(String userId, String postId) {
-    return _likedPostIds.contains('${userId}_$postId');
+    } catch (e) { rethrow; }
   }
 
   @override
-  Future<void> bookmark({
-    required String userId,
-    required String postId,
-  }) async {
+  Future<bool> isPostLiked(String userId, String postId) async => _likedPostIds.contains('${userId}_$postId');
+
+  @override
+  Future<void> bookmark({required String userId, required String postId}) async {
     try {
       _bookmarkedPostIds.add('${userId}_$postId');
-
-      final index = _posts.indexWhere((p) => p.id == postId);
-      if (index != -1) {
-        _posts[index] = _posts[index].copyWith(
-          bookmarkCount: _posts[index].bookmarkCount + 1,
-        );
-      }
-    } catch (e) {
-      rethrow;
-    }
+      final idx = _posts.indexWhere((p) => p.id == postId);
+      if (idx != -1) _posts[idx] = _posts[idx].copyWith(bookmarkCount: _posts[idx].bookmarkCount + 1);
+    } catch (e) { rethrow; }
   }
 
   @override
-  Future<void> unBookmark({
-    required String userId,
-    required String postId,
-  }) async {
+  Future<void> unBookmark({required String userId, required String postId}) async {
     try {
-      final key = '${userId}_$postId';
-      if (_bookmarkedPostIds.contains(key)) {
-        _bookmarkedPostIds.remove(key);
-
-        final index = _posts.indexWhere((p) => p.id == postId);
-        if (index != -1) {
-          _posts[index] = _posts[index].copyWith(
-            bookmarkCount: (_posts[index].bookmarkCount - 1).clamp(0, 999999),
-          );
-        }
+      final k = '${userId}_$postId';
+      if (_bookmarkedPostIds.contains(k)) {
+        _bookmarkedPostIds.remove(k);
+        final idx = _posts.indexWhere((p) => p.id == postId);
+        if (idx != -1) _posts[idx] = _posts[idx].copyWith(bookmarkCount: (_posts[idx].bookmarkCount - 1).clamp(0, 999999));
       }
-    } catch (e) {
-      rethrow;
-    }
+    } catch (e) { rethrow; }
   }
 
-  /// 북마크 여부 반환
-  bool isBookmarked(String userId, String postId) {
-    return _bookmarkedPostIds.contains('${userId}_$postId');
+  @override
+  Future<bool> isBookmarked(String userId, String postId) async => _bookmarkedPostIds.contains('${userId}_$postId');
+
+  @override
+  Future<void> toggleCommentLike({required String userId, required String commentId}) async {
+    try {
+      final k = '${userId}_$commentId';
+      if (_likedCommentIds.contains(k)) {
+        _likedCommentIds.remove(k);
+      } else {
+        _likedCommentIds.add(k);
+      }
+    } catch (e) { rethrow; }
   }
+
+  @override
+  Future<bool> isCommentLiked(String userId, String commentId) async => _likedCommentIds.contains('${userId}_$commentId');
+
+  @override
+  Future<void> reportPost({required String reporterId, required String postId, required String reason}) async {}
+  @override
+  Future<void> reportComment({required String reporterId, required String commentId, required String reason}) async {}
 }
 
 // ===============================================================
-// Repository Provider
+// Supabase Client Provider
 // ===============================================================
 
-final communityRepositoryProvider =
-    Provider<ICommunityRepository>(
+final supabaseProvider = Provider<SupabaseClient>(
+  (ref) => Supabase.instance.client,
+);
+
+// ===============================================================
+// Repository Provider (Production)
+// ===============================================================
+
+final communityRepositoryProvider = Provider<ICommunityRepository>(
+  (ref) => SupabaseCommunityRepository(ref.watch(supabaseProvider)),
+);
+
+// ===============================================================
+// Mock Repository Provider (Debug / Development)
+// ===============================================================
+
+final debugMockCommunityRepositoryProvider = Provider<ICommunityRepository>(
   (ref) => MockCommunityRepository(),
+);
+
+// ===============================================================
+// 정렬 상태 Provider
+// ===============================================================
+
+final commentSortProvider = StateProvider<CommentSortType>(
+  (ref) => CommentSortType.oldest,
 );
 
 // ===============================================================
 // 게시글 목록
 // ===============================================================
 
-final communityPostsProvider =
-    FutureProvider<List<CommunityPost>>(
-  (ref) async {
-    try {
-      final repository =
-          ref.watch(communityRepositoryProvider);
-
-      return repository.loadPosts();
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final communityPostsProvider = FutureProvider<List<CommunityPost>>((ref) async {
+  try {
+    final repo = ref.watch(communityRepositoryProvider);
+    return repo.loadPosts();
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 카테고리별 게시글
 // ===============================================================
 
-final communityCategoryProvider =
-    FutureProvider.family<
-        List<CommunityPost>,
-        CommunityCategory>(
-  (ref, category) async {
-    try {
-      final repository =
-          ref.watch(communityRepositoryProvider);
-
-      return repository.loadPosts(
-        category: category,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final communityCategoryProvider = FutureProvider.family<List<CommunityPost>, CommunityCategory>((ref, cat) async {
+  try {
+    final repo = ref.watch(communityRepositoryProvider);
+    return repo.loadPosts(category: cat);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 게시글 상세
 // ===============================================================
 
-final communityPostProvider =
-    FutureProvider.family<
-        CommunityPost,
-        String>(
-  (ref, postId) async {
-    try {
-      final repository =
-          ref.watch(communityRepositoryProvider);
-
-      return repository.getPost(postId);
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final communityPostProvider = FutureProvider.family<CommunityPost, String>((ref, postId) async {
+  try {
+    final repo = ref.watch(communityRepositoryProvider);
+    return repo.getPost(postId);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
-// 댓글 목록
+// 댓글 목록 (정렬 지원)
 // ===============================================================
 
-final communityCommentsProvider =
-    FutureProvider.family<
-        List<CommunityComment>,
-        String>(
-  (ref, postId) async {
-    try {
-      final repository =
-          ref.watch(communityRepositoryProvider);
-
-      return repository.loadComments(postId);
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final communityCommentsProvider = FutureProvider.family<List<CommunityComment>, String>((ref, postId) async {
+  try {
+    final repo = ref.watch(communityRepositoryProvider);
+    final sort = ref.watch(commentSortProvider);
+    return repo.loadComments(postId, sort: sort);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 게시글 작성
 // ===============================================================
 
-final createPostProvider =
-    FutureProvider.family<void, CommunityPost>(
-  (ref, post) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
-
-      await repository.createPost(post);
-
-      ref.invalidate(
-        communityPostsProvider,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final createPostProvider = FutureProvider.family<void, CommunityPost>((ref, post) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.createPost(post);
+    ref.invalidate(communityPostsProvider);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 댓글 작성
 // ===============================================================
 
-final addCommentProvider =
-    FutureProvider.family<
-        void,
-        CommunityComment>(
-  (ref, comment) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
+final addCommentProvider = FutureProvider.family<void, CommunityComment>((ref, comment) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.addComment(comment);
+    ref.invalidate(communityCommentsProvider(comment.postId));
+    ref.invalidate(communityPostsProvider);
+  } catch (e) { rethrow; }
+});
 
-      await repository.addComment(comment);
+// ===============================================================
+// 댓글 수정
+// ===============================================================
 
-      ref.invalidate(
-        communityCommentsProvider(
-          comment.postId,
-        ),
-      );
-
-      ref.invalidate(
-        communityPostsProvider,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final updateCommentProvider = FutureProvider.family<void, CommunityComment>((ref, comment) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.updateComment(comment);
+    ref.invalidate(communityCommentsProvider(comment.postId));
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 댓글 삭제
 // ===============================================================
 
-final deleteCommentProvider =
-    FutureProvider.family<
-        void,
-        ({String postId, String commentId})>(
-  (ref, params) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
+final deleteCommentProvider = FutureProvider.family<void, ({String postId, String commentId})>((ref, params) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.deleteComment(params.commentId);
+    ref.invalidate(communityCommentsProvider(params.postId));
+    ref.invalidate(communityPostsProvider);
+  } catch (e) { rethrow; }
+});
 
-      await repository.deleteComment(params.commentId);
+// ===============================================================
+// 댓글 좋아요 토글
+// ===============================================================
 
-      ref.invalidate(
-        communityCommentsProvider(params.postId),
-      );
+final toggleCommentLikeProvider = FutureProvider.family<void, ({String userId, String commentId, String postId})>((ref, params) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.toggleCommentLike(userId: params.userId, commentId: params.commentId);
+    ref.invalidate(communityCommentsProvider(params.postId));
+  } catch (e) { rethrow; }
+});
 
-      ref.invalidate(communityPostsProvider);
-    } catch (e) {
-      rethrow;
+// ===============================================================
+// 게시글 좋아요 토글 (Optimistic)
+// ===============================================================
+
+final togglePostLikeProvider = FutureProvider.family<void, String>((ref, postId) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    final String uid = Supabase.instance.client.auth.currentUser?.id ?? 'current_user';
+    final bool liked = await repo.isPostLiked(uid, postId);
+    if (liked) {
+      await repo.unlikePost(userId: uid, postId: postId);
+    } else {
+      await repo.likePost(userId: uid, postId: postId);
     }
-  },
-);
+    ref.invalidate(communityPostProvider(postId));
+    ref.invalidate(communityPostsProvider);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
-// 게시글 좋아요 토글
+// 북마크 토글 (Optimistic)
 // ===============================================================
 
-final togglePostLikeProvider =
-    FutureProvider.family<void, String>(
-  (ref, postId) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
-
-      const String currentUserId = 'current_user';
-
-      if (repository is MockCommunityRepository) {
-        if (repository.isPostLiked(currentUserId, postId)) {
-          await repository.unlikePost(
-            userId: currentUserId,
-            postId: postId,
-          );
-        } else {
-          await repository.likePost(
-            userId: currentUserId,
-            postId: postId,
-          );
-        }
-      }
-
-      ref.invalidate(communityPostProvider(postId));
-      ref.invalidate(communityPostsProvider);
-    } catch (e) {
-      rethrow;
+final toggleBookmarkProvider = FutureProvider.family<void, String>((ref, postId) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    final String uid = Supabase.instance.client.auth.currentUser?.id ?? 'current_user';
+    final bool bookmarked = await repo.isBookmarked(uid, postId);
+    if (bookmarked) {
+      await repo.unBookmark(userId: uid, postId: postId);
+    } else {
+      await repo.bookmark(userId: uid, postId: postId);
     }
-  },
-);
+    ref.invalidate(communityPostProvider(postId));
+    ref.invalidate(communityPostsProvider);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
-// 북마크 토글
+// 게시글 신고
 // ===============================================================
 
-final toggleBookmarkProvider =
-    FutureProvider.family<void, String>(
-  (ref, postId) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
+final reportPostProvider = FutureProvider.family<void, ({String reporterId, String postId, String reason})>((ref, p) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.reportPost(reporterId: p.reporterId, postId: p.postId, reason: p.reason);
+  } catch (e) { rethrow; }
+});
 
-      const String currentUserId = 'current_user';
+// ===============================================================
+// 댓글 신고
+// ===============================================================
 
-      if (repository is MockCommunityRepository) {
-        if (repository.isBookmarked(currentUserId, postId)) {
-          await repository.unBookmark(
-            userId: currentUserId,
-            postId: postId,
-          );
-        } else {
-          await repository.bookmark(
-            userId: currentUserId,
-            postId: postId,
-          );
-        }
-      }
-
-      ref.invalidate(communityPostProvider(postId));
-      ref.invalidate(communityPostsProvider);
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final reportCommentProvider = FutureProvider.family<void, ({String reporterId, String commentId, String reason})>((ref, p) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.reportComment(reporterId: p.reporterId, commentId: p.commentId, reason: p.reason);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 게시글 새로고침
 // ===============================================================
 
-final refreshCommunityPostProvider =
-    FutureProvider.family<void, String>(
-  (ref, postId) async {
-    try {
-      ref.invalidate(communityPostProvider(postId));
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final refreshCommunityPostProvider = FutureProvider.family<void, String>((ref, postId) async {
+  ref.invalidate(communityPostProvider(postId));
+});
 
 // ===============================================================
 // 댓글 새로고침
 // ===============================================================
 
-final refreshCommentsProvider =
-    FutureProvider.family<void, String>(
-  (ref, postId) async {
-    try {
-      ref.invalidate(communityCommentsProvider(postId));
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final refreshCommentsProvider = FutureProvider.family<void, String>((ref, postId) async {
+  ref.invalidate(communityCommentsProvider(postId));
+});
 
 // ===============================================================
 // 좋아요 (기존)
 // ===============================================================
 
-final likePostProvider =
-    FutureProvider.family<
-        void,
-        ({
-          String userId,
-          String postId,
-        })>(
-  (ref, params) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
-
-      await repository.likePost(
-        userId: params.userId,
-        postId: params.postId,
-      );
-
-      ref.invalidate(
-        communityPostsProvider,
-      );
-
-      ref.invalidate(
-        communityPostProvider(
-          params.postId,
-        ),
-      );
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final likePostProvider = FutureProvider.family<void, ({String userId, String postId})>((ref, p) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.likePost(userId: p.userId, postId: p.postId);
+    ref.invalidate(communityPostsProvider);
+    ref.invalidate(communityPostProvider(p.postId));
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 좋아요 취소 (기존)
 // ===============================================================
 
-final unlikePostProvider =
-    FutureProvider.family<
-        void,
-        ({
-          String userId,
-          String postId,
-        })>(
-  (ref, params) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
-
-      await repository.unlikePost(
-        userId: params.userId,
-        postId: params.postId,
-      );
-
-      ref.invalidate(
-        communityPostsProvider,
-      );
-
-      ref.invalidate(
-        communityPostProvider(
-          params.postId,
-        ),
-      );
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final unlikePostProvider = FutureProvider.family<void, ({String userId, String postId})>((ref, p) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.unlikePost(userId: p.userId, postId: p.postId);
+    ref.invalidate(communityPostsProvider);
+    ref.invalidate(communityPostProvider(p.postId));
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 북마크 (기존)
 // ===============================================================
 
-final bookmarkProvider =
-    FutureProvider.family<
-        void,
-        ({
-          String userId,
-          String postId,
-        })>(
-  (ref, params) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
-
-      await repository.bookmark(
-        userId: params.userId,
-        postId: params.postId,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final bookmarkProvider = FutureProvider.family<void, ({String userId, String postId})>((ref, p) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.bookmark(userId: p.userId, postId: p.postId);
+  } catch (e) { rethrow; }
+});
 
 // ===============================================================
 // 북마크 취소 (기존)
 // ===============================================================
 
-final unBookmarkProvider =
-    FutureProvider.family<
-        void,
-        ({
-          String userId,
-          String postId,
-        })>(
-  (ref, params) async {
-    try {
-      final repository =
-          ref.read(communityRepositoryProvider);
-
-      await repository.unBookmark(
-        userId: params.userId,
-        postId: params.postId,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  },
-);
+final unBookmarkProvider = FutureProvider.family<void, ({String userId, String postId})>((ref, p) async {
+  try {
+    final repo = ref.read(communityRepositoryProvider);
+    await repo.unBookmark(userId: p.userId, postId: p.postId);
+  } catch (e) { rethrow; }
+});

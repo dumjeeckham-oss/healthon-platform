@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../domain/models/community_post.dart';
 import '../providers/community_provider.dart';
@@ -144,7 +145,98 @@ class _CommunityDetailScreenState
   // Menu
   // ===============================================================
 
-  void _showMenu() {
+  ReportReason? _selectedReportReason;
+
+  void _showReportDialog(CommunityPost post) {
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('게시글 신고'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ReportReason.values
+                .map(
+                  (r) => RadioListTile<ReportReason>(
+                    title: Text(r.label),
+                    value: r,
+                    groupValue: _selectedReportReason,
+                    onChanged: (v) {
+                      setState(() => _selectedReportReason = v);
+                    },
+                    activeColor: const Color(0xFF2E7D32),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                )
+                .toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() => _selectedReportReason = null);
+                Navigator.pop(context);
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: _selectedReportReason != null
+                  ? () async {
+                      Navigator.pop(context);
+                      final String currentUserId =
+                          Supabase.instance.client.auth.currentUser?.id ??
+                              'current_user';
+                      try {
+                        await ref
+                            .read(
+                              reportPostProvider(
+                                (
+                                  reporterId: currentUserId,
+                                  postId: post.id,
+                                  reason: _selectedReportReason!.name,
+                                ),
+                              ).future,
+                            );
+                      } catch (_) {
+                        // 실패해도 SnackBar 표시
+                      }
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('신고가 접수되었습니다'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        setState(() => _selectedReportReason = null);
+                      }
+                    }
+                  : null,
+              child: const Text(
+                '신고',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _sharePost(CommunityPost post) {
+    final String text = '''HealthON에서 공유된 게시글
+
+"${post.title}"
+
+${post.content.length > 80 ? '${post.content.substring(0, 80)}...' : post.content}
+
+https://healthon.app/post/${post.id}''';
+
+    Share.share(text, subject: post.title);
+  }
+
+  void _showMenu(CommunityPost post) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -197,19 +289,14 @@ class _CommunityDetailScreenState
                 isRed: true,
                 onTap: () {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('신고가 접수되었습니다'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
+                  _showReportDialog(post);
                 },
               ),
               _menuTile(Icons.block_outlined, '차단'),
-              _menuTile(Icons.share_outlined, '공유'),
+              _menuTile(Icons.share_outlined, '공유', onTap: () {
+                Navigator.pop(context);
+                _sharePost(post);
+              }),
               const Divider(),
               _menuTile(Icons.close, '닫기'),
             ],
@@ -279,7 +366,7 @@ class _CommunityDetailScreenState
             backgroundColor: Colors.grey.shade300,
             elevation: 0,
             leading: _backButton(),
-            actions: [_moreButton()],
+            actions: [_moreButtonLoading()],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(color: Colors.grey.shade300),
             ),
@@ -434,7 +521,7 @@ class _CommunityDetailScreenState
               backgroundColor: const Color(0xFF2E7D32),
               elevation: 0,
               leading: _backButton(),
-              actions: [_moreButton()],
+              actions: [_moreButton(post)],
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
                   fit: StackFit.expand,
@@ -796,7 +883,7 @@ class _CommunityDetailScreenState
                           button: true,
                           label: '공유',
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: () => _sharePost(post),
                             icon: const Icon(Icons.share_outlined),
                           ),
                         ),
@@ -991,7 +1078,7 @@ class _CommunityDetailScreenState
     );
   }
 
-  Widget _moreButton() {
+  Widget _moreButtonLoading() {
     return IconButton(
       icon: Container(
         width: 36,
@@ -1006,7 +1093,26 @@ class _CommunityDetailScreenState
           size: 20,
         ),
       ),
-      onPressed: _showMenu,
+      onPressed: null,
+    );
+  }
+
+  Widget _moreButton(CommunityPost post) {
+    return IconButton(
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Colors.black26,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.more_horiz,
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+      onPressed: () => _showMenu(post),
     );
   }
 
