@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// ===============================================================
 ///
@@ -88,6 +89,9 @@ Widget commentBody({
   required VoidCallback onLikeToggle,
   required bool liked,
   bool isEdited = false,
+  List<String> images = const [],
+  String? gifUrl,
+  List<String> mentions = const [],
 }) {
   return _CommentBodyCore(
     userId: userId,
@@ -99,6 +103,9 @@ Widget commentBody({
     onLikeToggle: onLikeToggle,
     liked: liked,
     isEdited: isEdited,
+    images: images,
+    gifUrl: gifUrl,
+    mentions: mentions,
   );
 }
 
@@ -112,6 +119,9 @@ class _CommentBodyCore extends StatefulWidget {
   final VoidCallback onLikeToggle;
   final bool liked;
   final bool isEdited;
+  final List<String> images;
+  final String? gifUrl;
+  final List<String> mentions;
 
   const _CommentBodyCore({
     required this.userId,
@@ -123,6 +133,9 @@ class _CommentBodyCore extends StatefulWidget {
     required this.onLikeToggle,
     required this.liked,
     required this.isEdited,
+    this.images = const [],
+    this.gifUrl,
+    this.mentions = const [],
   });
 
   @override
@@ -217,6 +230,31 @@ class _CommentBodyCoreState extends State<_CommentBodyCore> {
 
         const SizedBox(height: 4),
 
+        // --- Image Grid (max 3-col) ---
+        if (widget.images.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: _CommentImageGrid(images: widget.images),
+          ),
+
+        // --- GIF ---
+        if (widget.gifUrl != null && widget.gifUrl!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: GestureDetector(
+              onTap: () => _showFullScreenImage(context, widget.gifUrl!),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  widget.gifUrl!,
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+
         // --- Actions ---
         Row(
           children: [
@@ -258,6 +296,76 @@ class _CommentBodyCoreState extends State<_CommentBodyCore> {
   }
 }
 
+// ===============================================================
+// Comment Image Grid (3-column max)
+// ===============================================================
+
+class _CommentImageGrid extends StatelessWidget {
+  final List<String> images;
+  const _CommentImageGrid({required this.images});
+
+  @override
+  Widget build(BuildContext context) {
+    final display = images.length > 5 ? images.sublist(0, 5) : images;
+    final cols = display.length == 1 ? 1 : display.length == 2 ? 2 : 3;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 4,
+          runSpacing: 4,
+          children: display.map((url) {
+            return GestureDetector(
+              onTap: () => _showFullScreenImage(context, url),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  url,
+                  width: cols == 1 ? 200 : 100,
+                  height: cols == 1 ? 150 : 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        if (images.length > 5)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              '+ ${images.length - 5}개 이미지',
+              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+void _showFullScreenImage(BuildContext context, String url) {
+  showDialog(
+    context: context,
+    builder: (_) => Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: EdgeInsets.zero,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          InteractiveViewer(child: Image.network(url, fit: BoxFit.contain)),
+          Positioned(
+            top: 40, right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 28),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 /// ===============================================================
 /// More Menu
 /// ===============================================================
@@ -269,6 +377,7 @@ void showCommentMoreMenu(
   required VoidCallback onDelete,
   required VoidCallback onReport,
   required VoidCallback onBlock,
+  required String commentContent,
 }) {
   showModalBottomSheet(
     context: context,
@@ -282,6 +391,16 @@ void showCommentMoreMenu(
           mainAxisSize: MainAxisSize.min,
           children: [
             _menuTile(context, Icons.reply_outlined, '답글', onReply),
+            _menuTile(context, Icons.copy_outlined, '복사', () {
+              Clipboard.setData(ClipboardData(text: commentContent));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('댓글이 복사되었습니다'),
+                  behavior: SnackBarBehavior.floating,
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            }),
             _menuTile(context, Icons.edit_outlined, '수정', onEdit),
             _menuTile(context, Icons.delete_outline, '삭제', onDelete, isRed: true),
             _menuTile(context, Icons.report_outlined, '신고', onReport, isRed: true),

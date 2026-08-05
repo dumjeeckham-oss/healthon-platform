@@ -70,6 +70,18 @@ abstract class ICommunityRepository {
   Future<void> reportPost({required String reporterId, required String postId, required String reason});
 
   Future<void> reportComment({required String reporterId, required String commentId, required String reason});
+
+  /// @멘션 사용자 검색
+  Future<List<({String id, String name})>> mentionUser(String query);
+
+  /// 댓글 이미지 업로드 → public URL 목록
+  Future<List<String>> uploadCommentImages({required String postId, required List<String> localPaths});
+
+  /// GIF 검색 (mock → Giphy API 교체 가능)
+  Future<List<({String id, String url, String previewUrl, String title})>> searchGif(String query);
+
+  /// 멘션 알림 생성
+  Future<void> createMentionNotification({required String fromUserId, required String toUserId, required String postId, required String commentId});
 }
 
 // ===============================================================
@@ -347,8 +359,52 @@ class MockCommunityRepository implements ICommunityRepository {
 
   @override
   Future<void> reportPost({required String reporterId, required String postId, required String reason}) async {}
+
   @override
   Future<void> reportComment({required String reporterId, required String commentId, required String reason}) async {}
+
+  // ---- 새 메서드 (Mock) ----
+
+  static const _mockUsers = [
+    (id: 'user-001', name: '홍길동'),
+    (id: 'user-002', name: '김철수'),
+    (id: 'user-003', name: '이영희'),
+    (id: 'user-004', name: '박민수'),
+    (id: 'user-005', name: '최지우'),
+    (id: 'user-006', name: '정수빈'),
+  ];
+
+  @override
+  Future<List<({String id, String name})>> mentionUser(String query) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    final q = query.toLowerCase();
+    return _mockUsers.where((u) => u.name.toLowerCase().contains(q) || u.id.toLowerCase().contains(q)).toList();
+  }
+
+  @override
+  Future<List<String>> uploadCommentImages({required String postId, required List<String> localPaths}) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return localPaths.map((p) => 'https://mock-storage/community-comment-images/$postId/${p.hashCode}.jpg').toList();
+  }
+
+  static const _mockGifs = [
+    (id: 'g1', url: 'https://media.giphy.com/media/v1.Y2lk/1.gif', previewUrl: 'https://media.giphy.com/media/v1.Y2lk/1_s.gif', title: '박수'),
+    (id: 'g2', url: 'https://media.giphy.com/media/v1.Y2lk/2.gif', previewUrl: 'https://media.giphy.com/media/v1.Y2lk/2_s.gif', title: '웃음'),
+    (id: 'g3', url: 'https://media.giphy.com/media/v1.Y2lk/3.gif', previewUrl: 'https://media.giphy.com/media/v1.Y2lk/3_s.gif', title: '축하'),
+    (id: 'g4', url: 'https://media.giphy.com/media/v1.Y2lk/4.gif', previewUrl: 'https://media.giphy.com/media/v1.Y2lk/4_s.gif', title: '화이팅'),
+  ];
+
+  @override
+  Future<List<({String id, String url, String previewUrl, String title})>> searchGif(String query) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final q = query.toLowerCase();
+    return _mockGifs.where((g) => g.title.toLowerCase().contains(q)).toList();
+  }
+
+  @override
+  Future<void> createMentionNotification({required String fromUserId, required String toUserId, required String postId, required String commentId}) async {
+    // Mock — no-op
+  }
 }
 
 // ===============================================================

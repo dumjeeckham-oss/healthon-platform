@@ -337,6 +337,9 @@ class CommentTile extends ConsumerWidget {
                   onLikeToggle: () => ref.read(commentLikeProvider.notifier).toggle(comment.id),
                   liked: liked,
                   isEdited: comment.isEdited,
+                  images: comment.images,
+                  gifUrl: comment.gifUrl,
+                  mentions: comment.mentions,
                 ),
               ),
 
@@ -370,6 +373,7 @@ class CommentTile extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    commentContent: comment.content,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(left: 2),
@@ -422,16 +426,26 @@ class ReplyBanner extends StatelessWidget {
 }
 
 // ===================================================================
-// Comment Composer
+// Comment Composer (고도화: 이모지 · GIF · 이미지 첨부)
 // ===================================================================
 
-class CommentComposer extends StatelessWidget {
+class CommentComposer extends ConsumerWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final bool hasText;
   final String? replyToUserName;
   final VoidCallback onCancelReply;
   final VoidCallback onSubmit;
+  final VoidCallback? onEmojiTap;
+  final VoidCallback? onGifTap;
+  final VoidCallback? onImageTap;
+  final LayerLink? mentionLayerLink;
+
+  /// 첨부 이미지/GIF 미리보기 컨트롤
+  final List<String> attachedImages;
+  final String? attachedGifUrl;
+  final VoidCallback? onClearImages;
+  final VoidCallback? onClearGif;
 
   const CommentComposer({
     super.key,
@@ -441,14 +455,30 @@ class CommentComposer extends StatelessWidget {
     required this.replyToUserName,
     required this.onCancelReply,
     required this.onSubmit,
+    this.onEmojiTap,
+    this.onGifTap,
+    this.onImageTap,
+    this.mentionLayerLink,
+    this.attachedImages = const [],
+    this.attachedGifUrl,
+    this.onClearImages,
+    this.onClearGif,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool hasAttachments = attachedImages.isNotEmpty || attachedGifUrl != null;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, -2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Padding(
@@ -456,46 +486,117 @@ class CommentComposer extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Reply Banner
               if (replyToUserName != null)
                 ReplyBanner(userName: replyToUserName!, onCancel: onCancelReply),
+
+              // Attachment preview
+              if (hasAttachments) _AttachmentPreview(
+                images: attachedImages,
+                gifUrl: attachedGifUrl,
+                onClearImages: onClearImages ?? () {},
+                onClearGif: onClearGif ?? () {},
+              ),
+
+              // Button row: 😊 | GIF | 📷  ...  input  ...  send
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Semantics(label: '이모지', child: GestureDetector(onTap: () {}, child: const Padding(padding: EdgeInsets.only(right: 4), child: Text('😊', style: TextStyle(fontSize: 22))))),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Semantics(
-                      label: '댓글 입력',
-                      child: TextField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        cursorColor: commentPrimaryColor,
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: '댓글을 입력하세요...',
-                          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                          filled: true,
-                          fillColor: replyToUserName != null ? Colors.green.shade50 : commentBgColor,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: replyToUserName != null ? const BorderSide(color: Color(0xFF2E7D32), width: 1.2) : BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: replyToUserName != null ? const BorderSide(color: Color(0xFF2E7D32), width: 1.2) : BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: replyToUserName != null ? const BorderSide(color: Color(0xFF2E7D32), width: 1.5) : BorderSide.none,
+                  // 😊 Emoji
+                  Semantics(
+                    label: '이모지',
+                    child: GestureDetector(
+                      onTap: onEmojiTap,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2),
+                        child: Text('😊', style: TextStyle(fontSize: 22)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+
+                  // GIF
+                  Semantics(
+                    label: 'GIF',
+                    child: GestureDetector(
+                      onTap: onGifTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.grey.shade300, width: 1.2),
+                        ),
+                        child: Text(
+                          'GIF',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade600,
                           ),
                         ),
-                        onSubmitted: (_) => onSubmit(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+
+                  // 📷 Image
+                  Semantics(
+                    label: '사진 첨부',
+                    child: GestureDetector(
+                      onTap: onImageTap,
+                      child: Icon(
+                        Icons.image_outlined,
+                        size: 22,
+                        color: attachedImages.isNotEmpty ? const Color(0xFF2E7D32) : Colors.grey.shade400,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+
+                  // Text input
+                  Expanded(
+                    child: CompositedTransformTarget(
+                      link: mentionLayerLink ?? LayerLink(),
+                      child: Semantics(
+                        label: '댓글 입력',
+                        child: TextField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          cursorColor: commentPrimaryColor,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
+                            hintText: '댓글을 입력하세요...',
+                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            filled: true,
+                            fillColor: replyToUserName != null ? Colors.green.shade50 : commentBgColor,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: replyToUserName != null
+                                  ? const BorderSide(color: Color(0xFF2E7D32), width: 1.2)
+                                  : BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: replyToUserName != null
+                                  ? const BorderSide(color: Color(0xFF2E7D32), width: 1.2)
+                                  : BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: replyToUserName != null
+                                  ? const BorderSide(color: Color(0xFF2E7D32), width: 1.5)
+                                  : BorderSide.none,
+                            ),
+                          ),
+                          onSubmitted: (_) => onSubmit(),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Semantics(label: '사진 첨부', child: GestureDetector(onTap: () {}, child: Icon(Icons.image_outlined, size: 22, color: Colors.grey.shade400))),
-                  const SizedBox(width: 4),
+
+                  // Send
                   Semantics(
                     label: '전송',
                     child: GestureDetector(
@@ -505,7 +606,7 @@ class CommentComposer extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: hasText ? const Color(0xFF2E7D32) : Colors.grey.shade300,
+                          color: (hasText || hasAttachments) ? const Color(0xFF2E7D32) : Colors.grey.shade300,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
@@ -516,6 +617,102 @@ class CommentComposer extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Attachment Preview
+// ═══════════════════════════════════════════════════════════════
+
+class _AttachmentPreview extends StatelessWidget {
+  final List<String> images;
+  final String? gifUrl;
+  final VoidCallback onClearImages;
+  final VoidCallback onClearGif;
+
+  const _AttachmentPreview({
+    required this.images,
+    required this.gifUrl,
+    required this.onClearImages,
+    required this.onClearGif,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 250),
+      alignment: Alignment.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Row(
+          children: [
+            // Images 3-col grid preview
+            if (images.isNotEmpty) ...[
+              Expanded(
+                child: SizedBox(
+                  height: 72,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: images.length > 5 ? 5 : images.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 4),
+                    itemBuilder: (_, i) => ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Stack(
+                        children: [
+                          Image.network(images[i], width: 64, height: 72, fit: BoxFit.cover),
+                          Positioned(
+                            top: 2, right: 2,
+                            child: GestureDetector(
+                              onTap: onClearImages,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                                child: const Icon(Icons.close, size: 12, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (images.length > 5)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text('+${images.length - 5}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                ),
+            ],
+
+            // GIF preview
+            if (gifUrl != null) ...[Expanded(
+              child: SizedBox(
+                height: 72,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Stack(
+                    children: [
+                      Image.network(gifUrl!, width: 120, height: 72, fit: BoxFit.cover),
+                      Positioned(
+                        top: 2, right: 2,
+                        child: GestureDetector(
+                          onTap: onClearGif,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                            child: const Icon(Icons.close, size: 12, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )],
+          ],
         ),
       ),
     );

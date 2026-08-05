@@ -10,29 +10,22 @@ import 'package:flutter/foundation.dart';
 
 class CommunityComment {
   final String id;
-
-  /// 게시글 ID
   final String postId;
-
-  /// 작성자
   final String userId;
-
-  /// 부모 댓글
-  /// null이면 댓글
-  /// 값이 있으면 대댓글
   final String? parentId;
-
-  /// 내용
   final String content;
-
-  /// 좋아요 수
   final int likeCount;
-
-  /// 작성시간
   final DateTime createdAt;
-
-  /// 수정시간
   final DateTime? updatedAt;
+
+  /// 멘션된 사용자 ID 목록
+  final List<String> mentions;
+
+  /// 첨부 이미지 URL 목록
+  final List<String> images;
+
+  /// GIF URL
+  final String? gifUrl;
 
   const CommunityComment({
     required this.id,
@@ -43,48 +36,26 @@ class CommunityComment {
     this.likeCount = 0,
     required this.createdAt,
     this.updatedAt,
+    this.mentions = const [],
+    this.images = const [],
+    this.gifUrl,
   });
-
-  /// ===============================================================
-  /// Empty
-  /// ===============================================================
 
   factory CommunityComment.empty() {
     return CommunityComment(
       id: "",
       postId: "",
       userId: "",
-      parentId: null,
       content: "",
       createdAt: DateTime.now(),
     );
   }
 
-  /// ===============================================================
-  /// 댓글인가?
-  /// ===============================================================
-
   bool get isRoot => parentId == null;
-
-  /// ===============================================================
-  /// 대댓글인가?
-  /// ===============================================================
-
   bool get isReply => parentId != null;
-
-  /// ===============================================================
-  /// 수정되었는가?
-  /// ===============================================================
-
   bool get isEdited => updatedAt != null;
 
-  /// ===============================================================
-  /// Supabase -> Model
-  /// ===============================================================
-
-  factory CommunityComment.fromMap(
-    Map<String, dynamic> map,
-  ) {
+  factory CommunityComment.fromMap(Map<String, dynamic> map) {
     return CommunityComment(
       id: map["id"] ?? "",
       postId: map["post_id"] ?? "",
@@ -92,18 +63,13 @@ class CommunityComment {
       parentId: map["parent_id"],
       content: map["content"] ?? "",
       likeCount: map["like_count"] ?? 0,
-      createdAt: map["created_at"] != null
-          ? DateTime.parse(map["created_at"])
-          : DateTime.now(),
-      updatedAt: map["updated_at"] != null
-          ? DateTime.parse(map["updated_at"])
-          : null,
+      createdAt: map["created_at"] != null ? DateTime.parse(map["created_at"]) : DateTime.now(),
+      updatedAt: map["updated_at"] != null ? DateTime.parse(map["updated_at"]) : null,
+      mentions: map["mentions"] != null ? List<String>.from(map["mentions"]) : const [],
+      images: map["images"] != null ? List<String>.from(map["images"]) : const [],
+      gifUrl: map["gif_url"],
     );
   }
-
-  /// ===============================================================
-  /// Model -> Supabase
-  /// ===============================================================
 
   Map<String, dynamic> toMap() {
     return {
@@ -115,12 +81,11 @@ class CommunityComment {
       "like_count": likeCount,
       "created_at": createdAt.toIso8601String(),
       if (updatedAt != null) "updated_at": updatedAt!.toIso8601String(),
+      "mentions": mentions,
+      "images": images,
+      "gif_url": gifUrl,
     };
   }
-
-  /// ===============================================================
-  /// copyWith
-  /// ===============================================================
 
   CommunityComment copyWith({
     String? id,
@@ -131,6 +96,9 @@ class CommunityComment {
     int? likeCount,
     DateTime? createdAt,
     DateTime? updatedAt,
+    List<String>? mentions,
+    List<String>? images,
+    String? gifUrl,
   }) {
     return CommunityComment(
       id: id ?? this.id,
@@ -141,21 +109,10 @@ class CommunityComment {
       likeCount: likeCount ?? this.likeCount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      mentions: mentions ?? this.mentions,
+      images: images ?? this.images,
+      gifUrl: gifUrl ?? this.gifUrl,
     );
-  }
-
-  @override
-  String toString() {
-    return '''
-CommunityComment(
-  id: $id,
-  postId: $postId,
-  userId: $userId,
-  parentId: $parentId,
-  content: $content,
-  likeCount: $likeCount,
-)
-''';
   }
 }
 
