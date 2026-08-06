@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'screens/admin_dashboard_screen.dart';
-import 'screens/admin_members_screen.dart';
-import 'screens/admin_notices_screen.dart';
-import 'screens/admin_reports_screen.dart';
-import 'screens/admin_challenges_screen.dart';
-import 'screens/admin_missions_screen.dart';
-import 'screens/admin_seasons_screen.dart';
-import 'screens/admin_banners_screen.dart';
-import 'screens/admin_news_screen.dart';
-import 'screens/admin_analytics_screen.dart';
+import 'admin_dashboard_screen.dart';
+import 'admin_members_screen.dart';
+import 'admin_notices_screen.dart';
+import 'admin_reports_screen.dart';
+import 'admin_challenges_screen.dart';
+import 'admin_missions_screen.dart';
+import 'admin_seasons_screen.dart';
+import 'admin_banners_screen.dart';
+import 'admin_analytics_screen.dart';
 
 /// ===============================================================
 /// HealthON — Admin Shell (반응형 사이드바 + 컨텐츠)
@@ -33,7 +32,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     _NavItem(Icons.analytics, 'Analytics', '/admin/analytics'),
     _NavItem(Icons.people, '회원관리', '/admin/members'),
     _NavItem(Icons.campaign, '공지사항', '/admin/notices'),
-    _NavItem(Icons.newspaper, '법인소식', '/admin/news'),
     _NavItem(Icons.report, '신고관리', '/admin/reports'),
     _NavItem(Icons.emoji_events, 'Challenge', '/admin/challenges'),
     _NavItem(Icons.assignment, 'Mission', '/admin/missions'),
@@ -123,14 +121,7 @@ class _Sidebar extends StatelessWidget {
                 children: [
                   Icon(item.icon, size: 20, color: isActive ? const Color(0xFF4CAF50) : Colors.white54),
                   const SizedBox(width: 12),
-                  Text(
-                    item.label,
-                    style: TextStyle(
-                      color: isActive ? Colors.white : Colors.white60,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                      fontSize: 14,
-                    ),
-                  ),
+                  Text(item.label, style: TextStyle(color: isActive ? Colors.white : Colors.white60, fontWeight: isActive ? FontWeight.w700 : FontWeight.w400, fontSize: 14)),
                 ],
               ),
             ),

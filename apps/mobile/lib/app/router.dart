@@ -13,6 +13,7 @@ import '../features/admin/screens/admin_challenges_screen.dart';
 import '../features/admin/screens/admin_missions_screen.dart';
 import '../features/admin/screens/admin_seasons_screen.dart';
 import '../features/admin/screens/admin_banners_screen.dart';
+import '../features/admin/screens/admin_analytics_screen.dart';
 
 import 'main_navigation.dart';
 
@@ -89,6 +90,11 @@ final router = GoRouter(
           path: '/admin/seasons',
           name: 'admin-seasons',
           builder: (context, state) => const AdminSeasonsScreen(),
+        ),
+        GoRoute(
+          path: '/admin/analytics',
+          name: 'admin-analytics',
+          builder: (context, state) => const AnalyticsDashboardScreen(),
         ),
         GoRoute(
           path: '/admin/banners',

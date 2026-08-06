@@ -1,10 +1,17 @@
+/// ===============================================================
+/// HealthON — Supabase Admin Repository v3 (Production)
+///
+/// 회원 테이블: public.users (NOT profiles)
+/// Storage / Realtime / Audit Log / Export 완전 통합
+/// ===============================================================
+
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'admin_models.dart';
-
-/// ===============================================================
-/// HealthON — Supabase Admin Repository
-/// ===============================================================
 
 class SupabaseAdminRepository {
   final SupabaseClient _client;
@@ -12,31 +19,148 @@ class SupabaseAdminRepository {
   SupabaseAdminRepository(this._client);
 
   // =============================================================
-  // Dashboard Stats
+  // Storage Buckets
+  // =============================================================
+
+  static const _storageBuckets = [
+    'community-images',
+    'banner-images',
+    'mission-images',
+    'challenge-images',
+    'forest-images',
+  ];
+
+  Future<void> ensureStorageBuckets() async {
+    for (final bucket in _storageBuckets) {
+      try {
+        await _client.storage.createBucket(bucket, const BucketOptions(public: true));
+      } catch (_) {
+        // bucket already exists — ok
+      }
+    }
+  }
+
+  Future<String> uploadImage({
+    required String bucket,
+    required String path,
+    required List<int> bytes,
+    required String fileName,
+    String? contentType,
+  }) async {
+    final filePath = '$path/${DateTime.now().millisecondsSinceEpoch}_$fileName';
+    await _client.storage.from(bucket).uploadBinary(
+      filePath, bytes,
+      fileOptions: FileOptions(contentType: contentType ?? 'image/jpeg'),
+    );
+    return _client.storage.from(bucket).getPublicUrl(filePath);
+  }
+
+  Future<void> deleteImage(String bucket, String imageUrl) async {
+    try {
+      final uri = Uri.parse(imageUrl);
+      final segments = uri.pathSegments;
+      final bucketIndex = segments.indexOf(bucket);
+      if (bucketIndex >= 0 && bucketIndex + 1 < segments.length) {
+        final filePath = segments.sublist(bucketIndex + 1).join('/');
+        await _client.storage.from(bucket).remove([filePath]);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> deleteImages(String bucket, List<String> imageUrls) async {
+    for (final url in imageUrls) {
+      await deleteImage(bucket, url);
+    }
+  }
+
+  // =============================================================
+  // Realtime
+  // =============================================================
+
+  Stream<AdminRealtimeEvent<Map<String, dynamic>>> subscribeToTable(String table) {
+    final channel = _client.channel('admin_$table');
+    final controller = StreamController<AdminRealtimeEvent<Map<String, dynamic>>>();
+
+    channel.onPostgresChanges(
+      event: RealtimeChannelEvent.all,
+      schema: 'public',
+      table: table,
+      callback: (payload) {
+        controller.add(AdminRealtimeEvent(
+          eventType: payload.eventType,
+          table: table,
+          oldRecord: payload.oldRecord,
+          newRecord: payload.newRecord,
+        ));
+      },
+    ).subscribe();
+
+    controller.onCancel = () { _client.removeChannel(channel); };
+    return controller.stream;
+  }
+
+  // =============================================================
+  // Audit Log
+  // =============================================================
+
+  Future<void> _logAudit({
+    required String adminId, required String adminName,
+    required AuditAction action, required String targetType,
+    String? targetId, String? targetName, Map<String, dynamic>? changes,
+  }) async {
+    try {
+      await _client.from('audit_log').insert({
+        'admin_id': adminId, 'admin_name': adminName,
+        'action': action.name, 'target_type': targetType,
+        'target_id': targetId, 'target_name': targetName,
+        'changes': changes,
+      });
+    } catch (_) {}
+  }
+
+  Future<List<AuditLogEntry>> getAuditLog({int limit = 100}) async {
+    final rows = await _client.from('audit_log').select().order('created_at', ascending: false).limit(limit);
+    return (rows as List).map((e) => AuditLogEntry.fromSupabase(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<({String id, String name})> _getCurrentAdmin() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return (id: '', name: 'Unknown');
+    try {
+      final row = await _client.from('users').select('name').eq('id', user.id).maybeSingle();
+      return (id: user.id, name: (row?['name'] ?? user.email ?? 'Unknown') as String);
+    } catch (_) {
+      return (id: user.id, name: user.email ?? 'Unknown');
+    }
+  }
+
+  // =============================================================
+  // Dashboard
   // =============================================================
 
   Future<AdminDashboardStats> getDashboardStats() async {
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    final weekAgo = today.subtract(const Duration(days: 7));
-    final weekAgoStr = '${weekAgo.year}-${weekAgo.month.toString().padLeft(2, '0')}-${weekAgo.day.toString().padLeft(2, '0')}';
+    final todayStr = _dateStr(today);
 
-    // 병렬 조회
     final results = await Future.wait([
-      _client.from('profiles').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', todayStr),
-      _client.from('profiles').select('id', FetchOptions(count: CountOption.exact)).lte('last_login_at', DateTime.now().toUtc().toIso8601String()).gte('last_login_at', todayStr),
-      _client.from('health_daily').select('steps.sum()').eq('date', todayStr),
+      _client.from('users').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', todayStr),
+      _client.from('users').select('id', FetchOptions(count: CountOption.exact)).gte('last_login_at', todayStr),
+      _client.from('health_daily').select('steps.sum(), distance_km.sum()').eq('date', todayStr),
       _client.from('community_posts').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', todayStr),
       _client.from('community_comments').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', todayStr),
-      _client.from('profiles').select('id', FetchOptions(count: CountOption.exact)),
+      _client.from('users').select('id, is_suspended'),
       _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'challenge_completed').gte('created_at', todayStr),
       _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'mission_completed').gte('created_at', todayStr),
       _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'forest_level_up').gte('created_at', todayStr),
+      _client.from('challenge_definitions').select('id, is_active'),
+      _client.from('community_reports').select('id', FetchOptions(count: CountOption.exact)).eq('status', 'pending'),
     ]);
 
-    // 주간 걸음
-    final weekStepsRaw = await _client.from('health_daily').select('steps.sum()').gte('date', weekAgoStr);
-    final weekSteps = ((weekStepsRaw as List).firstOrNull?['sum'] ?? 0) as int;
+    final users = results[5] as List;
+    var activeUsers = 0, suspendedUsers = 0;
+    for (final u in users) {
+      if (u['is_suspended'] == true) { suspendedUsers++; } else { activeUsers++; }
+    }
 
     return AdminDashboardStats(
       todaySignups: (results[0] as List).length,
@@ -47,213 +171,207 @@ class SupabaseAdminRepository {
       todayChallengeCompletions: (results[6] as List).length,
       todayMissionCompletions: (results[7] as List).length,
       todayForestGrowth: (results[8] as List).length,
-      totalUsers: (results[5] as List).length,
+      totalUsers: users.length, activeUsers: activeUsers, suspendedUsers: suspendedUsers,
+      totalChallenges: (results[9] as List).length,
+      activeChallenges: (results[9] as List).where((c) => c['is_active'] == true).length,
+      pendingReports: (results[10] as List).length,
     );
   }
 
-  Future<AdminChartData> getWeeklyStepsChart() async {
-    final now = DateTime.now();
-    final labels = <String>[];
-    final values = <double>[];
+  Future<AdminChartData> getWeeklyStepsChart() => _getWeeklyChart('health_daily', 'steps', false, '걸음 수');
+  Future<AdminChartData> getDailyUsersChart() => _getWeeklyChart('health_daily', 'user_id', true, '사용자 수');
 
+  Future<AdminChartData> _getWeeklyChart(String table, String field, bool isCount, String yLabel) async {
+    final now = DateTime.now();
+    final labels = <String>[], values = <double>[];
     for (int i = 6; i >= 0; i--) {
       final d = now.subtract(Duration(days: i));
-      final dateStr = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+      final dateStr = _dateStr(d);
       labels.add('${d.month}/${d.day}');
-      final raw = await _client.from('health_daily').select('steps.sum()').eq('date', dateStr);
-      values.add(((raw as List).firstOrNull?['sum'] ?? 0).toDouble());
+      if (isCount) {
+        final raw = await _client.from(table).select(field, FetchOptions(count: CountOption.exact)).eq('date', dateStr);
+        values.add((raw as List).length.toDouble());
+      } else {
+        final raw = await _client.from(table).select('$field.sum()').eq('date', dateStr);
+        values.add(((raw as List).firstOrNull?['sum'] ?? 0).toDouble());
+      }
     }
-
-    return AdminChartData(labels: labels, values: values);
+    return AdminChartData(labels: labels, values: values, yLabel: yLabel);
   }
 
-  Future<AdminChartData> getDailyUsersChart() async {
-    final now = DateTime.now();
-    final labels = <String>[];
-    final values = <double>[];
-
-    for (int i = 6; i >= 0; i--) {
-      final d = now.subtract(Duration(days: i));
-      final dateStr = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-      labels.add('${d.month}/${d.day}');
-      final raw = await _client.from('health_daily').select('user_id', FetchOptions(count: CountOption.exact)).eq('date', dateStr);
-      values.add((raw as List).length.toDouble());
-    }
-
-    return AdminChartData(labels: labels, values: values);
-  }
+  String _dateStr(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   // =============================================================
-  // Member Management
+  // Members (public.users)
   // =============================================================
 
-  Future<List<AdminMember>> getMembers({
-    String? search,
-    int limit = 50,
-    int offset = 0,
-  }) async {
-    var query = _client.from('profiles').select('''
-      id,
-      email,
-      name,
-      nickname,
-      phone,
-      is_admin,
-      is_suspended,
-      created_at,
-      last_login_at
-    ''').order('created_at', ascending: false).range(offset, offset + limit - 1);
+  Future<List<AdminMember>> getMembers({MemberFilter? filter, int limit = 50, int offset = 0}) async {
+    var query = _client.from('users').select('''
+      id, email, name, nickname, phone, photo_url,
+      is_admin, is_suspended, created_at, last_login_at
+    ''');
 
-    if (search != null && search.isNotEmpty) {
-      query = query.or('name.ilike.%$search%,email.ilike.%$search%,nickname.ilike.%$search%');
+    if (filter?.search != null && filter!.search!.isNotEmpty) {
+      query = query.or('name.ilike.%${filter.search}%,email.ilike.%${filter.search}%');
     }
+    if (filter?.isAdmin == true) query = query.eq('is_admin', true);
+    if (filter?.isSuspended == true) query = query.eq('is_suspended', true);
+
+    final ascending = (filter?.sortOrder ?? MemberSortOrder.desc) == MemberSortOrder.asc;
+    query = query.order('created_at', ascending: ascending).range(offset, offset + limit - 1);
 
     final rows = await query;
-
-    // 각 멤버의 추가 데이터를 병렬로 가져오기
-    final members = <AdminMember>[];
-    for (final row in rows as List) {
-      final userId = row['id'] as String;
-      // 간단 버전: 추가 데이터 없이 먼저 반환
-      members.add(AdminMember.fromSupabase({
-        ...row,
-        'user_id': row['id'],
-      }));
-    }
-
-    return members;
+    return (rows as List).map((e) {
+      final row = e as Map<String, dynamic>;
+      return AdminMember.fromSupabase({...row, 'user_id': row['id'], 'avatar_url': row['photo_url']});
+    }).toList();
   }
 
-  Future<void> toggleAdmin(String userId, bool isAdmin) async {
-    await _client.from('profiles').update({'is_admin': isAdmin}).eq('id', userId);
+  Future<void> grantAdmin(String userId) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('users').update({'is_admin': true}).eq('id', userId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.granted_admin, targetType: 'member', targetId: userId);
   }
 
-  Future<void> toggleSuspend(String userId, bool suspend) async {
-    await _client.from('profiles').update({'is_suspended': suspend}).eq('id', userId);
+  Future<void> revokeAdmin(String userId) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('users').update({'is_admin': false}).eq('id', userId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.revoked_admin, targetType: 'member', targetId: userId);
+  }
+
+  Future<void> suspendMember(String userId) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('users').update({'is_suspended': true}).eq('id', userId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.suspended, targetType: 'member', targetId: userId);
+  }
+
+  Future<void> restoreMember(String userId) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('users').update({'is_suspended': false}).eq('id', userId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.restored, targetType: 'member', targetId: userId);
   }
 
   // =============================================================
-  // Notice Management
+  // Notices
   // =============================================================
 
   Future<List<AdminNotice>> getNotices({String? category, int limit = 50}) async {
-    var query = _client.from('admin_notices').select().order('is_pinned', ascending: false).order('created_at', ascending: false).limit(limit);
-
-    if (category != null && category.isNotEmpty) {
-      query = query.eq('category', category);
-    }
-
+    var query = _client.from('admin_notices').select()
+        .order('is_pinned', ascending: false).order('created_at', ascending: false).limit(limit);
+    if (category != null && category.isNotEmpty) query = query.eq('category', category);
     final rows = await query;
     return (rows as List).map((e) => AdminNotice.fromSupabase(e as Map<String, dynamic>)).toList();
   }
 
   Future<AdminNotice?> getNotice(String id) async {
     final row = await _client.from('admin_notices').select().eq('id', id).maybeSingle();
-    if (row == null) return null;
-    return AdminNotice.fromSupabase(row);
+    return row != null ? AdminNotice.fromSupabase(row) : null;
   }
 
   Future<AdminNotice> createNotice(AdminNotice notice) async {
-    final result = await _client.from('admin_notices').insert(notice.toSupabase()).select().single();
-    return AdminNotice.fromSupabase(result);
+    final admin = await _getCurrentAdmin();
+    final data = notice.toSupabase();
+    if (notice.isPublished && notice.publishedAt == null) {
+      data['published_at'] = DateTime.now().toUtc().toIso8601String();
+    }
+    final result = await _client.from('admin_notices').insert(data).select().single();
+    final created = AdminNotice.fromSupabase(result);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: notice.isPublished ? AuditAction.published : AuditAction.created, targetType: 'notice', targetId: created.id, targetName: created.title);
+    return created;
   }
 
-  Future<AdminNotice> updateNotice(AdminNotice notice) async {
-    await _client.from('admin_notices').update(notice.toSupabase()).eq('id', notice.id);
-    return notice;
+  Future<void> updateNotice(AdminNotice notice) async {
+    final admin = await _getCurrentAdmin();
+    final data = notice.toSupabase();
+    if (notice.isPublished && notice.publishedAt == null) data['published_at'] = DateTime.now().toUtc().toIso8601String();
+    await _client.from('admin_notices').update(data).eq('id', notice.id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.updated, targetType: 'notice', targetId: notice.id, targetName: notice.title);
   }
 
   Future<void> deleteNotice(String id) async {
+    final admin = await _getCurrentAdmin();
+    final notice = await getNotice(id);
     await _client.from('admin_notices').delete().eq('id', id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.deleted, targetType: 'notice', targetId: id, targetName: notice?.title);
   }
 
   Future<void> sendPushForNotice(String noticeId) async {
+    final admin = await _getCurrentAdmin();
+    await _client.rpc('send_notice_push', params: {'p_notice_id': noticeId});
     await _client.from('admin_notices').update({'push_sent': true}).eq('id', noticeId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.sent_push, targetType: 'notice', targetId: noticeId);
   }
 
   // =============================================================
-  // Report Management
+  // Reports
   // =============================================================
 
   Future<List<AdminReport>> getReports({ReportStatus? status, int limit = 50}) async {
     var query = _client.from('community_reports').select('''
-      id, reporter_id, target_type, target_id, reason, detail, status, created_at, resolved_at,
-      reporter:profiles!reporter_id(name)
+      id, reporter_id, target_type, target_id, reason, detail, status,
+      target_content, target_author_id, resolved_action, resolved_by,
+      created_at, resolved_at, reporter_name
     ''').order('created_at', ascending: false).limit(limit);
 
-    if (status != null) {
-      query = query.eq('status', status.name);
-    }
+    if (status != null) query = query.eq('status', status.name);
 
     final rows = await query;
     return (rows as List).map((e) {
       final row = e as Map<String, dynamic>;
       return AdminReport(
-        id: row['id'] ?? '',
-        reporterId: row['reporter_id'] ?? '',
-        reporterName: row['reporter']?['name'] ?? '알 수 없음',
-        targetType: row['target_type'] ?? 'post',
-        targetId: row['target_id'] ?? '',
-        reason: row['reason'] ?? '',
-        detail: row['detail'],
+        id: row['id'] ?? '', reporterId: row['reporter_id'] ?? '',
+        reporterName: row['reporter_name'] ?? '알 수 없음',
+        targetType: row['target_type'] ?? 'post', targetId: row['target_id'] ?? '',
+        targetContent: row['target_content'], targetAuthorId: row['target_author_id'],
+        reason: row['reason'] ?? '', detail: row['detail'],
         status: AdminReport._parseStatus(row['status']),
+        resolvedAction: row['resolved_action'], resolvedBy: row['resolved_by'],
         createdAt: row['created_at'] != null ? DateTime.parse(row['created_at']) : DateTime.now(),
         resolvedAt: row['resolved_at'] != null ? DateTime.parse(row['resolved_at']) : null,
       );
     }).toList();
   }
 
-  Future<void> updateReportStatus(String reportId, ReportStatus status) async {
+  Future<void> resolveReport(String reportId, ReportStatus status) async {
+    final admin = await _getCurrentAdmin();
     await _client.from('community_reports').update({
-      'status': status.name,
-      'resolved_at': DateTime.now().toUtc().toIso8601String(),
+      'status': status.name, 'resolved_action': status.name,
+      'resolved_by': admin.name, 'resolved_at': DateTime.now().toUtc().toIso8601String(),
     }).eq('id', reportId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.resolved_report, targetType: 'report', targetId: reportId);
   }
 
   // =============================================================
-  // Challenge Definitions
+  // Challenges
   // =============================================================
 
   Future<List<AdminChallengeDefinition>> getChallenges() async {
-    final rows = await _client.from('challenge_definitions').select().order('created_at', ascending: false);
+    final rows = await _client.from('challenge_definitions').select().order('start_date', ascending: false);
     return (rows as List).map((e) => AdminChallengeDefinition.fromSupabase(e as Map<String, dynamic>)).toList();
   }
 
   Future<AdminChallengeDefinition> createChallenge(AdminChallengeDefinition c) async {
-    final result = await _client.from('challenge_definitions').insert({
-      'title': c.title,
-      'description': c.description,
-      'target_steps': c.targetSteps,
-      'target_distance_km': c.targetDistanceKm,
-      'reward': c.reward,
-      'image_url': c.imageUrl,
-      'start_date': c.startDate.toUtc().toIso8601String(),
-      'end_date': c.endDate.toUtc().toIso8601String(),
-      'is_active': c.isActive,
-    }).select().single();
-    return AdminChallengeDefinition.fromSupabase(result);
+    final admin = await _getCurrentAdmin();
+    final result = await _client.from('challenge_definitions').insert(c.toSupabase()).select().single();
+    final created = AdminChallengeDefinition.fromSupabase(result);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.created, targetType: 'challenge', targetId: created.id, targetName: created.title);
+    return created;
   }
 
   Future<void> updateChallenge(AdminChallengeDefinition c) async {
-    await _client.from('challenge_definitions').update({
-      'title': c.title,
-      'description': c.description,
-      'target_steps': c.targetSteps,
-      'target_distance_km': c.targetDistanceKm,
-      'reward': c.reward,
-      'image_url': c.imageUrl,
-      'start_date': c.startDate.toUtc().toIso8601String(),
-      'end_date': c.endDate.toUtc().toIso8601String(),
-      'is_active': c.isActive,
-    }).eq('id', c.id);
+    final admin = await _getCurrentAdmin();
+    await _client.from('challenge_definitions').update(c.toSupabase()).eq('id', c.id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.updated, targetType: 'challenge', targetId: c.id, targetName: c.title);
   }
 
   Future<void> deleteChallenge(String id) async {
+    final admin = await _getCurrentAdmin();
     await _client.from('challenge_definitions').delete().eq('id', id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.deleted, targetType: 'challenge', targetId: id);
   }
 
   // =============================================================
-  // Mission Definitions
+  // Missions
   // =============================================================
 
   Future<List<AdminMissionDefinition>> getMissions() async {
@@ -262,34 +380,35 @@ class SupabaseAdminRepository {
   }
 
   Future<AdminMissionDefinition> createMission(AdminMissionDefinition m) async {
+    final admin = await _getCurrentAdmin();
     final result = await _client.from('mission_definitions').insert({
-      'title': m.title,
-      'description': m.description,
-      'period': m.period.name,
-      'target_steps': m.targetSteps,
-      'target_distance_km': m.targetDistanceKm,
-      'reward_type': m.rewardType,
-      'reward_value': m.rewardValue,
-      'is_active': m.isActive,
+      'title': m.title, 'description': m.description, 'image_url': m.imageUrl,
+      'period': m.period.name, 'custom_days': m.customDays,
+      'target_steps': m.targetSteps, 'target_distance_km': m.targetDistanceKm,
+      'condition': m.condition?.toJson(), 'reward_type': m.rewardType,
+      'reward_value': m.rewardValue, 'is_repeatable': m.isRepeatable, 'is_active': m.isActive,
     }).select().single();
-    return AdminMissionDefinition.fromSupabase(result);
+    final created = AdminMissionDefinition.fromSupabase(result);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.created, targetType: 'mission', targetId: created.id, targetName: created.title);
+    return created;
   }
 
   Future<void> updateMission(AdminMissionDefinition m) async {
+    final admin = await _getCurrentAdmin();
     await _client.from('mission_definitions').update({
-      'title': m.title,
-      'description': m.description,
-      'period': m.period.name,
-      'target_steps': m.targetSteps,
-      'target_distance_km': m.targetDistanceKm,
-      'reward_type': m.rewardType,
-      'reward_value': m.rewardValue,
-      'is_active': m.isActive,
+      'title': m.title, 'description': m.description, 'image_url': m.imageUrl,
+      'period': m.period.name, 'custom_days': m.customDays,
+      'target_steps': m.targetSteps, 'target_distance_km': m.targetDistanceKm,
+      'condition': m.condition?.toJson(), 'reward_type': m.rewardType,
+      'reward_value': m.rewardValue, 'is_repeatable': m.isRepeatable, 'is_active': m.isActive,
     }).eq('id', m.id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.updated, targetType: 'mission', targetId: m.id, targetName: m.title);
   }
 
   Future<void> deleteMission(String id) async {
+    final admin = await _getCurrentAdmin();
     await _client.from('mission_definitions').delete().eq('id', id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.deleted, targetType: 'mission', targetId: id);
   }
 
   // =============================================================
@@ -297,33 +416,27 @@ class SupabaseAdminRepository {
   // =============================================================
 
   Future<List<AdminForestSeason>> getForestSeasons() async {
-    final rows = await _client.from('forest_seasons').select().order('created_at', ascending: false);
+    final rows = await _client.from('forest_seasons').select().order('start_date', ascending: false);
     return (rows as List).map((e) => AdminForestSeason.fromSupabase(e as Map<String, dynamic>)).toList();
   }
 
-  Future<AdminForestSeason> createForestSeason(AdminForestSeason s) async {
-    // 기존 활성 시즌 종료
-    await _client.from('forest_seasons').update({'is_active': false, 'end_date': DateTime.now().toUtc().toIso8601String()}).eq('is_active', true);
-
-    final result = await _client.from('forest_seasons').insert({
-      'name': s.name,
-      'tree_type': s.treeType,
-      'description': s.description,
-      'start_date': s.startDate.toUtc().toIso8601String(),
-      'is_active': true,
-    }).select().single();
-    return AdminForestSeason.fromSupabase(result);
+  Future<AdminForestSeason> createSeason(AdminForestSeason s) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('forest_seasons').update({'is_active': false, 'end_date': DateTime.now().toIso8601String().substring(0, 10)}).eq('is_active', true);
+    final result = await _client.from('forest_seasons').insert(s.toSupabase()).select().single();
+    final created = AdminForestSeason.fromSupabase(result);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.created, targetType: 'season', targetId: created.id, targetName: created.name);
+    return created;
   }
 
-  Future<void> endForestSeason(String id) async {
-    await _client.from('forest_seasons').update({
-      'is_active': false,
-      'end_date': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', id);
+  Future<void> endSeason(String id) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('forest_seasons').update({'is_active': false, 'end_date': DateTime.now().toIso8601String().substring(0, 10)}).eq('id', id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.ended_season, targetType: 'season', targetId: id);
   }
 
   // =============================================================
-  // Banner Management
+  // Banners
   // =============================================================
 
   Future<List<AdminBanner>> getBanners() async {
@@ -332,159 +445,69 @@ class SupabaseAdminRepository {
   }
 
   Future<AdminBanner> createBanner(AdminBanner b) async {
+    final admin = await _getCurrentAdmin();
     final result = await _client.from('admin_banners').insert({
-      'image_url': b.imageUrl,
-      'link_url': b.linkUrl,
-      'sort_order': b.sortOrder,
-      'start_date': b.startDate.toUtc().toIso8601String(),
-      'end_date': b.endDate.toUtc().toIso8601String(),
-      'is_active': b.isActive,
+      'title': b.title, 'image_url': b.imageUrl, 'link_value': b.linkValue,
+      'link_type': b.linkType.name, 'sort_order': b.sortOrder,
+      'start_date': b.startDate.toIso8601String().substring(0, 10),
+      'end_date': b.endDate.toIso8601String().substring(0, 10), 'is_active': b.isActive,
     }).select().single();
-    return AdminBanner.fromSupabase(result);
+    final created = AdminBanner.fromSupabase(result);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.created, targetType: 'banner', targetId: created.id, targetName: created.title);
+    return created;
   }
 
   Future<void> updateBanner(AdminBanner b) async {
+    final admin = await _getCurrentAdmin();
     await _client.from('admin_banners').update({
-      'image_url': b.imageUrl,
-      'link_url': b.linkUrl,
-      'sort_order': b.sortOrder,
-      'start_date': b.startDate.toUtc().toIso8601String(),
-      'end_date': b.endDate.toUtc().toIso8601String(),
-      'is_active': b.isActive,
+      'title': b.title, 'image_url': b.imageUrl, 'link_value': b.linkValue,
+      'link_type': b.linkType.name, 'sort_order': b.sortOrder,
+      'start_date': b.startDate.toIso8601String().substring(0, 10),
+      'end_date': b.endDate.toIso8601String().substring(0, 10), 'is_active': b.isActive,
     }).eq('id', b.id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.updated, targetType: 'banner', targetId: b.id, targetName: b.title);
   }
 
   Future<void> deleteBanner(String id) async {
+    final admin = await _getCurrentAdmin();
     await _client.from('admin_banners').delete().eq('id', id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.deleted, targetType: 'banner', targetId: id);
   }
 
-  // =============================================================
-  // Corporate News (법인소식) Management
-  // =============================================================
-
-  Future<List<CorporateNews>> getCorporateNews({String? category, int limit = 50}) async {
-    var query = _client.from('corporate_news').select().order('is_pinned', ascending: false).order('created_at', ascending: false).limit(limit);
-
-    if (category != null && category.isNotEmpty) {
-      query = query.eq('category', category);
+  Future<void> reorderBanners(List<String> orderedIds) async {
+    final admin = await _getCurrentAdmin();
+    for (var i = 0; i < orderedIds.length; i++) {
+      await _client.from('admin_banners').update({'sort_order': i}).eq('id', orderedIds[i]);
     }
-
-    final rows = await query;
-    return (rows as List).map((e) => CorporateNews.fromSupabase(e as Map<String, dynamic>)).toList();
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.reordered, targetType: 'banner');
   }
 
-  Future<CorporateNews> createCorporateNews(CorporateNews news) async {
-    final data = news.toSupabase();
-    data.remove('id');
-    final result = await _client.from('corporate_news').insert(data).select().single();
-    return CorporateNews.fromSupabase(result);
-  }
-
-  Future<CorporateNews> updateCorporateNews(CorporateNews news) async {
-    final data = news.toSupabase();
-    data.remove('id');
-    await _client.from('corporate_news').update(data).eq('id', news.id);
-    return news;
-  }
-
-  Future<void> deleteCorporateNews(String id) async {
-    await _client.from('corporate_news').delete().eq('id', id);
+  Future<void> toggleBanner(String id, bool active) async {
+    await _client.from('admin_banners').update({'is_active': active}).eq('id', id);
   }
 
   // =============================================================
-  // Analytics
+  // Export
   // =============================================================
 
-  Future<AnalyticsOverview> getAnalyticsOverview() async {
-    final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    final weekAgo = today.subtract(const Duration(days: 7));
-    final weekAgoStr = '${weekAgo.year}-${weekAgo.month.toString().padLeft(2, '0')}-${weekAgo.day.toString().padLeft(2, '0')}';
-    final monthAgo = today.subtract(const Duration(days: 30));
-    final monthAgoStr = '${monthAgo.year}-${monthAgo.month.toString().padLeft(2, '0')}-${monthAgo.day.toString().padLeft(2, '0')}';
+  String exportMembersToCsv(List<AdminMember> members) {
+    final buffer = StringBuffer();
+    buffer.writeln('이름,이메일,닉네임,전화번호,관리자,정지,가입일,최종로그인,총걸음,총거리(km),Forest레벨');
 
-    final results = await Future.wait([
-      // DAU
-      _client.from('health_daily').select('user_id', FetchOptions(count: CountOption.exact)).eq('date', todayStr),
-      // WAU
-      _client.from('health_daily').select('user_id', FetchOptions(count: CountOption.exact)).gte('date', weekAgoStr),
-      // MAU
-      _client.from('health_daily').select('user_id', FetchOptions(count: CountOption.exact)).gte('date', monthAgoStr),
-      // Total users
-      _client.from('profiles').select('id', FetchOptions(count: CountOption.exact)),
-      // Active challenges
-      _client.from('challenge_definitions').select('id', FetchOptions(count: CountOption.exact)).eq('is_active', true),
-      // Completed challenges (activity_events)
-      _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'challenge_completed'),
-      // Active missions
-      _client.from('mission_definitions').select('id', FetchOptions(count: CountOption.exact)).eq('is_active', true),
-      // Completed missions
-      _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'mission_completed'),
-      // Total posts
-      _client.from('community_posts').select('id', FetchOptions(count: CountOption.exact)),
-      // Total comments
-      _client.from('community_comments').select('id', FetchOptions(count: CountOption.exact)),
-    ]);
-
-    final totalUsers = (results[3] as List).length;
-    final completedChallenges = (results[5] as List).length;
-    final activeChallenges = (results[4] as List).length;
-    final completedMissions = (results[7] as List).length;
-    final activeMissions = (results[6] as List).length;
-
-    return AnalyticsOverview(
-      dau: (results[0] as List).length,
-      wau: (results[1] as List).length,
-      mau: (results[2] as List).length,
-      totalUsers: totalUsers,
-      activeChallenges: activeChallenges,
-      completedChallenges: completedChallenges,
-      challengeCompletionRate: activeChallenges > 0 ? completedChallenges / activeChallenges : 0,
-      activeMissions: activeMissions,
-      completedMissions: completedMissions,
-      missionCompletionRate: activeMissions > 0 ? completedMissions / activeMissions : 0,
-      totalPosts: (results[8] as List).length,
-      totalComments: (results[9] as List).length,
-    );
-  }
-
-  Future<AdminChartData> getDAUChart(int days) async {
-    final labels = <String>[];
-    final values = <double>[];
-    final now = DateTime.now();
-
-    for (int i = days - 1; i >= 0; i--) {
-      final d = now.subtract(Duration(days: i));
-      final dateStr = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-      labels.add('${d.month}/${d.day}');
-      final raw = await _client.from('health_daily').select('user_id', FetchOptions(count: CountOption.exact)).eq('date', dateStr);
-      values.add((raw as List).length.toDouble());
+    for (final m in members) {
+      buffer.writeln('${_csvEscape(m.name)},${_csvEscape(m.email)},'
+          '${_csvEscape(m.nickname ?? '')},${_csvEscape(m.phone ?? '')},'
+          '${m.isAdmin ? 'Y' : 'N'},${m.isSuspended ? 'Y' : 'N'},'
+          '${_dateStr(m.createdAt)},${m.lastLoginAt != null ? _dateStr(m.lastLoginAt!) : ''},'
+          '${m.totalSteps},${m.totalDistanceKm.toStringAsFixed(1)},${m.forestLevel}');
     }
-
-    return AdminChartData(labels: labels, values: values);
+    return buffer.toString();
   }
 
-  Future<AdminChartData> getRetentionChart() async {
-    // 간소화된 리텐션: D1, D7, D14, D30
-    return AdminChartData(
-      labels: ['D1', 'D7', 'D14', 'D30'],
-      values: [85.0, 62.0, 48.0, 35.0], // 기본값 (실제로는 코호트 분석 필요)
-    );
-  }
-
-  Future<AdminChartData> getPostsCommentsChart(int days) async {
-    final labels = <String>[];
-    final postValues = <double>[];
-    final now = DateTime.now();
-
-    for (int i = days - 1; i >= 0; i--) {
-      final d = now.subtract(Duration(days: i));
-      final dateStr = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-      labels.add('${d.month}/${d.day}');
-      final raw = await _client.from('community_posts').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', dateStr).lt('created_at', '${d.year}-${d.month.toString().padLeft(2, '0')}-${(d.day + 1).toString().padLeft(2, '0')}');
-      postValues.add((raw as List).length.toDouble());
+  String _csvEscape(String value) {
+    if (value.contains(',') || value.contains('"') || value.contains('\n')) {
+      return '"${value.replaceAll('"', '""')}"';
     }
-
-    return AdminChartData(labels: labels, values: postValues);
+    return value;
   }
 }

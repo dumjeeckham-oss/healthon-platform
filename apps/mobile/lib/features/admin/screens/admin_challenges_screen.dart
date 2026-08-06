@@ -5,7 +5,10 @@ import '../admin_provider.dart';
 import '../admin_models.dart';
 
 /// ===============================================================
-/// HealthON — Admin Challenge 관리 화면
+/// HealthON — Admin Challenge 관리 화면 v3
+///
+/// StateNotifierProvider 기반: .notifier.load() / .notifier.create*()
+/// 새 AdminChallengeDefinition 전체 필드 지원
 /// ===============================================================
 
 class AdminChallengesScreen extends ConsumerStatefulWidget {
@@ -17,14 +20,31 @@ class AdminChallengesScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(adminChallengesProvider.notifier).load();
+    });
+  }
+
+  // ── Create Dialog ────────────────────────────────────────────
+
   void _showCreateDialog() {
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
+    final imageUrlCtrl = TextEditingController();
     final targetStepsCtrl = TextEditingController();
     final targetDistCtrl = TextEditingController();
     final rewardCtrl = TextEditingController();
+    final badgeNameCtrl = TextEditingController();
+    final badgeImageUrlCtrl = TextEditingController();
+    final forestBonusCtrl = TextEditingController();
+    final participationLimitCtrl = TextEditingController();
     DateTime startDate = DateTime.now();
     DateTime endDate = DateTime.now().add(const Duration(days: 30));
+    bool autoStart = false;
+    bool autoEnd = false;
     final formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -33,17 +53,18 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
         builder: (ctx, setDialogState) => AlertDialog(
           title: const Text('새 Challenge 생성'),
           content: SizedBox(
-            width: 400,
+            width: 480,
             child: Form(
               key: formKey,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
                       controller: titleCtrl,
                       decoration: const InputDecoration(
-                        labelText: '제목',
+                        labelText: '제목 *',
                         border: OutlineInputBorder(),
                       ),
                       validator: (v) =>
@@ -60,81 +81,133 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: targetStepsCtrl,
+                      controller: imageUrlCtrl,
                       decoration: const InputDecoration(
-                        labelText: '목표 걸음 수',
+                        labelText: '이미지 URL',
+                        hintText: 'https://...',
                         border: OutlineInputBorder(),
                       ),
-                      keyboardType: TextInputType.number,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return '목표 걸음 수를 입력하세요';
-                        if (int.tryParse(v.trim()) == null) return '숫자만 입력 가능합니다';
-                        return null;
-                      },
+                      keyboardType: TextInputType.url,
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: targetDistCtrl,
-                      decoration: const InputDecoration(
-                        labelText: '목표 거리 (km)',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return '목표 거리를 입력하세요';
-                        if (double.tryParse(v.trim()) == null) {
-                          return '숫자만 입력 가능합니다';
-                        }
-                        return null;
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: targetStepsCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '목표 걸음 수 *',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return '필수';
+                              if (int.tryParse(v.trim()) == null) return '숫자';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: targetDistCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '목표 거리 (km) *',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return '필수';
+                              if (double.tryParse(v.trim()) == null) return '숫자';
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: rewardCtrl,
                       decoration: const InputDecoration(
                         labelText: '보상',
+                        hintText: '예: 1,000 포인트 + 특별 배지',
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('시작일'),
-                      subtitle: Text(
-                        '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}',
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: ctx,
-                          initialDate: startDate,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          setDialogState(() => startDate = picked);
-                        }
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: badgeNameCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '배지 이름',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: badgeImageUrlCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '배지 이미지 URL',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.url,
+                          ),
+                        ),
+                      ],
                     ),
-                    ListTile(
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: forestBonusCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '숲 보너스',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: participationLimitCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '참여 제한 (0=무제한)',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('종료일'),
-                      subtitle: Text(
-                        '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}',
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: ctx,
-                          initialDate: endDate,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          setDialogState(() => endDate = picked);
-                        }
-                      },
+                      title: const Text('자동 시작'),
+                      value: autoStart,
+                      onChanged: (v) => setDialogState(() => autoStart = v),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('자동 종료'),
+                      value: autoEnd,
+                      onChanged: (v) => setDialogState(() => autoEnd = v),
+                    ),
+                    _DateTile(
+                      label: '시작일',
+                      date: startDate,
+                      onChanged: (d) => setDialogState(() => startDate = d),
+                    ),
+                    _DateTile(
+                      label: '종료일',
+                      date: endDate,
+                      onChanged: (d) => setDialogState(() => endDate = d),
                     ),
                   ],
                 ),
@@ -149,21 +222,38 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
             FilledButton(
               onPressed: () async {
                 if (!formKey.currentState!.validate()) return;
-                final repo = ref.read(adminRepositoryProvider);
+                final newChallenge = AdminChallengeDefinition(
+                  id: '',
+                  title: titleCtrl.text.trim(),
+                  description: descCtrl.text.trim(),
+                  imageUrl: imageUrlCtrl.text.trim().isEmpty
+                      ? null
+                      : imageUrlCtrl.text.trim(),
+                  targetSteps: int.tryParse(targetStepsCtrl.text.trim()) ?? 0,
+                  targetDistanceKm:
+                      double.tryParse(targetDistCtrl.text.trim()) ?? 0,
+                  reward: rewardCtrl.text.trim(),
+                  badgeName: badgeNameCtrl.text.trim().isEmpty
+                      ? null
+                      : badgeNameCtrl.text.trim(),
+                  badgeImageUrl: badgeImageUrlCtrl.text.trim().isEmpty
+                      ? null
+                      : badgeImageUrlCtrl.text.trim(),
+                  forestBonus: int.tryParse(forestBonusCtrl.text.trim()) ?? 0,
+                  participationLimit:
+                      int.tryParse(participationLimitCtrl.text.trim()) ?? 0,
+                  autoStart: autoStart,
+                  autoEnd: autoEnd,
+                  startDate: startDate,
+                  endDate: endDate,
+                  isActive: true,
+                  participantCount: 0,
+                  createdAt: DateTime.now(),
+                );
                 try {
-                  await repo.createChallenge(AdminChallengeDefinition(
-                    id: '',
-                    title: titleCtrl.text.trim(),
-                    description: descCtrl.text.trim(),
-                    targetSteps: int.parse(targetStepsCtrl.text.trim()),
-                    targetDistanceKm: double.parse(targetDistCtrl.text.trim()),
-                    reward: rewardCtrl.text.trim(),
-                    startDate: startDate,
-                    endDate: endDate,
-                    isActive: true,
-                    createdAt: DateTime.now(),
-                  ));
-                  ref.invalidate(adminChallengesProvider);
+                  await ref
+                      .read(adminChallengesProvider.notifier)
+                      .createChallenge(newChallenge);
                   if (ctx.mounted) Navigator.of(ctx).pop();
                 } catch (e) {
                   if (ctx.mounted) {
@@ -181,17 +271,25 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
     );
   }
 
-  void _showEditDialog(AdminChallengeDefinition challenge) {
-    final titleCtrl = TextEditingController(text: challenge.title);
-    final descCtrl = TextEditingController(text: challenge.description);
-    final targetStepsCtrl =
-        TextEditingController(text: challenge.targetSteps.toString());
-    final targetDistCtrl =
-        TextEditingController(text: challenge.targetDistanceKm.toString());
-    final rewardCtrl = TextEditingController(text: challenge.reward);
-    DateTime startDate = challenge.startDate;
-    DateTime endDate = challenge.endDate;
-    bool isActive = challenge.isActive;
+  // ── Edit Dialog ──────────────────────────────────────────────
+
+  void _showEditDialog(AdminChallengeDefinition c) {
+    final titleCtrl = TextEditingController(text: c.title);
+    final descCtrl = TextEditingController(text: c.description);
+    final imageUrlCtrl = TextEditingController(text: c.imageUrl ?? '');
+    final targetStepsCtrl = TextEditingController(text: c.targetSteps.toString());
+    final targetDistCtrl = TextEditingController(text: c.targetDistanceKm.toString());
+    final rewardCtrl = TextEditingController(text: c.reward);
+    final badgeNameCtrl = TextEditingController(text: c.badgeName ?? '');
+    final badgeImageUrlCtrl = TextEditingController(text: c.badgeImageUrl ?? '');
+    final forestBonusCtrl = TextEditingController(text: c.forestBonus.toString());
+    final participationLimitCtrl =
+        TextEditingController(text: c.participationLimit.toString());
+    DateTime startDate = c.startDate;
+    DateTime endDate = c.endDate;
+    bool autoStart = c.autoStart;
+    bool autoEnd = c.autoEnd;
+    bool isActive = c.isActive;
     final formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -200,17 +298,18 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
         builder: (ctx, setDialogState) => AlertDialog(
           title: const Text('Challenge 수정'),
           content: SizedBox(
-            width: 400,
+            width: 480,
             child: Form(
               key: formKey,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
                       controller: titleCtrl,
                       decoration: const InputDecoration(
-                        labelText: '제목',
+                        labelText: '제목 *',
                         border: OutlineInputBorder(),
                       ),
                       validator: (v) =>
@@ -227,34 +326,50 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: targetStepsCtrl,
+                      controller: imageUrlCtrl,
                       decoration: const InputDecoration(
-                        labelText: '목표 걸음 수',
+                        labelText: '이미지 URL',
+                        hintText: 'https://...',
                         border: OutlineInputBorder(),
                       ),
-                      keyboardType: TextInputType.number,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return '목표 걸음 수를 입력하세요';
-                        if (int.tryParse(v.trim()) == null) return '숫자만 입력 가능합니다';
-                        return null;
-                      },
+                      keyboardType: TextInputType.url,
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: targetDistCtrl,
-                      decoration: const InputDecoration(
-                        labelText: '목표 거리 (km)',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return '목표 거리를 입력하세요';
-                        if (double.tryParse(v.trim()) == null) {
-                          return '숫자만 입력 가능합니다';
-                        }
-                        return null;
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: targetStepsCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '목표 걸음 수 *',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return '필수';
+                              if (int.tryParse(v.trim()) == null) return '숫자';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: targetDistCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '목표 거리 (km) *',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return '필수';
+                              if (double.tryParse(v.trim()) == null) return '숫자';
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -265,50 +380,84 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('시작일'),
-                      subtitle: Text(
-                        '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}',
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: ctx,
-                          initialDate: startDate,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          setDialogState(() => startDate = picked);
-                        }
-                      },
-                    ),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('종료일'),
-                      subtitle: Text(
-                        '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}',
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: ctx,
-                          initialDate: endDate,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          setDialogState(() => endDate = picked);
-                        }
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: badgeNameCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '배지 이름',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: badgeImageUrlCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '배지 이미지 URL',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.url,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: forestBonusCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '숲 보너스',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: participationLimitCtrl,
+                            decoration: const InputDecoration(
+                              labelText: '참여 제한 (0=무제한)',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('자동 시작'),
+                      value: autoStart,
+                      onChanged: (v) => setDialogState(() => autoStart = v),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('자동 종료'),
+                      value: autoEnd,
+                      onChanged: (v) => setDialogState(() => autoEnd = v),
+                    ),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('활성화'),
                       value: isActive,
                       onChanged: (v) => setDialogState(() => isActive = v),
+                    ),
+                    _DateTile(
+                      label: '시작일',
+                      date: startDate,
+                      onChanged: (d) => setDialogState(() => startDate = d),
+                    ),
+                    _DateTile(
+                      label: '종료일',
+                      date: endDate,
+                      onChanged: (d) => setDialogState(() => endDate = d),
                     ),
                   ],
                 ),
@@ -323,21 +472,38 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
             FilledButton(
               onPressed: () async {
                 if (!formKey.currentState!.validate()) return;
-                final repo = ref.read(adminRepositoryProvider);
+                final updated = AdminChallengeDefinition(
+                  id: c.id,
+                  title: titleCtrl.text.trim(),
+                  description: descCtrl.text.trim(),
+                  imageUrl: imageUrlCtrl.text.trim().isEmpty
+                      ? null
+                      : imageUrlCtrl.text.trim(),
+                  targetSteps: int.tryParse(targetStepsCtrl.text.trim()) ?? 0,
+                  targetDistanceKm:
+                      double.tryParse(targetDistCtrl.text.trim()) ?? 0,
+                  reward: rewardCtrl.text.trim(),
+                  badgeName: badgeNameCtrl.text.trim().isEmpty
+                      ? null
+                      : badgeNameCtrl.text.trim(),
+                  badgeImageUrl: badgeImageUrlCtrl.text.trim().isEmpty
+                      ? null
+                      : badgeImageUrlCtrl.text.trim(),
+                  forestBonus: int.tryParse(forestBonusCtrl.text.trim()) ?? 0,
+                  participationLimit:
+                      int.tryParse(participationLimitCtrl.text.trim()) ?? 0,
+                  autoStart: autoStart,
+                  autoEnd: autoEnd,
+                  startDate: startDate,
+                  endDate: endDate,
+                  isActive: isActive,
+                  participantCount: c.participantCount,
+                  createdAt: c.createdAt,
+                );
                 try {
-                  await repo.updateChallenge(AdminChallengeDefinition(
-                    id: challenge.id,
-                    title: titleCtrl.text.trim(),
-                    description: descCtrl.text.trim(),
-                    targetSteps: int.parse(targetStepsCtrl.text.trim()),
-                    targetDistanceKm: double.parse(targetDistCtrl.text.trim()),
-                    reward: rewardCtrl.text.trim(),
-                    startDate: startDate,
-                    endDate: endDate,
-                    isActive: isActive,
-                    createdAt: challenge.createdAt,
-                  ));
-                  ref.invalidate(adminChallengesProvider);
+                  await ref
+                      .read(adminChallengesProvider.notifier)
+                      .updateChallenge(updated);
                   if (ctx.mounted) Navigator.of(ctx).pop();
                 } catch (e) {
                   if (ctx.mounted) {
@@ -355,12 +521,14 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
     );
   }
 
-  Future<void> _deleteChallenge(AdminChallengeDefinition challenge) async {
+  // ── Delete ───────────────────────────────────────────────────
+
+  Future<void> _deleteChallenge(AdminChallengeDefinition c) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Challenge 삭제'),
-        content: Text('"${challenge.title}"을(를) 삭제하시겠습니까?'),
+        content: Text('"${c.title}"을(를) 삭제하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -377,8 +545,7 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
 
     if (confirmed == true) {
       try {
-        await ref.read(adminRepositoryProvider).deleteChallenge(challenge.id);
-        ref.invalidate(adminChallengesProvider);
+        await ref.read(adminChallengesProvider.notifier).deleteChallenge(c.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('삭제되었습니다')),
@@ -394,6 +561,8 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
     }
   }
 
+  // ── Build ────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final challengesAsync = ref.watch(adminChallengesProvider);
@@ -406,7 +575,8 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: '새로고침',
-            onPressed: () => ref.invalidate(adminChallengesProvider),
+            onPressed: () =>
+                ref.read(adminChallengesProvider.notifier).load(),
           ),
         ],
       ),
@@ -464,6 +634,52 @@ class _AdminChallengesScreenState extends ConsumerState<AdminChallengesScreen> {
   }
 }
 
+// ── Helpers ────────────────────────────────────────────────────
+
+String _formatDate(DateTime dt) =>
+    '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+
+String _formatNumber(int n) {
+  if (n >= 10000) {
+    return '${(n / 10000).toStringAsFixed(1)}만';
+  }
+  return n.toString();
+}
+
+/// 재사용 가능한 DatePicker 타일
+class _DateTile extends StatelessWidget {
+  final String label;
+  final DateTime date;
+  final ValueChanged<DateTime> onChanged;
+
+  const _DateTile({
+    required this.label,
+    required this.date,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(label),
+      subtitle: Text(_formatDate(date)),
+      trailing: const Icon(Icons.calendar_today),
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: date,
+          firstDate: DateTime(2020),
+          lastDate: DateTime(2100),
+        );
+        if (picked != null) onChanged(picked);
+      },
+    );
+  }
+}
+
+// ── Challenge Card ─────────────────────────────────────────────
+
 class _ChallengeCard extends StatelessWidget {
   final AdminChallengeDefinition challenge;
   final VoidCallback onEdit;
@@ -475,115 +691,246 @@ class _ChallengeCard extends StatelessWidget {
     required this.onDelete,
   });
 
-  String _formatDate(DateTime dt) =>
-      '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
-
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Image ──
+          if (challenge.imageUrl != null && challenge.imageUrl!.isNotEmpty)
+            SizedBox(
+              width: double.infinity,
+              height: 160,
+              child: Image.network(
+                challenge.imageUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: Icon(Icons.broken_image,
+                        size: 48, color: Colors.grey),
+                  ),
+                ),
+              ),
+            ),
+
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    challenge.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Chip(
-                  label: Text(
-                    challenge.isActive ? '활성' : '비활성',
-                    style: TextStyle(
-                      color: challenge.isActive ? Colors.green : Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                  backgroundColor: challenge.isActive
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.1),
-                  side: BorderSide.none,
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') onEdit();
-                    if (value == 'delete') onDelete();
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: ListTile(
-                        leading: Icon(Icons.edit),
-                        title: Text('수정'),
-                        contentPadding: EdgeInsets.zero,
+                // ── Header row ──
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        challenge.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: ListTile(
-                        leading: Icon(Icons.delete, color: Colors.red),
-                        title: Text('삭제', style: TextStyle(color: Colors.red)),
-                        contentPadding: EdgeInsets.zero,
+                    _ActiveChip(isActive: challenge.isActive),
+                    const SizedBox(width: 4),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') onEdit();
+                        if (value == 'delete') onDelete();
+                      },
+                      itemBuilder: (_) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: ListTile(
+                            leading: Icon(Icons.edit),
+                            title: Text('수정'),
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: ListTile(
+                            leading: Icon(Icons.delete, color: Colors.red),
+                            title: Text('삭제',
+                                style: TextStyle(color: Colors.red)),
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                // ── Description ──
+                if (challenge.description.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    challenge.description,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+
+                const SizedBox(height: 10),
+
+                // ── Targets ──
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    _InfoChip(
+                      icon: Icons.directions_walk,
+                      iconColor: Colors.green,
+                      label:
+                          '${_formatNumber(challenge.targetSteps)} steps',
+                    ),
+                    _InfoChip(
+                      icon: Icons.straighten,
+                      iconColor: Colors.blue,
+                      label: '${challenge.targetDistanceKm} km',
+                    ),
+                    if (challenge.reward.isNotEmpty)
+                      _InfoChip(
+                        icon: Icons.card_giftcard,
+                        iconColor: Colors.orange,
+                        label: challenge.reward,
                       ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+
+                // ── Badge + Forest ──
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (challenge.badgeName != null &&
+                        challenge.badgeName!.isNotEmpty)
+                      Chip(
+                        avatar: challenge.badgeImageUrl != null &&
+                                challenge.badgeImageUrl!.isNotEmpty
+                            ? CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(challenge.badgeImageUrl!),
+                              )
+                            : const Icon(Icons.verified, size: 18),
+                        label: Text(
+                          challenge.badgeName!,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        backgroundColor: Colors.amber.withOpacity(0.15),
+                        side: BorderSide.none,
+                      ),
+                    if (challenge.forestBonus > 0)
+                      Chip(
+                        avatar: const Icon(Icons.forest, size: 18,
+                            color: Colors.green),
+                        label: Text(
+                          '숲 +${challenge.forestBonus}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        backgroundColor: Colors.green.withOpacity(0.1),
+                        side: BorderSide.none,
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+
+                // ── Footer: participants, dates, auto ──
+                Row(
+                  children: [
+                    const Icon(Icons.people, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${challenge.participantCount}명',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(width: 12),
+                    if (challenge.autoStart)
+                      const Icon(Icons.play_circle_outline,
+                          size: 14, color: Colors.teal),
+                    if (challenge.autoStart) const SizedBox(width: 2),
+                    if (challenge.autoStart)
+                      Text('자동시작',
+                          style: TextStyle(
+                              fontSize: 11, color: Colors.teal[700])),
+                    if (challenge.autoEnd) const SizedBox(width: 8),
+                    if (challenge.autoEnd)
+                      const Icon(Icons.stop_circle,
+                          size: 14, color: Colors.deepOrange),
+                    if (challenge.autoEnd) const SizedBox(width: 2),
+                    if (challenge.autoEnd)
+                      Text('자동종료',
+                          style: TextStyle(
+                              fontSize: 11, color: Colors.deepOrange[700])),
+                    const Spacer(),
+                    Text(
+                      '${_formatDate(challenge.startDate)} ~ ${_formatDate(challenge.endDate)}',
+                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                     ),
                   ],
                 ),
               ],
             ),
-            if (challenge.description.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text(
-                challenge.description,
-                style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Icon(Icons.directions_walk, size: 16, color: Colors.green),
-                const SizedBox(width: 4),
-                Text(
-                  '${challenge.targetSteps.toInt()} steps',
-                  style: const TextStyle(fontSize: 13),
-                ),
-                const SizedBox(width: 16),
-                const Icon(Icons.straighten, size: 16, color: Colors.blue),
-                const SizedBox(width: 4),
-                Text(
-                  '${challenge.targetDistanceKm} km',
-                  style: const TextStyle(fontSize: 13),
-                ),
-                const SizedBox(width: 16),
-                if (challenge.reward.isNotEmpty) ...[
-                  const Icon(Icons.card_giftcard, size: 16, color: Colors.orange),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      challenge.reward,
-                      style: const TextStyle(fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              '${_formatDate(challenge.startDate)} ~ ${_formatDate(challenge.endDate)}',
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
-            ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Shared Widgets ─────────────────────────────────────────────
+
+class _ActiveChip extends StatelessWidget {
+  final bool isActive;
+  const _ActiveChip({required this.isActive});
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      label: Text(
+        isActive ? '활성' : '비활성',
+        style: TextStyle(
+          color: isActive ? Colors.green : Colors.grey,
+          fontSize: 12,
         ),
       ),
+      backgroundColor:
+          isActive ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+      side: BorderSide.none,
+      visualDensity: VisualDensity.compact,
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+
+  const _InfoChip({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: iconColor),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 13)),
+      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../push/push_settings_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -129,7 +130,11 @@ class MyPageScreen extends StatelessWidget {
           _MenuTile(
             icon: Icons.notifications,
             title: "알림 설정",
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PushSettingsScreen()),
+              );
+            },
           ),
 
           _MenuTile(

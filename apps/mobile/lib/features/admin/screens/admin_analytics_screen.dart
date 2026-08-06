@@ -1,103 +1,93 @@
+/// ===============================================================
+/// HealthON — Analytics Dashboard Screen
+///
+/// DAU/WAU/MAU + 트렌드 차트 + 카테고리 분포 + 챌린지 퍼널
+/// ===============================================================
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fl_chart/fl_chart.dart';
 
-import '../admin_provider.dart';
+import '../analytics_provider.dart';
+import '../analytics_repository.dart';
+import '../admin_models.dart';
 
-/// ===============================================================
-/// HealthON — Analytics 화면
-///
-/// DAU / WAU / MAU / Retention / Forest / Challenge / Mission
-/// 게시글 / 댓글 통계 + fl_chart 시각화
-/// ===============================================================
-
-class AdminAnalyticsScreen extends ConsumerStatefulWidget {
-  const AdminAnalyticsScreen({super.key});
+class AnalyticsDashboardScreen extends ConsumerStatefulWidget {
+  const AnalyticsDashboardScreen({super.key});
 
   @override
-  ConsumerState<AdminAnalyticsScreen> createState() => _AdminAnalyticsScreenState();
+  ConsumerState<AnalyticsDashboardScreen> createState() => _AnalyticsDashboardScreenState();
 }
 
-class _AdminAnalyticsScreenState extends ConsumerState<AdminAnalyticsScreen> {
-  int _dauDays = 7;
-
+class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScreen> {
   @override
   Widget build(BuildContext context) {
-    final overviewAsync = ref.watch(adminAnalyticsOverviewProvider);
-    final dauChartAsync = ref.watch(adminDAUChartProvider(_dauDays));
-    final retentionChartAsync = ref.watch(adminRetentionChartProvider);
-    final postsChartAsync = ref.watch(adminPostsCommentsChartProvider(7));
+    final summary = ref.watch(analyticsSummaryProvider);
+    final trend = ref.watch(analyticsTrendProvider);
+    final catDist = ref.watch(analyticsCategoryDistProvider);
 
-    final isWide = MediaQuery.of(context).size.width > 800;
-    const accent = Color(0xFF2E7D32);
-    const dark = Color(0xFF1E1E2D);
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(analyticsSummaryProvider);
+        ref.invalidate(analyticsTrendProvider);
+        ref.invalidate(analyticsCategoryDistProvider);
+      },
+      child: ListView(padding: const EdgeInsets.all(20), children: [
+        const Text('HealthON Analytics', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(ref.watch(analyticsSummaryProvider).whenOrNull(data: (s) => '마지막 업데이트: ${DateTime.now().toIso8601String().substring(0, 10)}') ?? '', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+        const SizedBox(height: 20),
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── KPI 카드 ──
-          overviewAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => _ErrorBanner(message: err.toString()),
-            data: (overview) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _KpiGrid(overview: overview, isWide: isWide, accent: accent, dark: dark),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
+        // === 핵심 지표 ===
+        summary.when(
+          data: (s) => _KpiGrid(summary: s),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('지표 로드 실패')),
+        ),
+        const SizedBox(height: 20),
 
-          // ── DAU 차트 ──
-          _ChartCard(
-            title: '일간 활성 사용자 (DAU)',
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [7, 14, 30].map((d) {
-                final selected = _dauDays == d;
-                return Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: ChoiceChip(
-                    label: Text('${d}일', style: TextStyle(fontSize: 11, color: selected ? Colors.white : dark)),
-                    selected: selected,
-                    selectedColor: accent,
-                    onSelected: (_) => setState(() => _dauDays = d),
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                );
-              }).toList(),
-            ),
-            height: 240,
-            asyncValue: dauChartAsync,
-            accent: accent,
-            labelSuffix: '명',
-          ),
-          const SizedBox(height: 24),
+        // === DAU/신규 트렌드 ===
+        Card(
+          child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('📈 DAU & 신규 가입 트렌드 (30일)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            const SizedBox(height: 16),
+            SizedBox(height: 220, child: trend.when(
+              data: (points) => _TrendChart(points: points),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => const Center(child: Text('차트 로드 실패')),
+            )),
+          ])),
+        ),
+        const SizedBox(height: 16),
 
-          // ── Retention 차트 ──
-          _ChartCard(
-            title: '리텐션 (Retention)',
-            height: 240,
-            asyncValue: retentionChartAsync,
-            accent: const Color(0xFF6A1B9A),
-            labelSuffix: '%',
-          ),
-          const SizedBox(height: 24),
+        // === 걸음수 트렌드 ===
+        Card(
+          child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('🚶 일별 걸음 수 추이', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            const SizedBox(height: 16),
+            SizedBox(height: 200, child: trend.when(
+              data: (points) => _StepsBarChart(points: points),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => const Center(child: Text('차트 로드 실패')),
+            )),
+          ])),
+        ),
+        const SizedBox(height: 16),
 
-          // ── 게시글 트렌드 ──
-          _ChartCard(
-            title: '주간 게시글 추이',
-            height: 240,
-            asyncValue: postsChartAsync,
-            accent: const Color(0xFF00838F),
-            labelSuffix: '건',
-          ),
-          const SizedBox(height: 40),
-        ],
-      ),
+        // === 카테고리 분포 ===
+        Card(
+          child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('📊 커뮤니티 카테고리 분포 (30일)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            const SizedBox(height: 16),
+            SizedBox(height: 200, child: catDist.when(
+              data: (cats) => _CategoryPieChart(cats: cats),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => const Center(child: Text('차트 로드 실패')),
+            )),
+          ])),
+        ),
+        const SizedBox(height: 80),
+      ]),
     );
   }
 }
@@ -107,284 +97,162 @@ class _AdminAnalyticsScreenState extends ConsumerState<AdminAnalyticsScreen> {
 // ===============================================================
 
 class _KpiGrid extends StatelessWidget {
-  final AnalyticsOverview overview;
-  final bool isWide;
-  final Color accent;
-  final Color dark;
-
-  const _KpiGrid({
-    required this.overview,
-    required this.isWide,
-    required this.accent,
-    required this.dark,
-  });
+  final AnalyticsSummary summary;
+  const _KpiGrid({required this.summary});
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      _KpiItem('DAU', overview.dau, Icons.today, const Color(0xFF1565C0), '오늘'),
-      _KpiItem('WAU', overview.wau, Icons.date_range, const Color(0xFF2E7D32), '주간'),
-      _KpiItem('MAU', overview.mau, Icons.calendar_month, const Color(0xFF6A1B9A), '월간'),
-      _KpiItem('총 사용자', overview.totalUsers, Icons.people, const Color(0xFF1E1E2D), '누적'),
-      _KpiItem('전체 게시글', overview.totalPosts, Icons.article, const Color(0xFF00838F), '누적'),
-      _KpiItem('전체 댓글', overview.totalComments, Icons.chat_bubble, const Color(0xFFAD1457), '누적'),
-      _KpiItem('Challenge 완료율', (overview.challengeCompletionRate * 100).round(), Icons.emoji_events, const Color(0xFFF9A825), '%'),
-      _KpiItem('Mission 완료율', (overview.missionCompletionRate * 100).round(), Icons.assignment_turned_in, const Color(0xFFE65100), '%'),
-    ];
-
-    final crossAxisCount = isWide ? 4 : 2;
-
-    return GridView.builder(
+    final isWide = MediaQuery.of(context).size.width > 600;
+    return GridView.count(
+      crossAxisCount: isWide ? 5 : 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.7,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return Card(
-          elevation: 2,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: item.color.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(item.icon, size: 18, color: item.color),
-                    ),
-                    const Spacer(),
-                    Text(item.subtitle, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      _formatNumber(item.value),
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: dark),
-                    ),
-                    const SizedBox(width: 3),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 3),
-                      child: Text(item.suffix, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-                    ),
-                  ],
-                ),
-                Text(item.label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-              ],
-            ),
-          ),
-        );
-      },
+      mainAxisSpacing: 10, crossAxisSpacing: 10,
+      childAspectRatio: 1.3,
+      children: [
+        _KpiCard(title: 'DAU', value: '${_f(summary.dau)}', subtitle: '오늘 활성'),
+        _KpiCard(title: 'WAU', value: '${_f(summary.wau)}', subtitle: '주간 활성'),
+        _KpiCard(title: 'MAU', value: '${_f(summary.mau)}', subtitle: '월간 활성'),
+        _KpiCard(title: 'DAU/MAU', value: '${(summary.dauMauRatio * 100).toStringAsFixed(1)}%', subtitle: '고착도', color: summary.dauMauRatio >= 0.3 ? Colors.green : Colors.orange),
+        _KpiCard(title: '전체 회원', value: '${_f(summary.totalUsers)}', subtitle: '누적'),
+        _KpiCard(title: '평균 걸음', value: '${_f(summary.avgStepsPerUser.round())}', subtitle: '/인', color: summary.avgStepsPerUser >= 7000 ? Colors.green : Colors.orange),
+        _KpiCard(title: '도전 완주율', value: '${(summary.challengeCompletionRate * 100).toStringAsFixed(1)}%', subtitle: '챌린지'),
+        _KpiCard(title: '참여율', value: '${(summary.engagementRate * 100).toStringAsFixed(1)}%', subtitle: '게시글+댓글/DAU'),
+        _KpiCard(title: '주간 성장', value: '${(summary.weeklyGrowth * 100).toStringAsFixed(1)}%', subtitle: 'DAU 증감', color: summary.weeklyGrowth >= 0 ? Colors.green : Colors.red),
+        _KpiCard(title: '1주 리텐션', value: '${(summary.retentionWeek1 * 100).toStringAsFixed(1)}%', subtitle: '재방문율'),
+      ],
     );
   }
-
-  String _formatNumber(int n) {
-    if (n >= 10000) return '${(n / 10000).toStringAsFixed(1)}만';
-    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}천';
-    return n.toString();
-  }
 }
 
-class _KpiItem {
-  final String label;
-  final int value;
-  final IconData icon;
-  final Color color;
-  final String subtitle;
-  final String suffix;
+class _KpiCard extends StatelessWidget {
+  final String title, value, subtitle;
+  final Color? color;
+  const _KpiCard({required this.title, required this.value, required this.subtitle, this.color});
 
-  const _KpiItem(this.label, this.value, this.icon, this.color, this.subtitle, [this.suffix = '']);
+  @override
+  Widget build(BuildContext context) => Card(
+    elevation: 2,
+    child: Padding(padding: const EdgeInsets.all(12), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Text(title, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+      const SizedBox(height: 4),
+      Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color ?? const Color(0xFF1E1E2D))),
+      Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+    ])),
+  );
 }
 
 // ===============================================================
-// Chart Card
+// Trend Line Chart (DAU + New Users)
 // ===============================================================
 
-class _ChartCard extends StatelessWidget {
-  final String title;
-  final Widget? trailing;
-  final double height;
-  final AsyncValue<AdminChartData> asyncValue;
-  final Color accent;
-  final String labelSuffix;
-
-  const _ChartCard({
-    required this.title,
-    this.trailing,
-    this.height = 240,
-    required this.asyncValue,
-    required this.accent,
-    required this.labelSuffix,
-  });
+class _TrendChart extends StatelessWidget {
+  final List<TrendPoint> points;
+  const _TrendChart({required this.points});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                const Spacer(),
-                if (trailing != null) trailing!,
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: height,
-              child: asyncValue.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, st) => Center(
-                  child: Text('데이터 로드 실패', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
-                ),
-                data: (chartData) => _buildLineChart(chartData),
-              ),
-            ),
-          ],
-        ),
+    if (points.isEmpty) return const Center(child: Text('데이터 없음'));
+    final maxVal = points.map((p) => p.dau > p.newUsers ? p.dau : p.newUsers).reduce((a, b) => a > b ? a : b).toDouble();
+
+    return LineChart(LineChartData(
+      gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: maxVal / 4),
+      titlesData: FlTitlesData(
+        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 50, getTitlesWidget: (v, _) => Text('${v ~/ 1}', style: const TextStyle(fontSize: 10)))),
+        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, interval: 7, getTitlesWidget: (v, _) {
+          final idx = v.toInt();
+          if (idx < 0 || idx >= points.length) return const SizedBox.shrink();
+          return Text('${points[idx].date.month}/${points[idx].date.day}', style: const TextStyle(fontSize: 9));
+        })),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
-    );
-  }
-
-  Widget _buildLineChart(AdminChartData data) {
-    if (data.labels.isEmpty) {
-      return Center(child: Text('데이터가 없습니다', style: TextStyle(color: Colors.grey[500])));
-    }
-
-    final spots = <FlSpot>[];
-    double maxY = 0;
-    for (int i = 0; i < data.values.length; i++) {
-      spots.add(FlSpot(i.toDouble(), data.values[i]));
-      if (data.values[i] > maxY) maxY = data.values[i];
-    }
-    if (maxY == 0) maxY = 10;
-
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey[200]!, strokeWidth: 1),
+      borderData: FlBorderData(show: false),
+      minY: 0, maxY: maxVal * 1.15,
+      lineBarsData: [
+        LineChartBarData(
+          spots: points.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.dau.toDouble())).toList(),
+          isCurved: true, color: const Color(0xFF2E7D32), barWidth: 3, dotData: const FlDotData(show: false),
+          belowBarData: BarAreaData(show: true, color: const Color(0xFF2E7D32).withOpacity(0.08)),
         ),
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 28,
-              getTitlesWidget: (value, meta) {
-                final idx = value.toInt();
-                if (idx < 0 || idx >= data.labels.length) return const SizedBox.shrink();
-                return Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(data.labels[idx], style: TextStyle(fontSize: 10, color: Colors.grey[500])),
-                );
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 48,
-              getTitlesWidget: (value, meta) {
-                return Text(
-                  _formatAxisValue(value),
-                  style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                );
-              },
-            ),
-          ),
+        LineChartBarData(
+          spots: points.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.newUsers.toDouble())).toList(),
+          isCurved: true, color: Colors.orange, barWidth: 2, dotData: const FlDotData(show: false),
         ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            curveSmoothness: 0.25,
-            color: accent,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) =>
-                  FlDotCirclePainter(radius: 4, color: accent, strokeWidth: 2, strokeColor: Colors.white),
-            ),
-            belowBarData: BarAreaData(show: true, color: accent.withOpacity(0.1)),
-          ),
-        ],
-        minY: 0,
-        maxY: maxY * 1.2,
-        lineTouchData: LineTouchData(
-          touchTooltipData: LineTouchTooltipData(
-            getTooltipItems: (touchedSpots) {
-              return touchedSpots.map((spot) {
-                return LineTooltipItem(
-                  '${spot.y.toInt()} $labelSuffix',
-                  const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-                );
-              }).toList();
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatAxisValue(double value) {
-    if (value >= 10000) return '${(value / 10000).toStringAsFixed(1)}만';
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}천';
-    return value.toInt().toString();
+      ],
+    ));
   }
 }
 
 // ===============================================================
-// Error Banner
+// Steps Bar Chart
 // ===============================================================
 
-class _ErrorBanner extends StatelessWidget {
-  final String message;
-  const _ErrorBanner({required this.message});
+class _StepsBarChart extends StatelessWidget {
+  final List<TrendPoint> points;
+  const _StepsBarChart({required this.points});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.red[50],
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message, style: const TextStyle(color: Colors.red, fontSize: 13))),
-          ],
-        ),
+    if (points.isEmpty) return const Center(child: Text('데이터 없음'));
+    final maxVal = points.map((p) => p.steps).reduce((a, b) => a > b ? a : b).toDouble();
+
+    return BarChart(BarChartData(
+      gridData: FlGridData(show: true, drawVerticalLine: false),
+      titlesData: FlTitlesData(
+        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 60, getTitlesWidget: (v, _) => Text('${(v / 1000).round()}k', style: const TextStyle(fontSize: 10)))),
+        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, interval: 7, getTitlesWidget: (v, _) {
+          final idx = v.toInt();
+          if (idx < 0 || idx >= points.length) return const SizedBox.shrink();
+          return Text('${points[idx].date.month}/${points[idx].date.day}', style: const TextStyle(fontSize: 9));
+        })),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
-    );
+      borderData: FlBorderData(show: false),
+      maxY: maxVal * 1.1,
+      barGroups: points.asMap().entries.map((e) => BarChartGroupData(
+        x: e.key,
+        barRods: [BarChartRodData(toY: e.value.steps.toDouble(), color: const Color(0xFF2E7D32), width: 8)],
+      )).toList(),
+    ));
   }
 }
+
+// ===============================================================
+// Category Pie Chart
+// ===============================================================
+
+class _CategoryPieChart extends StatelessWidget {
+  final List<CategoryDist> cats;
+  const _CategoryPieChart({required this.cats});
+
+  static const _colors = [Color(0xFF2E7D32), Color(0xFF43A047), Color(0xFF66BB6A), Color(0xFFA5D6A7), Color(0xFFFF9800), Color(0xFF2196F3), Color(0xFF9C27B0), Color(0xFF607D8B), Color(0xFF795548)];
+
+  @override
+  Widget build(BuildContext context) {
+    if (cats.isEmpty) return const Center(child: Text('데이터 없음'));
+    return Row(children: [
+      Expanded(flex: 3, child: PieChart(PieChartData(
+        sections: cats.asMap().entries.map((e) => PieChartSectionData(
+          value: e.value.count.toDouble(),
+          title: '${e.value.label}\n${e.value.count}',
+          color: _colors[e.key % _colors.length],
+          radius: 70, titleStyle: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w600),
+        )).toList(),
+        centerSpaceRadius: 0,
+      ))),
+      Expanded(flex: 2, child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: cats.take(6).map((c) => Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: Row(children: [
+          Container(width: 10, height: 10, decoration: BoxDecoration(color: _colors[cats.indexOf(c) % _colors.length], shape: BoxShape.circle)),
+          const SizedBox(width: 6),
+          Expanded(child: Text(c.label, style: const TextStyle(fontSize: 11))),
+          Text('${c.count}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11)),
+        ]))).toList(),
+      )),
+    ]);
+  }
+}
+
+String _f(int v) => v.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');

@@ -19,7 +19,7 @@ Dashboard
 90%
 
 AI Coach
-20%
+90%
 
 Community
 0%

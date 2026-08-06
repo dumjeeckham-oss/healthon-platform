@@ -1,5 +1,5 @@
 name: healthon
-description: 건강ON - 건강 챌린지 플랫폼
+description: 건강ON - 건강 참여 플랫폼 (부천의료복지사회적협동조합)
 
 publish_to: "none"
 
@@ -12,72 +12,47 @@ dependencies:
   flutter:
     sdk: flutter
 
-dependencies:
-  rive: ^0.13.20   
+  rive: ^0.13.20
   confetti: ^0.8.0
   lottie: ^3.3.1
-  lottie: ^3.1.2
   audioplayers: ^6.0.0
   flutter_svg: ^2.0.17
-
   cupertino_icons: ^1.0.8
 
-  # ==========================
   # State Management
-  # ==========================
   flutter_riverpod: ^2.6.1
 
-  # ==========================
   # Routing
-  # ==========================
   go_router: ^16.0.0
 
-  # ==========================
   # Backend
-  # ==========================
   supabase_flutter: ^2.9.1
 
-  # ==========================
   # Authentication
-  # ==========================
   google_sign_in: ^7.1.1
   sign_in_with_apple: ^7.0.1
 
-  # ==========================
   # Firebase
-  # ==========================
   firebase_core: ^4.0.0
   firebase_messaging: ^16.0.0
 
-  # ==========================
   # Notifications
-  # ==========================
   flutter_local_notifications: ^19.4.0
 
-  # ==========================
   # Health
-  # ==========================
   health: ^13.1.1
 
-  # ==========================
   # Charts
-  # ==========================
   fl_chart: ^1.1.0
 
-  # ==========================
   # Images
-  # ==========================
   cached_network_image: ^3.4.1
   image_picker: ^1.1.2
 
-  # ==========================
   # Environment
-  # ==========================
   flutter_dotenv: ^6.0.0
 
-  # ==========================
   # Utilities
-  # ==========================
   share_plus: ^10.1.4
   intl: ^0.20.2
   uuid: ^4.5.1
@@ -87,16 +62,12 @@ dependencies:
   shared_preferences: ^2.5.3
   url_strategy: ^0.3.0
 
-  # ==========================
   # Offline
-  # ==========================
   sqflite: ^2.4.2
   path_provider: ^2.1.5
   path: ^1.9.1
 
-  # ==========================
   # JSON
-  # ==========================
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
 
@@ -105,19 +76,13 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
-
   build_runner: ^2.5.4
   freezed: ^3.2.0
   json_serializable: ^6.10.0
-
-  # Splash Generator
   flutter_native_splash: ^2.4.6
-
-  # Launcher Icon Generator
   flutter_launcher_icons: ^0.14.4
 
 flutter:
-
   uses-material-design: true
 
   assets:
@@ -128,3 +93,38 @@ flutter:
     - assets/animations/
     - assets/sounds/
     - .env
+
+# ============================================================
+# App Icon (실행: flutter pub run flutter_launcher_icons)
+# ============================================================
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  adaptive_icon_background: "#2E7D32"
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
+  min_sdk_android: 26
+  remove_alpha_ios: true
+
+# ============================================================
+# Native Splash (실행: flutter pub run flutter_native_splash:create)
+# ============================================================
+flutter_native_splash:
+  color: "#2E7D32"
+  image: assets/images/splash_logo.png
+  branding: assets/images/splash_branding.png
+  color_dark: "#1E1E2D"
+  image_dark: assets/images/splash_logo_dark.png
+  branding_dark: assets/images/splash_branding_dark.png
+
+  android_12:
+    color: "#2E7D32"
+    image: assets/images/splash_logo_android12.png
+    branding: assets/images/splash_branding.png
+    color_dark: "#1E1E2D"
+    image_dark: assets/images/splash_logo_dark_android12.png
+    branding_dark: assets/images/splash_branding_dark.png
+
+  android: true
+  ios: true
+  web: false

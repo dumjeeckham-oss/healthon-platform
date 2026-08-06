@@ -1,0 +1,13 @@
+# ================================================================
+# HealthON — Key Properties (Signing)
+#
+# 생성 방법:
+#   keytool -genkey -v -keystore healthon-release.keystore -alias healthon -keyalg RSA -keysize 2048 -validity 10000
+#
+# 이 파일을 android/key.properties 에 저장하고 .gitignore에 추가
+# ================================================================
+
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=healthon
+storeFile=../healthon-release.keystore

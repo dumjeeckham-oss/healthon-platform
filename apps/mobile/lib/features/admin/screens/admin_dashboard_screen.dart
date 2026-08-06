@@ -5,9 +5,9 @@ import 'package:fl_chart/fl_chart.dart';
 import '../admin_provider.dart';
 
 /// ===============================================================
-/// HealthON — 관리자 대시보드 화면
+/// HealthON — 관리자 대시보드 화면 v2
 ///
-/// 통계 카드 8개 + 주간 걸음/사용자 라인차트
+/// StateNotifierProvider 기반. 통계 카드 13개 + 주간 차트 2개
 /// ===============================================================
 
 class AdminDashboardScreen extends ConsumerStatefulWidget {
@@ -19,8 +19,23 @@ class AdminDashboardScreen extends ConsumerStatefulWidget {
 
 class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(adminDashboardProvider.notifier).load();
+    });
+  }
+
+  Future<void> _onRefresh() async {
+    await ref.read(adminDashboardProvider.notifier).load();
+    // FutureProvider chart들도 강제 갱신
+    ref.invalidate(adminWeeklyStepsChartProvider);
+    ref.invalidate(adminDailyUsersChartProvider);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final statsAsync = ref.watch(adminDashboardStatsProvider);
+    final statsAsync = ref.watch(adminDashboardProvider);
     final stepsChartAsync = ref.watch(adminWeeklyStepsChartProvider);
     final usersChartAsync = ref.watch(adminDailyUsersChartProvider);
 
@@ -28,69 +43,109 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     const accent = Color(0xFF2E7D32);
     const dark = Color(0xFF1E1E2D);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── 헤더 ──
-          Text(
-            '대시보드',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: dark,
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: accent,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── 헤더 ──
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '대시보드',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: dark,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '오늘의 HealthON 현황을 한눈에 확인하세요',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  color: accent,
+                  tooltip: '새로고침',
+                  onPressed: _onRefresh,
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '오늘의 HealthON 현황을 한눈에 확인하세요',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // ── 통계 카드 그리드 ──
-          statsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, st) => _ErrorCard(message: err.toString()),
-            data: (stats) => _StatsGrid(
-              stats: stats,
-              isWide: isWide,
+            // ── 통계 카드 그리드 ──
+            statsAsync.when(
+              loading: () => const _LoadingGrid(),
+              error: (err, st) => _ErrorCard(message: err.toString()),
+              data: (stats) => _StatsGrid(
+                stats: stats,
+                isWide: isWide,
+                accent: accent,
+                dark: dark,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // ── 주간 걸음 차트 ──
+            _ChartSection(
+              title: '주간 걸음 수',
+              asyncValue: stepsChartAsync,
               accent: accent,
               dark: dark,
+              valueLabel: '걸음',
+              isWide: isWide,
             ),
-          ),
-          const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
-          // ── 주간 걸음 차트 ──
-          _ChartSection(
-            title: '주간 걸음 수',
-            asyncValue: stepsChartAsync,
-            accent: accent,
-            dark: dark,
-            valueLabel: '걸음',
-            isWide: isWide,
-          ),
-          const SizedBox(height: 24),
-
-          // ── 일간 활성 사용자 차트 ──
-          _ChartSection(
-            title: '일간 활성 사용자',
-            asyncValue: usersChartAsync,
-            accent: accent,
-            dark: dark,
-            valueLabel: '명',
-            isWide: isWide,
-          ),
-          const SizedBox(height: 32),
-        ],
+            // ── 일간 활성 사용자 차트 ──
+            _ChartSection(
+              title: '일간 활성 사용자',
+              asyncValue: usersChartAsync,
+              accent: accent,
+              dark: dark,
+              valueLabel: '명',
+              isWide: isWide,
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
 }
 
 // ===============================================================
-// 통계 카드 그리드
+// 로딩 그리드
+// ===============================================================
+
+class _LoadingGrid extends StatelessWidget {
+  const _LoadingGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 80),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+// ===============================================================
+// 통계 카드 그리드 (오늘 통계 8개 + 개요 통계 5개 = 13개)
 // ===============================================================
 
 class _StatsGrid extends StatelessWidget {
@@ -109,14 +164,21 @@ class _StatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _StatItem('오늘 가입자', stats.todaySignups, Icons.person_add, accent),
-      _StatItem('오늘 로그인', stats.todayLogins, Icons.login, const Color(0xFF1565C0)),
+      // ── 오늘 통계 (8개) ──
+      _StatItem('오늘 가입', stats.todaySignups, Icons.person_add, const Color(0xFF1565C0)),
+      _StatItem('오늘 로그인', stats.todayLogins, Icons.login, const Color(0xFF0277BD)),
       _StatItem('오늘 걸음수', stats.todaySteps, Icons.directions_walk, const Color(0xFFE65100)),
       _StatItem('Forest 성장', stats.todayForestGrowth, Icons.forest, const Color(0xFF2E7D32)),
-      _StatItem('Challenge 완료', stats.todayChallengeCompletions, Icons.emoji_events, const Color(0xFFF9A825)),
-      _StatItem('Mission 완료', stats.todayMissionCompletions, Icons.assignment_turned_in, const Color(0xFF6A1B9A)),
+      _StatItem('챌린지 완료', stats.todayChallengeCompletions, Icons.emoji_events, const Color(0xFFF9A825)),
+      _StatItem('미션 완료', stats.todayMissionCompletions, Icons.assignment_turned_in, const Color(0xFF6A1B9A)),
       _StatItem('게시글', stats.todayPosts, Icons.article, const Color(0xFF00838F)),
-      _StatItem('댓글', stats.todayComments, Icons.chat_bubble, const Color(0xFFAD1457)),
+      _StatItem('댓글', stats.todayComments, Icons.chat_bubble_outline, const Color(0xFFAD1457)),
+      // ── 전체 개요 (5개) ──
+      _StatItem('전체 회원', stats.totalUsers, Icons.people, const Color(0xFF1E1E2D)),
+      _StatItem('활동 회원', stats.activeUsers, Icons.person, accent),
+      _StatItem('정지 회원', stats.suspendedUsers, Icons.block, stats.suspendedUsers > 0 ? Colors.red : Colors.grey),
+      _StatItem('진행 챌린지', stats.activeChallenges, Icons.flag, const Color(0xFFFF8F00)),
+      _StatItem('대기 신고', stats.pendingReports, Icons.report, stats.pendingReports > 0 ? Colors.red[700]! : Colors.grey),
     ];
 
     final crossAxisCount = isWide ? 4 : 2;
@@ -128,7 +190,7 @@ class _StatsGrid extends StatelessWidget {
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1.6,
+        childAspectRatio: 1.55,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -254,7 +316,13 @@ class _ChartSection extends StatelessWidget {
               child: asyncValue.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, st) => Center(
-                  child: Text('차트 로드 실패', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      '차트 로드 실패',
+                      style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                    ),
+                  ),
                 ),
                 data: (chartData) => _buildLineChart(chartData),
               ),
