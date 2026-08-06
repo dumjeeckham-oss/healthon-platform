@@ -15,6 +15,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'forest_sync_service.dart';
 import 'challenge_sync_service.dart';
 import 'mission_sync_service.dart';
+import 'ranking_service.dart';
+import '../../../social_engine/activity_engine.dart';
+import '../../../social_engine/activity_models.dart';
 
 class PostSyncOrchestrator {
   final SupabaseClient _client;
@@ -26,7 +29,12 @@ class PostSyncOrchestrator {
     _forestSync = ForestSyncService(_client);
     _challengeSync = ChallengeSyncService(_client);
     _missionSync = MissionSyncService(_client);
+    _rankingService = RankingService(_client);
   }
+
+  late final ForestSyncService _forestSync;
+  late final ChallengeSyncService _challengeSync;
+  late final MissionSyncService _missionSync;
 
   /// Health Sync 완료 후 모든 연동 업데이트 실행
   Future<PostSyncResult> runAll(String userId) async {
@@ -62,6 +70,39 @@ class PostSyncOrchestrator {
       result.snapshotCreated = true;
     } catch (e) {
       result.errors.add('Snapshot: $e');
+    }
+
+    // 5. Social Engine Activity Event 발생 (걸음 업데이트)
+    try {
+      final today = DateTime.now();
+      final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final daily = await _client
+          .from('health_daily')
+          .select('steps, distance_km, calories')
+          .eq('user_id', userId)
+          .eq('date', todayStr)
+          .maybeSingle();
+
+      if (daily != null) {
+        final engine = ActivityEngine(_client);
+        await engine.emitStepsUpdated(
+          userId: userId,
+          steps: (daily['steps'] ?? 0) as int,
+          distanceKm: _toDouble(daily['distance_km']),
+          calories: _toDouble(daily['calories']),
+        );
+        result.socialEventEmitted = true;
+      }
+    } catch (e) {
+      result.errors.add('SocialEngine: $e');
+    }
+
+    // 6. 랭킹 변동 체크 + ActivityEvent
+    try {
+      final rankChange = await _rankingService.checkAndEmitRankingChange(userId);
+      result.rankingChecked = true;
+    } catch (e) {
+      result.errors.add('Ranking: $e');
     }
 
     return result;
@@ -105,8 +146,18 @@ class PostSyncResult {
   bool challengeUpdated = false;
   int missionsCompleted = 0;
   bool snapshotCreated = false;
+  bool socialEventEmitted = false;
+  bool rankingChecked = false;
   final List<String> errors = [];
 
   bool get hasErrors => errors.isNotEmpty;
   bool get allSuccess => !hasErrors && forestUpdated && challengeUpdated;
+}
+
+double _toDouble(dynamic v) {
+  if (v == null) return 0.0;
+  if (v is double) return v;
+  if (v is int) return v.toDouble();
+  if (v is num) return v.toDouble();
+  return 0.0;
 }

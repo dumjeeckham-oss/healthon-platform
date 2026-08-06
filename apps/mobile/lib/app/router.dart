@@ -4,6 +4,15 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
 import '../features/splash/presentation/splash_screen.dart';
+import '../features/admin/screens/admin_layout.dart';
+import '../features/admin/screens/admin_dashboard_screen.dart';
+import '../features/admin/screens/admin_members_screen.dart';
+import '../features/admin/screens/admin_notices_screen.dart';
+import '../features/admin/screens/admin_reports_screen.dart';
+import '../features/admin/screens/admin_challenges_screen.dart';
+import '../features/admin/screens/admin_missions_screen.dart';
+import '../features/admin/screens/admin_seasons_screen.dart';
+import '../features/admin/screens/admin_banners_screen.dart';
 
 import 'main_navigation.dart';
 
@@ -38,6 +47,55 @@ final router = GoRouter(
       builder: (context, state) {
         return const MainNavigation();
       },
+    ),
+
+    // ============================================================
+    // Admin CMS
+    // ============================================================
+    ShellRoute(
+      builder: (context, state, child) => AdminShell(child: child),
+      routes: [
+        GoRoute(
+          path: '/admin',
+          name: 'admin',
+          builder: (context, state) => const AdminDashboardScreen(),
+        ),
+        GoRoute(
+          path: '/admin/members',
+          name: 'admin-members',
+          builder: (context, state) => const AdminMembersScreen(),
+        ),
+        GoRoute(
+          path: '/admin/notices',
+          name: 'admin-notices',
+          builder: (context, state) => const AdminNoticesScreen(),
+        ),
+        GoRoute(
+          path: '/admin/reports',
+          name: 'admin-reports',
+          builder: (context, state) => const AdminReportsScreen(),
+        ),
+        GoRoute(
+          path: '/admin/challenges',
+          name: 'admin-challenges',
+          builder: (context, state) => const AdminChallengesScreen(),
+        ),
+        GoRoute(
+          path: '/admin/missions',
+          name: 'admin-missions',
+          builder: (context, state) => const AdminMissionsScreen(),
+        ),
+        GoRoute(
+          path: '/admin/seasons',
+          name: 'admin-seasons',
+          builder: (context, state) => const AdminSeasonsScreen(),
+        ),
+        GoRoute(
+          path: '/admin/banners',
+          name: 'admin-banners',
+          builder: (context, state) => const AdminBannersScreen(),
+        ),
+      ],
     ),
   ],
 

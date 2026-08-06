@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../health/presentation/providers/health_provider.dart';
 import '../../health/data/services/post_sync_orchestrator.dart';
+import '../../../social_engine/activity_dispatcher.dart';
 
 /// ===============================================================
 /// HealthON — App Lifecycle Sync Service
@@ -107,6 +108,17 @@ class AppLifecycleSync extends WidgetsBindingObserver {
       if (success) {
         _lastSync = DateTime.now();
         debugPrint('🔄 Health Sync Completed: $reason');
+
+        // Post-sync: Activity Dispatch (pending events → Feed + Notification)
+        try {
+          final dispatcher = ActivityDispatcher(supabase.client);
+          final dispatched = await dispatcher.dispatchPending();
+          if (dispatched > 0) {
+            debugPrint('🔄 Activity Dispatched: $dispatched events');
+          }
+        } catch (e) {
+          debugPrint('🔄 Activity Dispatch Error: $e');
+        }
       } else {
         debugPrint('🔄 Health Sync Failed: $reason');
       }

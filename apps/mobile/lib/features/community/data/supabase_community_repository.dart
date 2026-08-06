@@ -389,7 +389,7 @@ class SupabaseCommunityRepository implements ICommunityRepository {
   }
 
   // =============================================================
-  // 신규: 멘션 알림 생성
+  // 신규: 멘션 / 답글 / 좋아요 알림 생성 (RPC 기반, 현행 schema)
   // =============================================================
 
   @override
@@ -400,16 +400,50 @@ class SupabaseCommunityRepository implements ICommunityRepository {
     required String commentId,
   }) async {
     try {
-      await _client.from(_notificationTable).insert({
-        'from_user_id': fromUserId,
-        'to_user_id': toUserId,
-        'post_id': postId,
-        'comment_id': commentId,
-        'type': 'mention',
-        'is_read': false,
+      await _client.rpc('create_mention_notification', params: {
+        'p_user_id': toUserId,
+        'p_from_user_id': fromUserId,
+        'p_post_id': postId,
+        'p_comment_id': commentId,
       });
     } catch (e, st) {
       throw CommunityRepositoryException('멘션 알림 생성 실패: $e', cause: e, stackTrace: st);
+    }
+  }
+
+  Future<void> createReplyNotification({
+    required String fromUserId,
+    required String toUserId,
+    required String postId,
+    required String commentId,
+  }) async {
+    try {
+      await _client.rpc('create_reply_notification', params: {
+        'p_user_id': toUserId,
+        'p_from_user_id': fromUserId,
+        'p_post_id': postId,
+        'p_comment_id': commentId,
+      });
+    } catch (e, st) {
+      throw CommunityRepositoryException('답글 알림 생성 실패: $e', cause: e, stackTrace: st);
+    }
+  }
+
+  Future<void> createCommentLikeNotification({
+    required String fromUserId,
+    required String toUserId,
+    required String postId,
+    required String commentId,
+  }) async {
+    try {
+      await _client.rpc('create_comment_like_notification', params: {
+        'p_user_id': toUserId,
+        'p_from_user_id': fromUserId,
+        'p_post_id': postId,
+        'p_comment_id': commentId,
+      });
+    } catch (e, st) {
+      throw CommunityRepositoryException('댓글 좋아요 알림 생성 실패: $e', cause: e, stackTrace: st);
     }
   }
 }

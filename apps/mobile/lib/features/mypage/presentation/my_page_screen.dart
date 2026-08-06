@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -130,6 +131,14 @@ class MyPageScreen extends StatelessWidget {
             title: "알림 설정",
             onTap: () {},
           ),
+
+          _MenuTile(
+            icon: Icons.admin_panel_settings,
+            title: "관리자 패널",
+            onTap: () => context.go('/admin'),
+          ),
+
+          const SizedBox(height: 8),
 
           _MenuTile(
             icon: Icons.settings,
