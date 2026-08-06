@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app/app.dart';
-
+import 'app.dart';
 import 'core/bootstrap/bootstrap.dart';
+import 'features/health/data/services/app_lifecycle_sync.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +13,7 @@ void main() async {
 
     runApp(
       const ProviderScope(
-        child: HealthOnApp(),
+        child: _HealthOnRoot(),
       ),
     );
   } catch (e, stackTrace) {
@@ -23,7 +23,35 @@ void main() async {
         stack: stackTrace,
       ),
     );
-
     rethrow;
+  }
+}
+
+/// LifecycleSync에 ProviderRef를 주입하기 위한 래퍼
+class _HealthOnRoot extends ConsumerStatefulWidget {
+  const _HealthOnRoot();
+
+  @override
+  ConsumerState<_HealthOnRoot> createState() => _HealthOnRootState();
+}
+
+class _HealthOnRootState extends ConsumerState<_HealthOnRoot>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    // AppLifecycleSync에 ProviderRef 주입
+    AppLifecycleSync().init(ref);
+  }
+
+  @override
+  void dispose() {
+    AppLifecycleSync().dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const HealthOnApp();
   }
 }

@@ -3,68 +3,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/daily_mission.dart';
 import '../providers/daily_mission_provider.dart';
-import '../../application/reward_flow.dart';
-import '../../../forest/presentation/widgets/levelup_dialog.dart';
-import '../../../forest/presentation/widgets/badge_dialog.dart';
-import '../../../forest/presentation/providers/forest_provider.dart';
-import '../../../../core/presentation/reward/reward_presentation_manager.dart';
-import '../../../auth/presentation/providers/current_user_provider.dart';
+
+/// ===============================================================
+/// Daily Mission Card — health_daily 연동 버전
+/// ===============================================================
 
 class DailyMissionCard extends ConsumerWidget {
   final List<DailyMission> missions;
 
-  const DailyMissionCard({
-    super.key,
-    required this.missions,
-  });
+  const DailyMissionCard({super.key, required this.missions});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
-            //------------------------------------------------------
-            // Header
-            //------------------------------------------------------
-
-            Row(
-              children: const [
-                Icon(
-                  Icons.wb_sunny,
-                  color: Colors.orange,
-                ),
+            const Row(
+              children: [
+                Icon(Icons.wb_sunny, color: Colors.orange),
                 SizedBox(width: 10),
-                Text(
-                  "오늘의 미션",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                  ),
-                ),
+                Text('오늘의 미션', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
               ],
             ),
-
             const SizedBox(height: 20),
-
-            //------------------------------------------------------
-            // Mission List
-            //------------------------------------------------------
-
-            ...missions.map(
-              (mission) => Padding(
-                padding: const EdgeInsets.only(bottom: 18),
-                child: _MissionTile(
-                  mission: mission,
-                ),
-              ),
-            ),
+            ...missions.map((mission) => _MissionTile(mission: mission)),
           ],
         ),
       ),
@@ -75,252 +41,90 @@ class DailyMissionCard extends ConsumerWidget {
 class _MissionTile extends ConsumerWidget {
   final DailyMission mission;
 
-  const _MissionTile({
-    required this.mission,
-  });
+  const _MissionTile({required this.mission});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          //----------------------------------------------------
-          // Title
-          //----------------------------------------------------
-
-          Row(
-            children: [
-
-              Text(
-                mission.icon,
-                style: const TextStyle(fontSize: 26),
-              ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-
-                    Text(
-                      mission.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                      ),
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    Text(
-                      mission.description,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              if (mission.completed)
-                const Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          //----------------------------------------------------
-          // Progress
-          //----------------------------------------------------
-
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: mission.percent,
-              minHeight: 10,
-              backgroundColor: Colors.grey.shade300,
-              color: Colors.green,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-            children: [
-
-              Text(
-                "${mission.progress} / ${mission.goal}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              Text(
-                "${mission.rewardValue} ${mission.rewardType}",
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          //----------------------------------------------------
-          // Claim Button
-          //----------------------------------------------------
-
-          if (mission.canClaim)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.card_giftcard),
-                label: const Text("보상 받기"),
-onPressed: () async {
-
-  //--------------------------------------------------
-  // 현재 로그인 사용자
-  //--------------------------------------------------
-
-  final user =
-      ref.read(currentUserProvider);
-
-  if (user == null) return;
-
-  //--------------------------------------------------
-  // Mission 완료
-  //--------------------------------------------------
-
-  await ref.read(
-    claimMissionProvider(
-      mission.id,
-    ).future,
-  );
-
-  //--------------------------------------------------
-  // Reward Flow 실행
-  //--------------------------------------------------
-
-  final rewardResult =
-    await RewardFlow().execute(
-  userId: user.id,
-  mission: mission,
-
-  // 임시
-  totalKm: mission.progress.toDouble(),
-);
-
-  //--------------------------------------------------
-  // Popup 자동 실행
-  //--------------------------------------------------
-
-  if (!context.mounted) return;
-
-  await RewardPresentationManager.show(
-    context,
-    rewardResult,
-  );
-
-  //--------------------------------------------------
-  // Provider 새로고침
-  //--------------------------------------------------
-
-  ref.invalidate(
-    dailyMissionProvider,
-  );
-
-  ref.invalidate(
-    forestProvider,
-  );
-},
-
-  
-
-  //--------------------------------------------------
-  // LevelUp
-  //--------------------------------------------------
-
-
-
-    await showDialog(
-
-      context: context,
-
-      barrierDismissible: false,
-
-      builder: (_) => LevelUpDialog(
-
-        oldLevel: result.oldLevel,
-
-        newLevel: result.newLevel,
-
-        treeName: result.treeName ?? "새로운 나무",
-
-      ),
-
-    );
-
-  }
-
-  //--------------------------------------------------
-  // Badge
-  //--------------------------------------------------
-
-
-
-    await showDialog(
-
-      context: context,
-
-      builder: (_) => BadgeDialog(
-
-        badgeCode: result.badgeCode!,
-
-      ),
-
-    );
-
-  }
-
-},
-              ),
-            )
-          else if (mission.claimed)
-            Container(
-              width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.green.shade100,
-                borderRadius:
-                    BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "보상 수령 완료",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.green.shade50,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(mission.icon, style: const TextStyle(fontSize: 26)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(mission.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                      const SizedBox(height: 4),
+                      Text(mission.description, style: const TextStyle(color: Colors.grey)),
+                    ],
                   ),
                 ),
+                if (mission.completed) const Icon(Icons.check_circle, color: Colors.green),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: mission.percent,
+                minHeight: 10,
+                backgroundColor: Colors.grey.shade300,
+                color: Colors.green,
               ),
             ),
-        ],
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('${mission.progress} / ${mission.goal}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('${mission.rewardValue} ${mission.rewardType}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (mission.canClaim)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.card_giftcard),
+                  label: const Text('보상 받기'),
+                  onPressed: () async {
+                    await ref.read(claimMissionProvider(mission.id).future);
+                    ref.invalidate(dailyMissionProvider);
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${mission.rewardValue} ${mission.rewardType} 획득! 🎉'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                ),
+              )
+            else if (mission.claimed)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text('보상 수령 완료', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

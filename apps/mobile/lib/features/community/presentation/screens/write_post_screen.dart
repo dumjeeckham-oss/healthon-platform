@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../health/presentation/providers/health_provider.dart';
 import '../../domain/models/community_post.dart';
 import '../providers/community_provider.dart';
 import '../widgets/community_post_card.dart';
@@ -764,45 +765,45 @@ class _CommunityWritePostScreenState
               },
             ),
 
-            AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
-              child: _showForestOptions
-                  ? _SnapshotOptionList(
-                      options: const [
-                        {
-                          'icon': '🌱',
-                          'label': '오늘 성장',
-                          'level': 'Lv.3',
-                        },
-                        {
-                          'icon': '🌲',
-                          'label': 'Pine Tree',
-                          'level': 'Lv.7',
-                        },
-                        {
-                          'icon': '🌳',
-                          'label': 'Oak Master',
-                          'level': 'Lv.12',
-                        },
-                        {
-                          'icon': '🏅',
-                          'label': 'Forest Badge',
-                          'level': 'Gold',
-                        },
-                      ],
-                      selectedLabel:
-                          _forestSnapshot?['label']
-                                  ?.toString() ??
-                              '',
-                      onSelected: (option) {
-                        setState(() {
-                          _forestSnapshot = option;
-                        });
-                      },
-                    )
-                  : const SizedBox.shrink(),
+            // --- Forest Snapshot 동적 옵션 ---
+            Consumer(
+              builder: (context, ref, _) {
+                final todayAsync = ref.watch(healthTodayProvider);
+                final steps = todayAsync.valueOrNull?.steps ?? 0;
+                final weekAsync = ref.watch(healthWeekProvider);
+                final weekSteps = weekAsync.valueOrNull?.$1 ?? 0;
+
+                int forestLv = 1;
+                String forestName = '새싹';
+                if (weekSteps >= 200000) { forestLv = 8; forestName = '열대우림'; }
+                else if (weekSteps >= 120000) { forestLv = 7; forestName = '울창한숲'; }
+                else if (weekSteps >= 80000) { forestLv = 6; forestName = '숲'; }
+                else if (weekSteps >= 50000) { forestLv = 5; forestName = '큰나무'; }
+                else if (weekSteps >= 30000) { forestLv = 4; forestName = '성장나무'; }
+                else if (weekSteps >= 15000) { forestLv = 3; forestName = '어린나무'; }
+                else if (weekSteps >= 5000) { forestLv = 2; forestName = '묘목'; }
+
+                final forestOptions = [
+                  {'icon': '🌱', 'label': '오늘 성장', 'level': 'Lv.$forestLv $forestName'},
+                  {'icon': '👣', 'label': '주간 걸음', 'level': '$weekSteps보'},
+                  {'icon': '🏅', 'label': 'Forest Level', 'level': 'Lv.$forestLv'},
+                ];
+
+                return AnimatedSize(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  alignment: Alignment.topCenter,
+                  child: _showForestOptions
+                      ? _SnapshotOptionList(
+                          options: forestOptions,
+                          selectedLabel: _forestSnapshot?['label']?.toString() ?? '',
+                          onSelected: (option) {
+                            setState(() { _forestSnapshot = option; });
+                          },
+                        )
+                      : const SizedBox.shrink(),
+                );
+              },
             ),
 
             const SizedBox(height: 12),
@@ -815,7 +816,7 @@ class _CommunityWritePostScreenState
               icon: '🚶',
               title: 'Walking 공유',
               subtitle:
-                  '오늘 걸음, 거리, 칼로리, 시간, GPS Route',
+                  '오늘 걸음, 거리, 칼로리 (Health 자동)',
               isExpanded: _showWalkingOptions,
               isActive: _walkingSnapshot != null,
               onToggle: () {
@@ -826,45 +827,35 @@ class _CommunityWritePostScreenState
               },
             ),
 
-            AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
-              child: _showWalkingOptions
-                  ? _SnapshotOptionList(
-                      options: const [
-                        {
-                          'icon': '🚶',
-                          'label': '오늘 걸음',
-                          'level': '8,432보',
-                        },
-                        {
-                          'icon': '📏',
-                          'label': '거리',
-                          'level': '5.8km',
-                        },
-                        {
-                          'icon': '🔥',
-                          'label': '칼로리',
-                          'level': '320kcal',
-                        },
-                        {
-                          'icon': '⏱️',
-                          'label': '시간',
-                          'level': '1h 12m',
-                        },
-                      ],
-                      selectedLabel:
-                          _walkingSnapshot?['label']
-                                  ?.toString() ??
-                              '',
-                      onSelected: (option) {
-                        setState(() {
-                          _walkingSnapshot = option;
-                        });
-                      },
-                    )
-                  : const SizedBox.shrink(),
+            // --- Forest Snapshot 동적 옵션 ---
+            Consumer(
+              builder: (context, ref, _) {
+                final todayAsync = ref.watch(healthTodayProvider);
+                final steps = todayAsync.valueOrNull?.steps ?? 0;
+                final dist = todayAsync.valueOrNull?.distanceKm ?? 0.0;
+                final cal = todayAsync.valueOrNull?.calories ?? 0.0;
+
+                final walkingOptions = [
+                  {'icon': '🚶', 'label': '오늘 걸음', 'level': '${steps.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}보'},
+                  {'icon': '📏', 'label': '거리', 'level': '${dist.toStringAsFixed(1)}km'},
+                  {'icon': '🔥', 'label': '칼로리', 'level': '${cal.round()}kcal'},
+                ];
+
+                return AnimatedSize(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  alignment: Alignment.topCenter,
+                  child: _showWalkingOptions
+                      ? _SnapshotOptionList(
+                          options: walkingOptions,
+                          selectedLabel: _walkingSnapshot?['label']?.toString() ?? '',
+                          onSelected: (option) {
+                            setState(() { _walkingSnapshot = option; });
+                          },
+                        )
+                      : const SizedBox.shrink(),
+                );
+              },
             ),
 
             const SizedBox(height: 12),

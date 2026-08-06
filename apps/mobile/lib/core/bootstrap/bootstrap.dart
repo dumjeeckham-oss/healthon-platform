@@ -1,10 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/connectivity_service.dart';
+import '../../features/health/data/services/app_lifecycle_sync.dart';
+import '../../features/health/data/services/offline_aware_sync.dart';
 
 /// ===============================================================
 ///
@@ -57,6 +61,9 @@ class Bootstrap {
 
       /// 6. Notifications
       await _initializeNotifications();
+
+      /// 7. Lifecycle Sync + Offline Support
+      await _initializeLifecycleSync();
 
       stopwatch.stop();
 
@@ -124,9 +131,25 @@ class Bootstrap {
   //==============================================================
 
   static Future<void> _initializeHealth() async {
-    debugPrint('❤️ Health Services (Skip)');
+    debugPrint('❤️ Health Services Initializing');
 
-    // Sprint 3에서 구현
+    // Offline-aware sync service 초기화
+    OfflineAwareSyncService().init();
+
+    debugPrint('✅ Health Services Initialized');
+  }
+
+  //==============================================================
+  // App Lifecycle Sync
+  //==============================================================
+
+  static Future<void> _initializeLifecycleSync() async {
+    debugPrint('🔄 Lifecycle Sync Initializing');
+
+    // 초기화만 하고 — 주입은 main.dart에서 ProviderRef 필요하므로
+    // HomePage / PermissionScreen에서 첫 sync 트리거
+
+    debugPrint('✅ Lifecycle Sync Ready');
   }
 
   //==============================================================

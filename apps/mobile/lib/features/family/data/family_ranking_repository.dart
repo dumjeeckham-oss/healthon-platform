@@ -1,20 +1,15 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// ===============================================================
-///
-/// Family Ranking Model
-///
+/// Family Ranking User
 /// ===============================================================
 
 class FamilyRankingUser {
   final String id;
-
   final String name;
-
   final String? photoUrl;
-
   final int totalSteps;
-
+  final double totalDistance;
   final int rank;
 
   const FamilyRankingUser({
@@ -22,35 +17,25 @@ class FamilyRankingUser {
     required this.name,
     required this.photoUrl,
     required this.totalSteps,
+    required this.totalDistance,
     required this.rank,
   });
 }
 
 /// ===============================================================
-///
-/// Family Ranking Repository
-///
-/// users
-/// step_daily
-///
+/// Family Ranking Repository — health_daily 기반
 /// ===============================================================
 
 class FamilyRankingRepository {
   FamilyRankingRepository();
 
-  final _supabase = Supabase.instance.client;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
   Future<List<FamilyRankingUser>> fetchRanking() async {
     final authUser = _supabase.auth.currentUser;
+    if (authUser == null) return [];
 
-    if (authUser == null) {
-      return [];
-    }
-
-    //------------------------------------------------------------
-    // 내 정보
-    //------------------------------------------------------------
-
+    // 내 family_id 조회
     final myProfile = await _supabase
         .from('users')
         .select()
@@ -58,15 +43,9 @@ class FamilyRankingRepository {
         .single();
 
     final familyId = myProfile['family_id'];
+    if (familyId == null) return [];
 
-    if (familyId == null) {
-      return [];
-    }
-
-    //------------------------------------------------------------
-    // 가족 조회
-    //------------------------------------------------------------
-
+    // 가족 구성원
     final familyMembers = await _supabase
         .from('users')
         .select()
@@ -74,61 +53,46 @@ class FamilyRankingRepository {
 
     final List<FamilyRankingUser> ranking = [];
 
-    //------------------------------------------------------------
-    // 각 가족 누적걸음 계산
-    //------------------------------------------------------------
-
     for (final member in familyMembers) {
-      final rows = await _supabase
-          .from('step_daily')
-          .select('steps')
+      // health_daily.totalSteps == 전체 걸음수
+      final result = await _supabase
+          .from('health_daily')
+          .select('steps.sum(), distance_km.sum()')
           .eq('user_id', member['id']);
 
-      int total = 0;
+      int totalSteps = 0;
+      double totalDistance = 0.0;
 
-      for (final row in rows) {
-        total += (row['steps'] ?? 0) as int;
+      if (result is List && result.isNotEmpty) {
+        final row = result.first as Map<String, dynamic>;
+        totalSteps = (row['sum'] ?? 0) as int;
+        totalDistance = (row['distance_km.sum()'] ?? 0).toDouble();
       }
 
-      ranking.add(
-        FamilyRankingUser(
-          id: member['id'],
-          name: member['nickname'] ??
-              member['name'] ??
-              '조합원',
-          photoUrl: member['photo_url'],
-          totalSteps: total,
-          rank: 0,
-        ),
-      );
+      ranking.add(FamilyRankingUser(
+        id: member['id'],
+        name: member['nickname'] ?? member['name'] ?? '조합원',
+        photoUrl: member['photo_url'],
+        totalSteps: totalSteps,
+        totalDistance: totalDistance,
+        rank: 0,
+      ));
     }
 
-    //------------------------------------------------------------
-    // 걸음수 내림차순
-    //------------------------------------------------------------
+    // 내림차순 정렬
+    ranking.sort((a, b) => b.totalSteps.compareTo(a.totalSteps));
 
-    ranking.sort(
-      (a, b) => b.totalSteps.compareTo(a.totalSteps),
-    );
-
-    //------------------------------------------------------------
     // 순위 부여
-    //------------------------------------------------------------
-
     final List<FamilyRankingUser> result = [];
-
     for (int i = 0; i < ranking.length; i++) {
-      final user = ranking[i];
-
-      result.add(
-        FamilyRankingUser(
-          id: user.id,
-          name: user.name,
-          photoUrl: user.photoUrl,
-          totalSteps: user.totalSteps,
-          rank: i + 1,
-        ),
-      );
+      result.add(FamilyRankingUser(
+        id: ranking[i].id,
+        name: ranking[i].name,
+        photoUrl: ranking[i].photoUrl,
+        totalSteps: ranking[i].totalSteps,
+        totalDistance: ranking[i].totalDistance,
+        rank: i + 1,
+      ));
     }
 
     return result;
