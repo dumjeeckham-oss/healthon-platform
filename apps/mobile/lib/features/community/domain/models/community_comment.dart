@@ -7,6 +7,8 @@
 ///
 /// ===============================================================
 
+library;
+
 class CommunityComment {
   final String id;
   final String postId;

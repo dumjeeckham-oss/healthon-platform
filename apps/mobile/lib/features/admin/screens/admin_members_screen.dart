@@ -169,7 +169,7 @@ class _AdminMembersScreenState extends ConsumerState<AdminMembersScreen> {
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700]),
                 ),
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
               ),
               const Spacer(),
               _ExportButton(onPressed: _exportCsv),
@@ -214,7 +214,7 @@ class _AdminMembersScreenState extends ConsumerState<AdminMembersScreen> {
               return ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 itemCount: members.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   return _MemberCard(
                     member: members[index],
@@ -460,7 +460,7 @@ class _SortChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? accent.withOpacity(0.1) : Colors.white,
+          color: isActive ? accent.withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isActive ? accent : Colors.grey[300]!,
@@ -596,7 +596,7 @@ class _MemberInfo extends StatelessWidget {
         // ── 아바타 ──
         CircleAvatar(
           radius: 22,
-          backgroundColor: member.isAdmin ? accent.withOpacity(0.15) : dark.withOpacity(0.08),
+          backgroundColor: member.isAdmin ? accent.withValues(alpha: 0.15) : dark.withValues(alpha: 0.08),
           backgroundImage: member.avatarUrl != null && member.avatarUrl!.isNotEmpty
               ? NetworkImage(member.avatarUrl!)
               : null,
@@ -641,7 +641,7 @@ class _MemberInfo extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.12),
+                        color: accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -655,7 +655,7 @@ class _MemberInfo extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.12),
+                        color: Colors.red.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
@@ -800,7 +800,7 @@ class _StatBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(

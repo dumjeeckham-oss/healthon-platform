@@ -628,10 +628,10 @@ class _ForestBadgeSection extends StatelessWidget {
                         ),
                       ),
                       side: BorderSide(
-                        color: chipColor.withOpacity(0.35),
+                        color: chipColor.withValues(alpha: 0.35),
                       ),
                       backgroundColor:
-                          chipColor.withOpacity(0.06),
+                          chipColor.withValues(alpha: 0.06),
                       visualDensity: VisualDensity.compact,
                       shape: RoundedRectangleBorder(
                         borderRadius:
@@ -772,7 +772,7 @@ class _ChallengeRibbonSection extends StatelessWidget {
                         boxShadow: [
                           BoxShadow(
                             color: const Color(0xFF4CAF50)
-                                .withOpacity(0.2),
+                                .withValues(alpha: 0.2),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),

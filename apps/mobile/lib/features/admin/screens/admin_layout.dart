@@ -107,7 +107,7 @@ class _Sidebar extends StatelessWidget {
             onTap: () => onSelect(item.path),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: isActive ? const Color(0xFF2E7D32).withOpacity(0.3) : null,
+              color: isActive ? const Color(0xFF2E7D32).withValues(alpha: 0.3) : null,
               child: Row(
                 children: [
                   Icon(item.icon, size: 20, color: isActive ? const Color(0xFF4CAF50) : Colors.white54),

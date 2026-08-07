@@ -140,7 +140,7 @@ class _AdminNewsScreenState extends ConsumerState<AdminNewsScreen> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: category,
+                    initialValue: category,
                     decoration: const InputDecoration(labelText: '카테고리', border: OutlineInputBorder()),
                     items: _categories.entries
                         .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
@@ -445,7 +445,7 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),

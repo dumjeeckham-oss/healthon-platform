@@ -142,7 +142,7 @@ class _MentionDropdown extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             shrinkWrap: true,
                             itemCount: state.users.length,
-                            separatorBuilder: (_, __) => const Divider(height: 1),
+                            separatorBuilder: (_, _) => const Divider(height: 1),
                             itemBuilder: (_, i) {
                               final user = state.users[i];
                               return ListTile(

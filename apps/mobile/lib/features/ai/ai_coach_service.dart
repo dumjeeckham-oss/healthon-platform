@@ -217,9 +217,9 @@ class AICoachService {
 
       // 개인화 팁
       String tip;
-      if (profile.consistencyScore > 0.7) tip = '규칙적인 패턴이 인상적이에요. 지금처럼 꾸준히!';
-      else if (profile.weeklyTrend > 0) tip = '점점 나아지고 있어요. 이번 주도 화이팅!';
-      else tip = '매일 같은 시간대에 걷기를 추천드려요. 습관이 중요해요.';
+      if (profile.consistencyScore > 0.7) { tip = '규칙적인 패턴이 인상적이에요. 지금처럼 꾸준히!'; }
+      else if (profile.weeklyTrend > 0) { tip = '점점 나아지고 있어요. 이번 주도 화이팅!'; }
+      else { tip = '매일 같은 시간대에 걷기를 추천드려요. 습관이 중요해요.'; }
 
       return AIWeeklyReport(
         weekStart: weekAgo, totalSteps: totalSteps, totalDistanceKm: totalDist,

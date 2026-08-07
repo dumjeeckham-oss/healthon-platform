@@ -824,7 +824,7 @@ class _ChallengeCard extends StatelessWidget {
                           style: const TextStyle(fontSize: 12),
                         ),
                         visualDensity: VisualDensity.compact,
-                        backgroundColor: Colors.amber.withOpacity(0.15),
+                        backgroundColor: Colors.amber.withValues(alpha: 0.15),
                         side: BorderSide.none,
                       ),
                     if (challenge.forestBonus > 0)
@@ -836,7 +836,7 @@ class _ChallengeCard extends StatelessWidget {
                           style: const TextStyle(fontSize: 12),
                         ),
                         visualDensity: VisualDensity.compact,
-                        backgroundColor: Colors.green.withOpacity(0.1),
+                        backgroundColor: Colors.green.withValues(alpha: 0.1),
                         side: BorderSide.none,
                       ),
                   ],
@@ -904,7 +904,7 @@ class _ActiveChip extends StatelessWidget {
         ),
       ),
       backgroundColor:
-          isActive ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+          isActive ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
       side: BorderSide.none,
       visualDensity: VisualDensity.compact,
     );

@@ -99,7 +99,7 @@ class ActivityRule {
       case ActivityEventType.challengeProgressMilestone:
         final progress = ((event.data['progress'] ?? 0).toDouble() * 100).round();
         final name = event.data['challengeName'] as String? ?? 'Challenge';
-        return '$userName님이 $name ${progress}%를 달성했습니다 🔥';
+        return '$userName님이 $name $progress%를 달성했습니다 🔥';
       case ActivityEventType.missionCompleted:
         final title = event.data['missionTitle'] as String? ?? 'Mission';
         return '$userName님이 "$title" 미션을 완료했습니다 ✅';
@@ -109,7 +109,7 @@ class ActivityRule {
       case ActivityEventType.rankingChanged:
         final rank = (event.data['newRank'] ?? 0) as int;
         final scope = event.data['scope'] as String? ?? '주간';
-        return '$userName님이 ${scope}랭킹 ${rank}위에 올랐습니다 🎯';
+        return '$userName님이 $scope랭킹 $rank위에 올랐습니다 🎯';
       case ActivityEventType.familyChallengeCompleted:
         return '$userName님의 가족이 Challenge를 완료했습니다 👨‍👩‍👧‍👦';
       case ActivityEventType.friendAdded:

@@ -4,6 +4,8 @@
 /// DAU/WAU/MAU + 트렌드 차트 + 카테고리 분포 + 챌린지 퍼널
 /// ===============================================================
 
+library;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -109,12 +111,12 @@ class _KpiGrid extends StatelessWidget {
       mainAxisSpacing: 10, crossAxisSpacing: 10,
       childAspectRatio: 1.3,
       children: [
-        _KpiCard(title: 'DAU', value: '${_f(summary.dau)}', subtitle: '오늘 활성'),
-        _KpiCard(title: 'WAU', value: '${_f(summary.wau)}', subtitle: '주간 활성'),
-        _KpiCard(title: 'MAU', value: '${_f(summary.mau)}', subtitle: '월간 활성'),
+        _KpiCard(title: 'DAU', value: _f(summary.dau), subtitle: '오늘 활성'),
+        _KpiCard(title: 'WAU', value: _f(summary.wau), subtitle: '주간 활성'),
+        _KpiCard(title: 'MAU', value: _f(summary.mau), subtitle: '월간 활성'),
         _KpiCard(title: 'DAU/MAU', value: '${(summary.dauMauRatio * 100).toStringAsFixed(1)}%', subtitle: '고착도', color: summary.dauMauRatio >= 0.3 ? Colors.green : Colors.orange),
-        _KpiCard(title: '전체 회원', value: '${_f(summary.totalUsers)}', subtitle: '누적'),
-        _KpiCard(title: '평균 걸음', value: '${_f(summary.avgStepsPerUser.round())}', subtitle: '/인', color: summary.avgStepsPerUser >= 7000 ? Colors.green : Colors.orange),
+        _KpiCard(title: '전체 회원', value: _f(summary.totalUsers), subtitle: '누적'),
+        _KpiCard(title: '평균 걸음', value: _f(summary.avgStepsPerUser.round()), subtitle: '/인', color: summary.avgStepsPerUser >= 7000 ? Colors.green : Colors.orange),
         _KpiCard(title: '도전 완주율', value: '${(summary.challengeCompletionRate * 100).toStringAsFixed(1)}%', subtitle: '챌린지'),
         _KpiCard(title: '참여율', value: '${(summary.engagementRate * 100).toStringAsFixed(1)}%', subtitle: '게시글+댓글/DAU'),
         _KpiCard(title: '주간 성장', value: '${(summary.weeklyGrowth * 100).toStringAsFixed(1)}%', subtitle: 'DAU 증감', color: summary.weeklyGrowth >= 0 ? Colors.green : Colors.red),
@@ -172,7 +174,7 @@ class _TrendChart extends StatelessWidget {
         LineChartBarData(
           spots: points.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.dau.toDouble())).toList(),
           isCurved: true, color: const Color(0xFF2E7D32), barWidth: 3, dotData: const FlDotData(show: false),
-          belowBarData: BarAreaData(show: true, color: const Color(0xFF2E7D32).withOpacity(0.08)),
+          belowBarData: BarAreaData(show: true, color: const Color(0xFF2E7D32).withValues(alpha: 0.08)),
         ),
         LineChartBarData(
           spots: points.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.newUsers.toDouble())).toList(),

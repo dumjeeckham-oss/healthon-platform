@@ -83,12 +83,12 @@ class AIHealthChatbot {
     final formatted = steps.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},");
 
     if (percent >= 100) {
-      return '🎉 오늘 이미 ${formatted}걸음을 걸으셨어요! 목표의 ${percent}%를 달성했어요. 정말 대단해요!\n\n조금만 더 걸으면 Forest 나무도 더 빨리 자랄 거예요 🌳';
+      return '🎉 오늘 이미 $formatted걸음을 걸으셨어요! 목표의 $percent%를 달성했어요. 정말 대단해요!\n\n조금만 더 걸으면 Forest 나무도 더 빨리 자랄 거예요 🌳';
     } else if (percent >= 50) {
       final remaining = goal - steps;
-      return '🚶 현재 ${formatted}걸음으로 목표의 ${percent}%예요. 앞으로 ${remaining.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음만 더! 저녁 산책 15분이면 충분해요 😊';
+      return '🚶 현재 $formatted걸음으로 목표의 $percent%예요. 앞으로 ${remaining.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음만 더! 저녁 산책 15분이면 충분해요 😊';
     } else if (steps > 0) {
-      return '아직 시작이에요! ${formatted}걸음을 걸으셨어요 (목표의 ${percent}%). 점심 식사 후 10분 산책이 큰 도움이 될 거예요 🌿';
+      return '아직 시작이에요! $formatted걸음을 걸으셨어요 (목표의 $percent%). 점심 식사 후 10분 산책이 큰 도움이 될 거예요 🌿';
     } else {
       return '아직 오늘 걸음 기록이 없어요. 하루 7,000걸음이 건강에 좋다고 해요. 지금 잠깐 나가서 가벼운 산책 어떠세요? ☀️';
     }
@@ -116,7 +116,7 @@ class AIHealthChatbot {
     final days = (rawNeeded / stepsPerDay).ceil();
 
     return '🌳 현재 Forest 레벨 $level이에요!\n\n'
-        '지금 페이스(하루 ${stepsPerDay.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음)면 약 ${days}일 후에 다음 레벨에 도달할 거예요.\n\n'
+        '지금 페이스(하루 ${stepsPerDay.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음)면 약 $days일 후에 다음 레벨에 도달할 거예요.\n\n'
         '더 빨리 성장하려면 하루 2,000걸음만 더 걸어보세요. 작은 차이가 큰 변화를 만들어요 🌱';
   }
 
@@ -128,22 +128,22 @@ class AIHealthChatbot {
     } else if (progress >= 0.8) {
       return '🔥 완주까지 ${(100 - percent)}% 남았어요! 거의 다 왔어요.\n\n하루 ${((100000 * (1 - progress)) / 7).round().toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음씩이면 일주일 안에 완주! 조금만 더 힘내세요 💪';
     } else if (progress >= 0.5) {
-      return '💪 절반을 넘으셨어요! 현재 ${percent}% 달성.\n\n주간 평균 ${weeklyAvg.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음이면 충분히 완주 가능해요. 꾸준함이 답이에요!';
+      return '💪 절반을 넘으셨어요! 현재 $percent% 달성.\n\n주간 평균 ${weeklyAvg.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음이면 충분히 완주 가능해요. 꾸준함이 답이에요!';
     } else {
       final needed = (100000 * (1 - progress)).round();
-      return '🚩 챌린지 ${percent}% 진행 중! 앞으로 ${needed.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음을 더 걸어야 해요.\n\n하루 7,000걸음이면 약 ${(needed / 7000).ceil()}일 후 완주할 수 있어요. 천천히, 꾸준히!';
+      return '🚩 챌린지 $percent% 진행 중! 앞으로 ${needed.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음을 더 걸어야 해요.\n\n하루 7,000걸음이면 약 ${(needed / 7000).ceil()}일 후 완주할 수 있어요. 천천히, 꾸준히!';
     }
   }
 
   String _streakResponse(int streak, int todaySteps) {
     if (streak >= 30) {
-      return '🏅 ${streak}일 연속 기록! 한 달 동안 매일 걸으셨어요.\n\n이 정도면 걷기가 완전한 습관이 된 거예요. 정말 자랑스러워요! 앞으로도 계속 건강한 습관 이어가요 🌟';
+      return '🏅 $streak일 연속 기록! 한 달 동안 매일 걸으셨어요.\n\n이 정도면 걷기가 완전한 습관이 된 거예요. 정말 자랑스러워요! 앞으로도 계속 건강한 습관 이어가요 🌟';
     } else if (streak >= 14) {
-      return '🔥 ${streak}일 연속 기록! 2주 동안 매일 걷고 있어요.\n\n곧 21일이 되면 습관이 완전히 자리잡는다고 해요. 조금만 더!';
+      return '🔥 $streak일 연속 기록! 2주 동안 매일 걷고 있어요.\n\n곧 21일이 되면 습관이 완전히 자리잡는다고 해요. 조금만 더!';
     } else if (streak >= 7) {
-      return '⭐ ${streak}일 연속! 일주일 내내 걸으셨어요.\n\n연구에 따르면 21일이면 새로운 습관이 형성된다고 해요. 앞으로 14일만 더 도전해볼까요?';
+      return '⭐ $streak일 연속! 일주일 내내 걸으셨어요.\n\n연구에 따르면 21일이면 새로운 습관이 형성된다고 해요. 앞으로 14일만 더 도전해볼까요?';
     } else if (streak >= 3) {
-      return '👏 ${streak}일 연속 기록 중! 좋은 시작이에요.\n\n오늘도 기록을 이어가면 ${streak + 1}일이 돼요. 지금 ${todaySteps.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음, 조금만 더 걸어볼까요?';
+      return '👏 $streak일 연속 기록 중! 좋은 시작이에요.\n\n오늘도 기록을 이어가면 ${streak + 1}일이 돼요. 지금 ${todaySteps.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음, 조금만 더 걸어볼까요?';
     } else {
       return '아직 연속 기록을 쌓는 중이에요. 3일 연속만 달성해도 동기부여가 확 올라갈 거예요! 오늘부터 시작해볼까요? 🚀';
     }
@@ -176,9 +176,9 @@ class AIHealthChatbot {
 
   String _motivationResponse(int streak, UserActivityProfile? profile) {
     if (streak >= 14) {
-      return '${streak}일이나 걸어오셨는데, 오늘 포기하기엔 너무 아까워요! 😢\n\n잠깐 쉬는 것도 좋지만, 5분만이라도 걸어보세요. "오늘은 쉬는 날"보다 "오늘도 걸었다"가 훨씬 기분 좋답니다!\n\nForest 나무도 당신을 기다리고 있어요 🌳';
+      return '$streak일이나 걸어오셨는데, 오늘 포기하기엔 너무 아까워요! 😢\n\n잠깐 쉬는 것도 좋지만, 5분만이라도 걸어보세요. "오늘은 쉬는 날"보다 "오늘도 걸었다"가 훨씬 기분 좋답니다!\n\nForest 나무도 당신을 기다리고 있어요 🌳';
     } else if (streak >= 5) {
-      return '${streak}일 연속! 벌써 습관이 자리잡기 시작했어요.\n\n모든 위대한 변화는 작은 습관에서 시작돼요. 오늘 딱 10분만 걸어볼까요? 10분이 지나면 어느새 더 걷고 있는 자신을 발견할 거예요 🚶';
+      return '$streak일 연속! 벌써 습관이 자리잡기 시작했어요.\n\n모든 위대한 변화는 작은 습관에서 시작돼요. 오늘 딱 10분만 걸어볼까요? 10분이 지나면 어느새 더 걷고 있는 자신을 발견할 거예요 🚶';
     } else {
       return '누구에게나 의욕이 떨어지는 날은 있어요. 그럴 땐 목표를 낮춰보세요.\n\n"오늘은 딱 1,000걸음만" 이라고 생각하고 시작해보세요. 시작이 가장 어려운 법! 첫걸음을 떼면 나머지는 자연스럽게 따라와요 🌱';
     }
@@ -197,7 +197,7 @@ class AIHealthChatbot {
         '• 활동 레벨: ${profile.activityLevelLabel} ${profile.activityLevelEmoji}\n'
         '• 일관성: ${(profile.consistencyScore * 100).round()}점\n'
         '• 연속 기록: ${profile.currentStreak}일\n'
-        '• 주간 추세: ${trendPercent}% $trend\n'
+        '• 주간 추세: $trendPercent% $trend\n'
         '• 최고 기록: ${profile.maxDailySteps.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음\n\n'
         '${profile.consistencyScore > 0.6 ? "일관성 점수가 높아요! 규칙적인 습관이 잘 자리잡았네요 👍" : "조금 더 규칙적으로 걸으면 더 좋은 결과를 얻을 수 있어요. 매일 같은 시간이 효과적이에요!"}';
   }
@@ -206,7 +206,7 @@ class AIHealthChatbot {
     final name = '건강ON AI 코치';
 
     if (steps > 0) {
-      return '안녕하세요! ${name}입니다 🖐️\n\n'
+      return '안녕하세요! $name입니다 🖐️\n\n'
           '오늘 ${steps.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음을 걸으셨어요. '
           '${goal > 0 && steps >= goal ? "목표 달성! 🎉" : "목표까지 ${goal > 0 ? (goal - steps).toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},") : "?"}걸음 남았어요."}\n\n'
           '물어보고 싶은 게 있으신가요?\n'
@@ -216,7 +216,7 @@ class AIHealthChatbot {
           '• "챌린지 얼마나 남았어?"\n'
           '• "건강 팁 알려줘"';
     } else {
-      return '안녕하세요! ${name}입니다 🖐️\n\n'
+      return '안녕하세요! $name입니다 🖐️\n\n'
           '아직 오늘 걸음 기록이 없어요. 앱을 열고 산책을 시작해보세요!\n\n'
           '궁금한 점을 물어보세요:\n'
           '• "하루에 몇 걸음 걸어야 해?"\n'

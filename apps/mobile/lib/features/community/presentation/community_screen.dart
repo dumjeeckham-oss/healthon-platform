@@ -4,6 +4,8 @@
 /// 실시간 연결 상태 + 실시간 포스트/댓글/좋아요 동기화
 /// ===============================================================
 
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -98,7 +100,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                   postChanges.when(
                     data: (change) => const SizedBox.shrink(), // 실제로는 post 목록에 새 항목 추가
                     loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
 
                   // 포스트 목록 (기존 community_provider 통합)

@@ -17,7 +17,7 @@ class ForestCard extends ConsumerWidget {
 
     return asyncWeek.when(
       loading: () => const _Skeleton(),
-      error: (_, __) => const _ErrorMsg(),
+      error: (_, _) => const _ErrorMsg(),
       data: (data) {
         final (totalSteps, totalDistance, _) = data;
         final totalKm = totalDistance.round();

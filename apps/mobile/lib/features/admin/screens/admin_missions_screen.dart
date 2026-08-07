@@ -97,7 +97,7 @@ class _AdminMissionsScreenState extends ConsumerState<AdminMissionsScreen> {
                     const SizedBox(height: 12),
                     // ── Period ──
                     DropdownButtonFormField<MissionPeriod>(
-                      value: period,
+                      initialValue: period,
                       decoration: const InputDecoration(
                         labelText: '주기 *',
                         border: OutlineInputBorder(),
@@ -273,7 +273,7 @@ class _AdminMissionsScreenState extends ConsumerState<AdminMissionsScreen> {
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: rewardType,
+                            initialValue: rewardType,
                             decoration: const InputDecoration(
                               labelText: '보상 유형',
                               border: OutlineInputBorder(),
@@ -469,7 +469,7 @@ class _AdminMissionsScreenState extends ConsumerState<AdminMissionsScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<MissionPeriod>(
-                      value: period,
+                      initialValue: period,
                       decoration: const InputDecoration(
                         labelText: '주기 *',
                         border: OutlineInputBorder(),
@@ -640,7 +640,7 @@ class _AdminMissionsScreenState extends ConsumerState<AdminMissionsScreen> {
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: rewardType,
+                            initialValue: rewardType,
                             decoration: const InputDecoration(
                               labelText: '보상 유형',
                               border: OutlineInputBorder(),
@@ -970,7 +970,7 @@ class _MissionCard extends StatelessWidget {
               child: Image.network(
                 mission.imageUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   color: Colors.grey[200],
                   child: const Center(
                     child: Icon(Icons.broken_image,
@@ -1106,7 +1106,7 @@ class _MissionCard extends StatelessWidget {
                         label: const Text('반복 가능',
                             style: TextStyle(fontSize: 11)),
                         visualDensity: VisualDensity.compact,
-                        backgroundColor: Colors.teal.withOpacity(0.1),
+                        backgroundColor: Colors.teal.withValues(alpha: 0.1),
                         side: BorderSide.none,
                       ),
                     Chip(
@@ -1117,7 +1117,7 @@ class _MissionCard extends StatelessWidget {
                         style: const TextStyle(fontSize: 11),
                       ),
                       visualDensity: VisualDensity.compact,
-                      backgroundColor: Colors.grey.withOpacity(0.1),
+                      backgroundColor: Colors.grey.withValues(alpha: 0.1),
                       side: BorderSide.none,
                     ),
                   ],
@@ -1148,7 +1148,7 @@ class _MissionActiveChip extends StatelessWidget {
         ),
       ),
       backgroundColor:
-          isActive ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+          isActive ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
       side: BorderSide.none,
       visualDensity: VisualDensity.compact,
     );

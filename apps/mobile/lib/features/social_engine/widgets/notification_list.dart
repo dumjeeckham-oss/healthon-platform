@@ -45,7 +45,7 @@ class NotificationListScreen extends ConsumerWidget {
 
           return ListView.separated(
             itemCount: notifications.length,
-            separatorBuilder: (_, __) => const Divider(height: 0.5),
+            separatorBuilder: (_, _) => const Divider(height: 0.5),
             itemBuilder: (context, index) {
               final item = notifications[index];
               return _NotificationTile(
@@ -131,14 +131,14 @@ class _NotificationTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: isRead ? null : const Color(0xFF2E7D32).withOpacity(0.04),
+        color: isRead ? null : const Color(0xFF2E7D32).withValues(alpha: 0.04),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor: _typeColor().withOpacity(0.1),
+              backgroundColor: _typeColor().withValues(alpha: 0.1),
               child: Icon(_typeIcon(), size: 20, color: _typeColor()),
             ),
             const SizedBox(width: 12),

@@ -55,13 +55,13 @@ final missionProgressFromHealthProvider = FutureProvider<MissionProgress>((ref) 
 
   // Forest level from total steps
   int forestLevel = 1;
-  if (totalSteps >= 200000) forestLevel = 8;
-  else if (totalSteps >= 120000) forestLevel = 7;
-  else if (totalSteps >= 80000) forestLevel = 6;
-  else if (totalSteps >= 50000) forestLevel = 5;
-  else if (totalSteps >= 30000) forestLevel = 4;
-  else if (totalSteps >= 15000) forestLevel = 3;
-  else if (totalSteps >= 5000) forestLevel = 2;
+  if (totalSteps >= 200000) { forestLevel = 8; }
+  else if (totalSteps >= 120000) { forestLevel = 7; }
+  else if (totalSteps >= 80000) { forestLevel = 6; }
+  else if (totalSteps >= 50000) { forestLevel = 5; }
+  else if (totalSteps >= 30000) { forestLevel = 4; }
+  else if (totalSteps >= 15000) { forestLevel = 3; }
+  else if (totalSteps >= 5000) { forestLevel = 2; }
 
   return MissionProgress(
     totalSteps: totalSteps,

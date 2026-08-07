@@ -74,7 +74,7 @@ class AINotificationEngine {
     if (currentStreak >= 3 && currentStreak % 3 == 0) {
       notifications.add(AINotification(
         type: AINotificationType.streakMilestone,
-        title: '🔥 ${currentStreak}일 연속 기록!',
+        title: '🔥 $currentStreak일 연속 기록!',
         body: currentStreak >= 30
             ? '한 달 동안 매일 걸으셨어요. 정말 놀라운 의지력이에요!'
             : '꾸준함이 쌓이고 있어요. Forest도 함께 자라고 있어요 🌳',
@@ -156,7 +156,7 @@ class AINotificationEngine {
   String _churnRiskBody(int goal, int steps) {
     final remaining = goal - steps;
     final minutes = (remaining / 100).round();
-    if (minutes <= 30) return '목표까지 ${remaining.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음 남았어요. 약 ${minutes}분이면 가능!';
+    if (minutes <= 30) return '목표까지 ${remaining.toString().replaceAllMapped(RegExp(r"(\d)(?=(\d{3})+(?!\d))"), (m) => "${m[1]},")}걸음 남았어요. 약 $minutes분이면 가능!';
     return '오늘 목표까지 아직 멀었어요. 저녁 산책으로 하루를 마무리해보세요 🌙';
   }
 

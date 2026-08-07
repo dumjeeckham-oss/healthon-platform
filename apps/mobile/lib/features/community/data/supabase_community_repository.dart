@@ -370,11 +370,9 @@ class SupabaseCommunityRepository implements ICommunityRepository {
       final List<String> urls = [];
       for (final path in localPaths) {
         final fileName = '${postId}_${DateTime.now().millisecondsSinceEpoch}_${urls.length}.jpg';
-        final String? uploaded = await _client.storage.from(_commentImageBucket).upload(fileName, File(path));
-        if (uploaded != null) {
-          final publicUrl = _client.storage.from(_commentImageBucket).getPublicUrl(fileName);
-          urls.add(publicUrl);
-        }
+        await _client.storage.from(_commentImageBucket).upload(fileName, File(path));
+        final publicUrl = _client.storage.from(_commentImageBucket).getPublicUrl(fileName);
+        urls.add(publicUrl);
       }
       return urls;
     } catch (e, st) {

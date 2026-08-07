@@ -47,7 +47,7 @@ class _PushSettingsScreenState extends ConsumerState<PushSettingsScreen> {
                 subtitle: const Text('모든 푸시 알림을 켜거나 끕니다'),
                 value: settings.pushEnabled,
                 onChanged: (v) => notifier.togglePushEnabled(v),
-                activeColor: const Color(0xFF2E7D32),
+                activeThumbColor: const Color(0xFF2E7D32),
               ),
             ),
 
@@ -128,7 +128,7 @@ class _PushSettingsScreenState extends ConsumerState<PushSettingsScreen> {
                         final updated = settings.copyWith(quietHoursEnabled: v);
                         ref.read(pushSettingsProvider.notifier).update(updated);
                       },
-                      activeColor: const Color(0xFF2E7D32),
+                      activeThumbColor: const Color(0xFF2E7D32),
                     ),
                     if (settings.quietHoursEnabled)
                       Padding(
@@ -201,7 +201,7 @@ class _CategoryTile extends StatelessWidget {
         subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
         value: value,
         onChanged: onChanged,
-        activeColor: const Color(0xFF2E7D32),
+        activeThumbColor: const Color(0xFF2E7D32),
       ),
     );
   }

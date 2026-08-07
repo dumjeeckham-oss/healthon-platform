@@ -578,7 +578,7 @@ class _SearchBarWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
                       color: const Color(0xFF2E7D32)
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -652,7 +652,7 @@ class _StorySection extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         itemCount: stories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           final Map<String, String> s = stories[i];
 
@@ -670,7 +670,7 @@ class _StorySection extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF4CAF50)
-                          .withOpacity(0.25),
+                          .withValues(alpha: 0.25),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -753,7 +753,7 @@ class _FeedFilterRow extends StatelessWidget {
                       ? [
                           BoxShadow(
                             color: const Color(0xFF2E7D32)
-                                .withOpacity(0.2),
+                                .withValues(alpha: 0.2),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -821,7 +821,7 @@ class _FeedList extends ConsumerWidget {
       loading: () => ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 5,
-        itemBuilder: (_, __) =>
+        itemBuilder: (_, _) =>
             const _SkeletonCard(),
       ),
 

@@ -33,7 +33,7 @@ Color _parseHexColor(String hex) {
 }
 
 String _colorToHex(Color c) {
-  return '#${c.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+  return '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
 }
 
 String _formatDate(DateTime dt) =>
@@ -149,7 +149,7 @@ class _AdminSeasonsScreenState extends ConsumerState<AdminSeasonsScreen> {
 
                     // 테마: 나무 종류
                     DropdownButtonFormField<String>(
-                      value: theme.treeType,
+                      initialValue: theme.treeType,
                       decoration: const InputDecoration(
                         labelText: '나무 종류',
                         border: OutlineInputBorder(),
@@ -238,12 +238,12 @@ class _AdminSeasonsScreenState extends ConsumerState<AdminSeasonsScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             decoration: BoxDecoration(
-                              color: primaryColor.withOpacity(0.12),
+                              color: primaryColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               _colorToHex(primaryColor),
-                              style: TextStyle(fontSize: 13, color: primaryColor.withOpacity(0.8), fontWeight: FontWeight.w600, fontFamily: 'monospace'),
+                              style: TextStyle(fontSize: 13, color: primaryColor.withValues(alpha: 0.8), fontWeight: FontWeight.w600, fontFamily: 'monospace'),
                             ),
                           ),
                         ),
@@ -253,7 +253,7 @@ class _AdminSeasonsScreenState extends ConsumerState<AdminSeasonsScreen> {
 
                     // 테마: 효과
                     DropdownButtonFormField<String>(
-                      value: theme.effect,
+                      initialValue: theme.effect,
                       decoration: const InputDecoration(
                         labelText: '효과',
                         border: OutlineInputBorder(),
@@ -493,7 +493,7 @@ class _ActiveSeasonCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Card(
         elevation: 4,
-        shadowColor: primaryColor.withOpacity(0.3),
+        shadowColor: primaryColor.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           decoration: BoxDecoration(
@@ -501,7 +501,7 @@ class _ActiveSeasonCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [primaryColor, primaryColor.withOpacity(0.7)],
+              colors: [primaryColor, primaryColor.withValues(alpha: 0.7)],
             ),
           ),
           padding: const EdgeInsets.all(20),
@@ -514,7 +514,7 @@ class _ActiveSeasonCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.25),
+                      color: Colors.white.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
@@ -528,7 +528,7 @@ class _ActiveSeasonCard extends StatelessWidget {
                     icon: const Icon(Icons.stop_circle_outlined, size: 18),
                     label: const Text('시즌 종료'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       foregroundColor: Colors.white,
                     ),
                   ),
@@ -572,11 +572,11 @@ class _ActiveSeasonCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: primaryColor,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text('주요', style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.6))),
+                      Text('주요', style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6))),
                     ],
                   ),
                   const SizedBox(width: 12),
@@ -588,11 +588,11 @@ class _ActiveSeasonCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: bgColor,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text('배경', style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.6))),
+                      Text('배경', style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6))),
                     ],
                   ),
                   const SizedBox(width: 20),
@@ -623,7 +623,7 @@ class _ActiveSeasonCard extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -679,7 +679,7 @@ class _SeasonListTile extends StatelessWidget {
             Container(
               width: 44, height: 44,
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.12),
+                color: primaryColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(_seasonIcon(season.seasonType), color: primaryColor, size: 24),
@@ -699,7 +699,7 @@ class _SeasonListTile extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: season.isActive
-                              ? Colors.green.withOpacity(0.1)
+                              ? Colors.green.withValues(alpha: 0.1)
                               : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(8),
                         ),

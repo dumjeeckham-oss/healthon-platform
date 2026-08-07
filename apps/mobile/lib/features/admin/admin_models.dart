@@ -20,12 +20,12 @@ enum AuditAction {
   published,
   suspended,
   restored,
-  granted_admin,
-  revoked_admin,
-  resolved_report,
-  ended_season,
+  grantedAdmin,
+  revokedAdmin,
+  resolvedReport,
+  endedSeason,
   reordered,
-  sent_push,
+  sentPush,
 }
 
 class AuditLogEntry {
@@ -80,12 +80,12 @@ class AuditLogEntry {
     AuditAction.published => '발행',
     AuditAction.suspended => '정지',
     AuditAction.restored => '복구',
-    AuditAction.granted_admin => '관리자 권한 부여',
-    AuditAction.revoked_admin => '관리자 권한 회수',
-    AuditAction.resolved_report => '신고 처리',
-    AuditAction.ended_season => '시즌 종료',
+    AuditAction.grantedAdmin => '관리자 권한 부여',
+    AuditAction.revokedAdmin => '관리자 권한 회수',
+    AuditAction.resolvedReport => '신고 처리',
+    AuditAction.endedSeason => '시즌 종료',
     AuditAction.reordered => '순서 변경',
-    AuditAction.sent_push => '푸시 발송',
+    AuditAction.sentPush => '푸시 발송',
   };
 
   String get targetTypeLabel => switch (targetType) {
@@ -585,7 +585,7 @@ class AdminMissionDefinition {
     MissionPeriod.daily => '매일',
     MissionPeriod.weekly => '매주',
     MissionPeriod.monthly => '매월',
-    MissionPeriod.custom => '${customDays}일',
+    MissionPeriod.custom => '$customDays일',
   };
 }
 
@@ -745,7 +745,7 @@ class AdminForestSeason {
 // Admin Banner (Enhanced)
 // ===============================================================
 
-enum BannerLinkType { external_url, internal_route, none }
+enum BannerLinkType { externalUrl, internalRoute, none }
 
 class AdminBanner {
   final String id;
@@ -792,8 +792,8 @@ class AdminBanner {
 
   static BannerLinkType _parseLinkType(dynamic t) {
     switch (t?.toString()) {
-      case 'external_url': return BannerLinkType.external_url;
-      case 'internal_route': return BannerLinkType.internal_route;
+      case 'external_url': return BannerLinkType.externalUrl;
+      case 'internal_route': return BannerLinkType.internalRoute;
       default: return BannerLinkType.none;
     }
   }

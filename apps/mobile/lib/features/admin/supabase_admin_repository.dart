@@ -5,6 +5,8 @@
 /// Storage / Realtime / Audit Log / Export 완전 통합
 /// ===============================================================
 
+library;
+
 import 'dart:async';
 import 'dart:typed_data';
 
@@ -217,13 +219,13 @@ class SupabaseAdminRepository {
   Future<void> grantAdmin(String userId) async {
     final admin = await _getCurrentAdmin();
     await _client.from('users').update({'is_admin': true}).eq('id', userId);
-    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.granted_admin, targetType: 'member', targetId: userId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.grantedAdmin, targetType: 'member', targetId: userId);
   }
 
   Future<void> revokeAdmin(String userId) async {
     final admin = await _getCurrentAdmin();
     await _client.from('users').update({'is_admin': false}).eq('id', userId);
-    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.revoked_admin, targetType: 'member', targetId: userId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.revokedAdmin, targetType: 'member', targetId: userId);
   }
 
   Future<void> suspendMember(String userId) async {
@@ -292,7 +294,7 @@ class SupabaseAdminRepository {
     final admin = await _getCurrentAdmin();
     await _client.rpc('send_notice_push', params: {'p_notice_id': noticeId});
     await _client.from('admin_notices').update({'push_sent': true}).eq('id', noticeId);
-    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.sent_push, targetType: 'notice', targetId: noticeId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.sentPush, targetType: 'notice', targetId: noticeId);
   }
 
   // =============================================================
@@ -333,7 +335,7 @@ class SupabaseAdminRepository {
       'status': status.name, 'resolved_action': status.name,
       'resolved_by': admin.name, 'resolved_at': DateTime.now().toUtc().toIso8601String(),
     }).eq('id', reportId);
-    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.resolved_report, targetType: 'report', targetId: reportId);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.resolvedReport, targetType: 'report', targetId: reportId);
   }
 
   // =============================================================
@@ -427,7 +429,7 @@ class SupabaseAdminRepository {
   Future<void> endSeason(String id) async {
     final admin = await _getCurrentAdmin();
     await _client.from('forest_seasons').update({'is_active': false, 'end_date': DateTime.now().toIso8601String().substring(0, 10)}).eq('id', id);
-    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.ended_season, targetType: 'season', targetId: id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.endedSeason, targetType: 'season', targetId: id);
   }
 
   // =============================================================

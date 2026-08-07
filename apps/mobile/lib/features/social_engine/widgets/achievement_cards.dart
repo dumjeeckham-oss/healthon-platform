@@ -35,9 +35,9 @@ class AchievementCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: color.withOpacity(0.3)),
+        side: BorderSide(color: color.withValues(alpha: 0.3)),
       ),
-      color: color.withOpacity(0.05),
+      color: color.withValues(alpha: 0.05),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -80,12 +80,12 @@ class AchievementCard extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.08),
+                  color: color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   detail!,
-                  style: TextStyle(fontSize: 12, color: color.withOpacity(0.8)),
+                  style: TextStyle(fontSize: 12, color: color.withValues(alpha: 0.8)),
                 ),
               ),
             ],
@@ -139,12 +139,12 @@ class RankingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${scope}랭킹 ${rank}위',
+                      '$scope랭킹 $rank위',
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
                     ),
                     if (improved)
                       Text(
-                        '⬆️ ${previousRank}위 → ${rank}위 상승!',
+                        '⬆️ $previousRank위 → $rank위 상승!',
                         style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
                       ),
                   ],
@@ -153,10 +153,10 @@ class RankingCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              totalSteps.toString().replaceAllMapped(
+              '${totalSteps.toString().replaceAllMapped(
                 RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
                 (m) => '${m[1]},',
-              ) + ' 보',
+              )} 보',
               style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],

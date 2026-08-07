@@ -235,7 +235,7 @@ class _StatCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: item.iconColor.withOpacity(0.12),
+                    color: item.iconColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(item.icon, size: 20, color: item.iconColor),
@@ -410,7 +410,7 @@ class _ChartSection extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: accent.withOpacity(0.1),
+              color: accent.withValues(alpha: 0.1),
             ),
           ),
         ],

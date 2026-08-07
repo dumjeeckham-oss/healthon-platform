@@ -154,7 +154,7 @@ class CommentTile extends ConsumerWidget {
   final VoidCallback onReply;
   final VoidCallback onDelete;
 
-  CommentTile({
+  const CommentTile({
     super.key,
     required this.comment,
     this.isReply = false,
@@ -235,20 +235,22 @@ class CommentTile extends ConsumerWidget {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('댓글 신고'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ReportReason.values.map((r) {
-            return RadioListTile<ReportReason>(
-              title: Text(r.label),
-              value: r,
-              groupValue: _selectedReportReason,
-              onChanged: (v) {
-                // use dialog setState; for simplicity store in dialog state
-              },
-              activeColor: const Color(0xFF2E7D32),
-              contentPadding: EdgeInsets.zero,
-            );
-          }).toList(),
+        content: RadioGroup<ReportReason>(
+          groupValue: _selectedReportReason,
+          onChanged: (v) {
+            // use dialog setState; for simplicity store in dialog state
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ReportReason.values.map((r) {
+              return RadioListTile<ReportReason>(
+                title: Text(r.label),
+                value: r,
+                activeColor: const Color(0xFF2E7D32),
+                contentPadding: EdgeInsets.zero,
+              );
+            }).toList(),
+          ),
         ),
         actions: [
           TextButton(
@@ -310,13 +312,13 @@ class CommentTile extends ConsumerWidget {
         background: Container(
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.only(left: 20),
-          color: const Color(0xFF2E7D32).withOpacity(0.08),
+          color: const Color(0xFF2E7D32).withValues(alpha: 0.08),
           child: const Icon(Icons.reply, color: Color(0xFF2E7D32), size: 20),
         ),
         secondaryBackground: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: 20),
-          color: Colors.red.withOpacity(0.08),
+          color: Colors.red.withValues(alpha: 0.08),
           child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
         ),
         child: Padding(
@@ -474,7 +476,7 @@ class CommentComposer extends ConsumerWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -657,7 +659,7 @@ class _AttachmentPreview extends StatelessWidget {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: images.length > 5 ? 5 : images.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 4),
+                    separatorBuilder: (_, _) => const SizedBox(width: 4),
                     itemBuilder: (_, i) => ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Stack(

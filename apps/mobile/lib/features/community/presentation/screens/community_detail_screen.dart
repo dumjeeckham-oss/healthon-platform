@@ -157,22 +157,24 @@ class _CommunityDetailScreenState
             borderRadius: BorderRadius.circular(20),
           ),
           title: const Text('게시글 신고'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ReportReason.values
-                .map(
-                  (r) => RadioListTile<ReportReason>(
-                    title: Text(r.label),
-                    value: r,
-                    groupValue: _selectedReportReason,
-                    onChanged: (v) {
-                      setState(() => _selectedReportReason = v);
-                    },
-                    activeColor: const Color(0xFF2E7D32),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                )
-                .toList(),
+          content: RadioGroup<ReportReason>(
+            groupValue: _selectedReportReason,
+            onChanged: (v) {
+              setState(() => _selectedReportReason = v);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: ReportReason.values
+                  .map(
+                    (r) => RadioListTile<ReportReason>(
+                      title: Text(r.label),
+                      value: r,
+                      activeColor: const Color(0xFF2E7D32),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
           actions: [
             TextButton(
@@ -561,7 +563,7 @@ https://healthon.app/post/${post.id}''';
                                     post.images[i],
                                     fit: BoxFit.cover,
                                     width: double.infinity,
-                                    errorBuilder: (_, __, ___) => Container(
+                                    errorBuilder: (_, _, _) => Container(
                                       color: Colors.green.shade100,
                                       child: const Center(
                                         child: Icon(
@@ -623,7 +625,7 @@ https://healthon.app/post/${post.id}''';
                               '🌳',
                               style: TextStyle(
                                 fontSize: 56,
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -632,7 +634,7 @@ https://healthon.app/post/${post.id}''';
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                               ),
                             ),
                           ],
@@ -665,10 +667,10 @@ https://healthon.app/post/${post.id}''';
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: _categoryColor(post.category).withOpacity(0.1),
+                        color: _categoryColor(post.category).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: _categoryColor(post.category).withOpacity(0.3),
+                          color: _categoryColor(post.category).withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
@@ -997,7 +999,7 @@ https://healthon.app/post/${post.id}''';
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       itemCount: _relatedMock.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      separatorBuilder: (_, _) => const SizedBox(width: 10),
                       itemBuilder: (_, int i) {
                         final Map<String, String> m = _relatedMock[i];
                         return _RelatedCard(
@@ -1165,10 +1167,10 @@ class _SnapshotDetailCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.06),
+          color: color.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: color.withOpacity(0.18),
+            color: color.withValues(alpha: 0.18),
           ),
         ),
         child: Row(
@@ -1177,7 +1179,7 @@ class _SnapshotDetailCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Center(
@@ -1197,7 +1199,7 @@ class _SnapshotDetailCard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color: color.withOpacity(0.9),
+                      color: color.withValues(alpha: 0.9),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1312,7 +1314,7 @@ class _RelatedCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

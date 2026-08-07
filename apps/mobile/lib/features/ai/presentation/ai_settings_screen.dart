@@ -244,7 +244,7 @@ class _SettingTile extends StatelessWidget {
         subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
         value: value,
         onChanged: onChanged,
-        activeColor: const Color(0xFF2E7D32),
+        activeThumbColor: const Color(0xFF2E7D32),
       ),
     );
   }

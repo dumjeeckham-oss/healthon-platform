@@ -5,6 +5,8 @@
 /// 가족 있음 → 대시보드 (랭킹 + 응원 + 챌린지)
 /// ===============================================================
 
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

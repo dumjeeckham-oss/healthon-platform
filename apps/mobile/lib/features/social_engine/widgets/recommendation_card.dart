@@ -19,7 +19,7 @@ class AiRecommendationCard extends ConsumerWidget {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: const Color(0xFF2E7D32).withOpacity(0.2)),
+          side: BorderSide(color: const Color(0xFF2E7D32).withValues(alpha: 0.2)),
         ),
         color: const Color(0xFFF6F8F7),
         child: Padding(
@@ -67,7 +67,7 @@ class AiRecommendationCard extends ConsumerWidget {
           child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
         ),
       ),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }
@@ -190,7 +190,7 @@ class _FriendRow extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 14,
-            backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
+            backgroundColor: const Color(0xFF4CAF50).withValues(alpha: 0.1),
             child: Text(
               name.isNotEmpty ? name[0] : '?',
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),

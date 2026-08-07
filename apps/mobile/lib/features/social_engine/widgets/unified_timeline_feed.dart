@@ -230,7 +230,7 @@ class _PostItemCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: const Color(0xFF2E7D32).withOpacity(0.1),
+                  backgroundColor: const Color(0xFF2E7D32).withValues(alpha: 0.1),
                   child: Text(
                     userName.isNotEmpty ? userName[0] : '?',
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
@@ -271,7 +271,7 @@ class _PostItemCard extends StatelessWidget {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length.clamp(0, 5),
-                  separatorBuilder: (_, __) => const SizedBox(width: 4),
+                  separatorBuilder: (_, _) => const SizedBox(width: 4),
                   itemBuilder: (_, i) => ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
@@ -279,7 +279,7 @@ class _PostItemCard extends StatelessWidget {
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         width: 80,
                         height: 80,
                         color: Colors.grey.shade200,

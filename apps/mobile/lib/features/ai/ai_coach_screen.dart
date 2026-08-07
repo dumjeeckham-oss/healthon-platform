@@ -218,14 +218,14 @@ class _ActivityScoreHero extends StatelessWidget {
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 border: Border.all(color: color, width: 3),
               ),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('$grade',
+                    Text(grade,
                         style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w900,
@@ -465,7 +465,7 @@ class _GoalCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                            color: diffColor.withOpacity(0.1),
+                            color: diffColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8)),
                         child: Text(
                           switch (goal.difficulty) {
@@ -661,7 +661,7 @@ class _ChatTab extends ConsumerWidget {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -2)),
             ],
@@ -787,7 +787,7 @@ class _QuickChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: const Color(0xFF2E7D32).withOpacity(0.1),
+            color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(label,
@@ -955,9 +955,9 @@ class _ChallengeMatchCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: diffColor.withOpacity(0.1),
+                    color: diffColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: diffColor.withOpacity(0.3)),
+                    border: Border.all(color: diffColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(match.difficultyLabel,
                       style: TextStyle(

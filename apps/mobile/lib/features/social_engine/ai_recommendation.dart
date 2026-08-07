@@ -131,14 +131,14 @@ class AiRecommendationEngine {
         name: '100K Challenge',
         description: '${remaining.toStringAsFixed(1)}km 남았어요!',
         targetSteps: (remaining * 1000 / 0.7).round(),
-        reason: '하루 ${weeklyAvg}보 페이스면 약 $daysLeft일 후 완료 예상',
+        reason: '하루 $weeklyAvg보 페이스면 약 $daysLeft일 후 완료 예상',
       ));
     }
 
     // Forest 성장 챌린지
     if (forestLevel < 8) {
       final toNext = _forestNextThreshold(forestLevel);
-      final needed = toNext > 0 ? '다음 레벨까지 ${toNext}보' : '';
+      final needed = toNext > 0 ? '다음 레벨까지 $toNext보' : '';
       challenges.add(RecommendedChallenge(
         name: 'Forest 성장 챌린지',
         description: 'Lv.$forestLevel → Lv.${forestLevel + 1}',
@@ -153,7 +153,7 @@ class AiRecommendationEngine {
         name: '10,000보 챌린지',
         description: '하루 10,000보 달성하기',
         targetSteps: 10000,
-        reason: '현재 주간 평균 ${weeklyAvg}보 — 조금만 더!',
+        reason: '현재 주간 평균 $weeklyAvg보 — 조금만 더!',
       ));
     }
 
@@ -163,7 +163,7 @@ class AiRecommendationEngine {
         name: '주간 70K 챌린지',
         description: '일주일 70,000보 걷기',
         targetSteps: 70000,
-        reason: '주간 평균 ${weeklyAvg}보 — 충분히 가능합니다!',
+        reason: '주간 평균 $weeklyAvg보 — 충분히 가능합니다!',
       ));
     }
 
@@ -241,7 +241,7 @@ class AiRecommendationEngine {
     }
     if (todaySteps >= 5000) {
       final remaining = 10000 - todaySteps;
-      return '🔥 잘하고 있어요! 앞으로 ${remaining}보만 더 걸으면 목표 달성!';
+      return '🔥 잘하고 있어요! 앞으로 $remaining보만 더 걸으면 목표 달성!';
     }
     if (weeklyAvg >= 8000) {
       return '💪 꾸준히 걷고 계시네요. 오늘도 목표를 향해!';

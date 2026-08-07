@@ -33,7 +33,7 @@ class GardenTile extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.05),
+                color: Colors.black.withValues(alpha: .05),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),

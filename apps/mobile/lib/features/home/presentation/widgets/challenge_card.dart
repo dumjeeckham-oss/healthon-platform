@@ -16,7 +16,7 @@ class ChallengeCard extends ConsumerWidget {
 
     return asyncWeek.when(
       loading: () => const _LoadingCard(),
-      error: (_, __) => const _ErrorCard(),
+      error: (_, _) => const _ErrorCard(),
       data: (data) {
         final (steps, distance, calories) = data;
         final progress = (distance / 100).clamp(0.0, 1.0);

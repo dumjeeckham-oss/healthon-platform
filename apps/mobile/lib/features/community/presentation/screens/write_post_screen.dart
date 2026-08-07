@@ -337,7 +337,7 @@ class _CommunityWritePostScreenState
 
         final bool shouldPop = await _onWillPop();
 
-        if (shouldPop && mounted) {
+        if (shouldPop && context.mounted) {
           Navigator.pop(context);
         }
       },
@@ -396,7 +396,7 @@ class _CommunityWritePostScreenState
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 8,
                       offset: const Offset(0, -2),
                     ),

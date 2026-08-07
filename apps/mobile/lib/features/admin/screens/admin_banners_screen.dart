@@ -18,8 +18,8 @@ String _formatDate(DateTime dt) =>
     '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
 
 IconData _linkTypeIcon(BannerLinkType type) => switch (type) {
-  BannerLinkType.external_url => Icons.open_in_new,
-  BannerLinkType.internal_route => Icons.route,
+  BannerLinkType.externalUrl => Icons.open_in_new,
+  BannerLinkType.internalRoute => Icons.route,
   BannerLinkType.none => Icons.link_off,
 };
 
@@ -104,12 +104,12 @@ class _AdminBannersScreenState extends ConsumerState<AdminBannersScreen> {
                     SegmentedButton<BannerLinkType>(
                       segments: const [
                         ButtonSegment(
-                          value: BannerLinkType.external_url,
+                          value: BannerLinkType.externalUrl,
                           label: Text('외부 링크'),
                           icon: Icon(Icons.open_in_new, size: 16),
                         ),
                         ButtonSegment(
-                          value: BannerLinkType.internal_route,
+                          value: BannerLinkType.internalRoute,
                           label: Text('내부 경로'),
                           icon: Icon(Icons.route, size: 16),
                         ),
@@ -132,8 +132,8 @@ class _AdminBannersScreenState extends ConsumerState<AdminBannersScreen> {
                       TextFormField(
                         controller: linkValueCtrl,
                         decoration: InputDecoration(
-                          labelText: linkType == BannerLinkType.external_url ? '외부 URL' : '내부 라우트',
-                          hintText: linkType == BannerLinkType.external_url
+                          labelText: linkType == BannerLinkType.externalUrl ? '외부 URL' : '내부 라우트',
+                          hintText: linkType == BannerLinkType.externalUrl
                               ? 'https://example.com/event'
                               : '/event/123',
                           border: const OutlineInputBorder(),
@@ -302,7 +302,7 @@ class _AdminBannersScreenState extends ConsumerState<AdminBannersScreen> {
                         child: Image.network(
                           banner.imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorBuilder: (_, _, _) => Container(
                             color: Colors.grey.shade200,
                             alignment: Alignment.center,
                             child: const Icon(Icons.broken_image, size: 40, color: Colors.grey),
@@ -344,8 +344,8 @@ class _AdminBannersScreenState extends ConsumerState<AdminBannersScreen> {
                     const SizedBox(height: 8),
                     SegmentedButton<BannerLinkType>(
                       segments: const [
-                        ButtonSegment(value: BannerLinkType.external_url, label: Text('외부'), icon: Icon(Icons.open_in_new, size: 16)),
-                        ButtonSegment(value: BannerLinkType.internal_route, label: Text('내부'), icon: Icon(Icons.route, size: 16)),
+                        ButtonSegment(value: BannerLinkType.externalUrl, label: Text('외부'), icon: Icon(Icons.open_in_new, size: 16)),
+                        ButtonSegment(value: BannerLinkType.internalRoute, label: Text('내부'), icon: Icon(Icons.route, size: 16)),
                         ButtonSegment(value: BannerLinkType.none, label: Text('없음'), icon: Icon(Icons.link_off, size: 16)),
                       ],
                       selected: {linkType},
@@ -360,7 +360,7 @@ class _AdminBannersScreenState extends ConsumerState<AdminBannersScreen> {
                       TextFormField(
                         controller: linkValueCtrl,
                         decoration: InputDecoration(
-                          labelText: linkType == BannerLinkType.external_url ? '외부 URL' : '내부 라우트',
+                          labelText: linkType == BannerLinkType.externalUrl ? '외부 URL' : '내부 라우트',
                           border: const OutlineInputBorder(),
                         ),
                         validator: (v) {
@@ -574,7 +574,7 @@ class _AdminBannersScreenState extends ConsumerState<AdminBannersScreen> {
           return ReorderableListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: banners.length,
-            onReorder: (oldIndex, newIndex) {
+            onReorderItem: (oldIndex, newIndex) {
               ref.read(adminBannersProvider.notifier).reorder(oldIndex, newIndex);
             },
             buildDefaultDragHandles: false,
@@ -632,8 +632,8 @@ class _BannerListTile extends StatelessWidget {
   });
 
   String _linkTypeLabel(BannerLinkType type) => switch (type) {
-    BannerLinkType.external_url => '외부 링크',
-    BannerLinkType.internal_route => '내부 경로',
+    BannerLinkType.externalUrl => '외부 링크',
+    BannerLinkType.internalRoute => '내부 경로',
     BannerLinkType.none => '링크 없음',
   };
 
@@ -672,7 +672,7 @@ class _BannerListTile extends StatelessWidget {
                 child: Image.network(
                   banner.imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: Colors.grey.shade200,
                     alignment: Alignment.center,
                     child: const Icon(Icons.broken_image, color: Colors.grey, size: 28),

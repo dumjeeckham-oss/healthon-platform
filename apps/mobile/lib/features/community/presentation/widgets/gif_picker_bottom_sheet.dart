@@ -87,7 +87,7 @@ class _GifPickerBottomSheetState extends ConsumerState<GifPickerBottomSheet> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: state.recentQueries.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 6),
+                separatorBuilder: (_, _) => const SizedBox(width: 6),
                 itemBuilder: (_, i) => GestureDetector(
                   onTap: () {
                     ref.read(gifSearchProvider.notifier).search(state.recentQueries[i]);

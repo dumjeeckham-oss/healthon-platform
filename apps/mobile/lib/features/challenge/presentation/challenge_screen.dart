@@ -65,11 +65,11 @@ class ChallengeScreen extends ConsumerWidget {
             final remainDays = todayGoal > 0 ? (remain / todayGoal).ceil() : 0;
 
             String cheer;
-            if (progress >= 1.0) cheer = '🎉 100K 완주를 축하합니다!';
-            else if (progress >= 0.8) cheer = '🔥 완주가 눈앞입니다!';
-            else if (progress >= 0.5) cheer = '👏 절반을 넘었습니다!';
-            else if (progress >= 0.2) cheer = '💪 좋은 페이스입니다!';
-            else cheer = '🚶 첫걸음을 응원합니다!';
+            if (progress >= 1.0) { cheer = '🎉 100K 완주를 축하합니다!'; }
+            else if (progress >= 0.8) { cheer = '🔥 완주가 눈앞입니다!'; }
+            else if (progress >= 0.5) { cheer = '👏 절반을 넘었습니다!'; }
+            else if (progress >= 0.2) { cheer = '💪 좋은 페이스입니다!'; }
+            else { cheer = '🚶 첫걸음을 응원합니다!'; }
 
             final expectedDate = DateTime.now().add(Duration(days: remainDays));
             final expectedStr = '${expectedDate.year}-${expectedDate.month.toString().padLeft(2, '0')}-${expectedDate.day.toString().padLeft(2, '0')}';
@@ -181,7 +181,7 @@ class ChallengeScreen extends ConsumerWidget {
                     return _QuickStats(weekSteps: wSteps, weekDist: wDist, monthSteps: monthSteps, monthDist: monthDistance);
                   },
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
                 ),
 
                 const SizedBox(height: 40),

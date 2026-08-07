@@ -5,6 +5,8 @@
 /// Optimistic update / invalidate 최소화 / Realtime 지원
 /// ===============================================================
 
+library;
+
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';

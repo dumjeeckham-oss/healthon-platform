@@ -102,7 +102,7 @@ class _HealthPermissionScreenState extends ConsumerState<HealthPermissionScreen>
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2E7D32).withOpacity(0.1),
+                    color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, size: 56, color: const Color(0xFF2E7D32)),

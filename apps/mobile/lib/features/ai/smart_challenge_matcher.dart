@@ -1,5 +1,5 @@
 ﻿/// ===============================================================
-/// HealthON Phase 9 — Smart Challenge Matcher
+/// HealthON Phase 9 ? Smart Challenge Matcher
 ///
 /// AI 기반 챌린지 추천
 /// - 사용자 레벨에 맞는 챌린지 매칭
@@ -17,13 +17,13 @@ class SmartChallengeMatcher {
   // =============================================================
 
   static const _challenges = [
-    _ChallengeTemplate(id: 'starter_5k', title: '시작이 반! 5,000걸음', target: 5000, difficulty: 'easy', minLevel: 'sedentary', durationDays: 7, description: '매일 5,000걸음으로 시작하는 7일 챌린지', reward: '🌱 새싹 뱃지 + 50 EXP'),
-    _ChallengeTemplate(id: 'daily_7k', title: '건강 습관 7,000걸음', target: 7000, difficulty: 'easy', minLevel: 'light', durationDays: 14, description: '2주 동안 매일 7,000걸음 습관 만들기', reward: '⭐ 건강 뱃지 + 100 EXP'),
-    _ChallengeTemplate(id: '10k_master', title: '10K 마스터', target: 10000, difficulty: 'moderate', minLevel: 'moderate', durationDays: 21, description: '3주 동안 매일 10,000걸음', reward: '🏅 10K 뱃지 + 200 EXP'),
-    _ChallengeTemplate(id: 'weekend_warrior', title: '주말 전사', target: 15000, difficulty: 'moderate', minLevel: 'moderate', durationDays: 2, description: '주말 동안 하루 15,000걸음!', reward: '⚔️ 주말 전사 뱃지 + 150 EXP'),
-    _ChallengeTemplate(id: '100k_marathon', title: '100K 마라톤', target: 100000, difficulty: 'challenging', minLevel: 'active', durationDays: 14, description: '2주 동안 총 100,000걸음 달성', reward: '🏆 마라토너 뱃지 + 500 EXP'),
-    _ChallengeTemplate(id: '300k_grand', title: '그랜드 300K', target: 300000, difficulty: 'challenging', minLevel: 'active', durationDays: 30, description: '한 달 300,000걸음! 하루 10,000걸음 페이스', reward: '👑 챔피언 뱃지 + 1000 EXP'),
-    _ChallengeTemplate(id: 'mountain_climb', title: '⛰️ 산 정복', target: 50000, difficulty: 'moderate', minLevel: 'moderate', durationDays: 3, description: '3일 동안 50,000걸음으로 산 정복!', reward: '⛰️ 등산 뱃지 + 300 EXP'),
+    ChallengeTemplate(id: 'starter_5k', title: '시작이 반! 5,000걸음', target: 5000, difficulty: 'easy', minLevel: 'sedentary', durationDays: 7, description: '매일 5,000걸음으로 시작하는 7일 챌린지', reward: '?? 새싹 뱃지 + 50 EXP'),
+    ChallengeTemplate(id: 'daily_7k', title: '건강 습관 7,000걸음', target: 7000, difficulty: 'easy', minLevel: 'light', durationDays: 14, description: '2주 동안 매일 7,000걸음 습관 만들기', reward: '? 건강 뱃지 + 100 EXP'),
+    ChallengeTemplate(id: '10k_master', title: '10K 마스터', target: 10000, difficulty: 'moderate', minLevel: 'moderate', durationDays: 21, description: '3주 동안 매일 10,000걸음', reward: '?? 10K 뱃지 + 200 EXP'),
+    ChallengeTemplate(id: 'weekend_warrior', title: '주말 전사', target: 15000, difficulty: 'moderate', minLevel: 'moderate', durationDays: 2, description: '주말 동안 하루 15,000걸음!', reward: '?? 주말 전사 뱃지 + 150 EXP'),
+    ChallengeTemplate(id: '100k_marathon', title: '100K 마라톤', target: 100000, difficulty: 'challenging', minLevel: 'active', durationDays: 14, description: '2주 동안 총 100,000걸음 달성', reward: '?? 마라토너 뱃지 + 500 EXP'),
+    ChallengeTemplate(id: '300k_grand', title: '그랜드 300K', target: 300000, difficulty: 'challenging', minLevel: 'active', durationDays: 30, description: '한 달 300,000걸음! 하루 10,000걸음 페이스', reward: '?? 챔피언 뱃지 + 1000 EXP'),
+    ChallengeTemplate(id: 'mountain_climb', title: '?? 산 정복', target: 50000, difficulty: 'moderate', minLevel: 'moderate', durationDays: 3, description: '3일 동안 50,000걸음으로 산 정복!', reward: '?? 등산 뱃지 + 300 EXP'),
   ];
 
   // =============================================================
@@ -74,19 +74,19 @@ class SmartChallengeMatcher {
   // 완주 확률 계산
   // =============================================================
 
-  double _calculateCompletionProbability(UserActivityProfile profile, _ChallengeTemplate challenge) {
+  double _calculateCompletionProbability(UserActivityProfile profile, ChallengeTemplate challenge) {
     final dailyNeeded = challenge.target / challenge.durationDays;
 
     // 기본 확률: 평균 걸음 / 필요 걸음
     double probability = (profile.avgDailySteps / dailyNeeded).clamp(0.0, 1.5);
 
     // 일관성 보너스
-    if (profile.consistencyScore > 0.7) probability *= 1.2;
-    else if (profile.consistencyScore < 0.3) probability *= 0.8;
+    if (profile.consistencyScore > 0.7) { probability *= 1.2; }
+    else if (profile.consistencyScore < 0.3) { probability *= 0.8; }
 
     // 연속 기록 보너스
-    if (profile.currentStreak >= 21) probability *= 1.15;
-    else if (profile.currentStreak >= 7) probability *= 1.05;
+    if (profile.currentStreak >= 21) { probability *= 1.15; }
+    else if (profile.currentStreak >= 7) { probability *= 1.05; }
 
     // 상승 추세 보너스
     if (profile.weeklyTrend > 0.15) probability *= 1.1;
@@ -101,7 +101,7 @@ class SmartChallengeMatcher {
   // 페이스 점수 (0-100)
   // =============================================================
 
-  double _calculatePaceScore(UserActivityProfile profile, _ChallengeTemplate challenge) {
+  double _calculatePaceScore(UserActivityProfile profile, ChallengeTemplate challenge) {
     final dailyNeeded = challenge.target / challenge.durationDays;
     final currentPace = profile.avgDailySteps.toDouble();
 
@@ -126,7 +126,7 @@ class SmartChallengeMatcher {
   // 시작 추천일
   // =============================================================
 
-  String _recommendStartDay(UserActivityProfile profile, _ChallengeTemplate challenge) {
+  String _recommendStartDay(UserActivityProfile profile, ChallengeTemplate challenge) {
     final today = DateTime.now();
     final weekday = today.weekday;
 
@@ -153,7 +153,7 @@ class SmartChallengeMatcher {
 // 내부 모델
 // ===============================================================
 
-class _ChallengeTemplate {
+class ChallengeTemplate {
   final String id;
   final String title;
   final int target;
@@ -163,7 +163,7 @@ class _ChallengeTemplate {
   final String description;
   final String reward;
 
-  const _ChallengeTemplate({
+  const ChallengeTemplate({
     required this.id, required this.title, required this.target,
     required this.difficulty, required this.minLevel, required this.durationDays,
     required this.description, required this.reward,
@@ -175,7 +175,7 @@ class _ChallengeTemplate {
 // ===============================================================
 
 class ChallengeMatch {
-  final _ChallengeTemplate template;
+  final ChallengeTemplate template;
   final double completionProbability;
   final double paceScore;
   final String recommendedDays;
@@ -201,10 +201,10 @@ class ChallengeMatch {
   };
 
   String get probabilityLabel {
-    if (completionProbability >= 0.9) return '매우 높음 🟢';
-    if (completionProbability >= 0.7) return '높음 🟢';
-    if (completionProbability >= 0.5) return '보통 🟡';
-    if (completionProbability >= 0.3) return '낮음 🟠';
-    return '어려움 🔴';
+    if (completionProbability >= 0.9) return '매우 높음 ??';
+    if (completionProbability >= 0.7) return '높음 ??';
+    if (completionProbability >= 0.5) return '보통 ??';
+    if (completionProbability >= 0.3) return '낮음 ??';
+    return '어려움 ??';
   }
 }

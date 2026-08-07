@@ -95,7 +95,7 @@ class ForestScreen extends ConsumerWidget {
                     return _MonthSummary(steps: mSteps, distance: mDist);
                   },
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
                 ),
 
                 const SizedBox(height: 24),

@@ -3,6 +3,8 @@
 /// Supabase Realtime 구독 + 기존 Community Provider 연동
 /// ===============================================================
 
+library;
+
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';

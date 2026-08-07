@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// ===============================================================
 ///
 /// HealthON Community Post
@@ -11,6 +9,8 @@ import 'package:flutter/foundation.dart';
 /// Free Board
 ///
 /// ===============================================================
+
+library;
 
 enum CommunityCategory {
   notice,
@@ -172,7 +172,7 @@ class CommunityPost {
     return {
       "id": id,
       "user_id": userId,
-      "category": describeEnum(category),
+      "category": category.name,
       "title": title,
       "content": content,
       "images": images,
