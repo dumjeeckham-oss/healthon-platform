@@ -110,11 +110,19 @@ class Bootstrap {
   static Future<void> _initializeSupabase() async {
     debugPrint('☁ Initializing Supabase');
 
-    // .env (native) → dart-define (web) → null
-    final url = dotenv.env['SUPABASE_URL'] ??
-        const String.fromEnvironment('SUPABASE_URL');
-    final key = dotenv.env['SUPABASE_PUBLISHABLE_KEY'] ??
-        const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+    // Try .env (native) first, then dart-define (web fallback)
+    String url = '';
+    String key = '';
+
+    try {
+      url = dotenv.env['SUPABASE_URL'] ?? '';
+      key = dotenv.env['SUPABASE_PUBLISHABLE_KEY'] ?? '';
+    } catch (_) {
+      // dotenv not initialized (web) — use dart-define only
+    }
+
+    url = url.isNotEmpty ? url : const String.fromEnvironment('SUPABASE_URL');
+    key = key.isNotEmpty ? key : const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 
     if (url.isEmpty || key.isEmpty) {
       debugPrint('⚠ Supabase config missing — skipping init');
