@@ -8,7 +8,8 @@ class ForestRepository {
   ForestRepository();
   final ForestSpeciesRepository _speciesRepository =
     ForestSpeciesRepository();
-  final SupabaseClient _client = Supabase.instance.client;
+  // Lazy — Supabase init may be deferred
+  SupabaseClient get _client => Supabase.instance.client;
   
 
   /// ===============================

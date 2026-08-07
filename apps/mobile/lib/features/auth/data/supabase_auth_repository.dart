@@ -18,7 +18,8 @@ import '../domain/auth_user.dart';
 /// ===============================================================
 
 class SupabaseAuthRepository implements AuthRepository {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  // Lazy — Supabase init may be deferred (e.g. web without --dart-define)
+  SupabaseClient get _supabase => Supabase.instance.client;
 
   @override
   Future<AuthUser?> getCurrentUser() async {
