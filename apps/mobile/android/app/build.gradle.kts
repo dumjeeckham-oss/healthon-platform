@@ -1,3 +1,4 @@
+import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -6,11 +7,11 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-// Signing Config (Release)
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file("key.properties")
+// Release Signing Config (Kotlin DSL)
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -33,31 +34,34 @@ android {
     }
 
     signingConfigs {
-        release {
-            keyAlias = keystoreProperties["keyAlias"] as String? ?: "healthon"
-            keyPassword = keystoreProperties["keyPassword"] as String? ?: ""
-            storeFile = keystoreProperties["storeFile"] != null
-                ? file(keystoreProperties["storeFile"] as String)
-                : null
-            storePassword = keystoreProperties["storePassword"] as String? ?: ""
+        create("release") {
+            keyAlias = keystoreProperties.getProperty("keyAlias", "healthon")
+            keyPassword = keystoreProperties.getProperty("keyPassword", "")
+            storeFile = keystoreProperties.getProperty("storeFile")?.let { rootProject.file(it) }
+            storePassword = keystoreProperties.getProperty("storePassword", "")
         }
     }
 
     buildTypes {
         release {
-            signingConfig = keystorePropertiesFile.exists()
-                ? signingConfigs.release
-                : signingConfigs.getByName("debug")
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
