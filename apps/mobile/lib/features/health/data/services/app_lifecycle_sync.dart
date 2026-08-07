@@ -1,10 +1,8 @@
 ﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../presentation/providers/health_provider.dart';
 import '../../../social_engine/activity_dispatcher.dart';
 
 /// ===============================================================
@@ -28,13 +26,13 @@ class AppLifecycleSync extends WidgetsBindingObserver {
   static const Duration _syncCooldown = Duration(minutes: 15);
   static const Duration _periodicInterval = Duration(hours: 1);
 
-  /// ProviderRef — main.dart 또는 Bootstrap에서 주입
-  Ref? _ref;
+  /// Health sync callback — Widget에서 Provider 접근 후 주입
+  Future<bool> Function()? _syncFn;
 
-  void init(Ref ref) {
+  void init({required Future<bool> Function() syncFn}) {
     if (_initialized) return;
 
-    _ref = ref;
+    _syncFn = syncFn;
     WidgetsBinding.instance.addObserver(this);
     _startPeriodicCheck();
     _initialized = true;
@@ -45,7 +43,7 @@ class AppLifecycleSync extends WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _periodicTimer?.cancel();
-    _ref = null;
+    _syncFn = null;
     _initialized = false;
   }
 
@@ -94,15 +92,14 @@ class AppLifecycleSync extends WidgetsBindingObserver {
 
   Future<void> _triggerSync({required String reason}) async {
     if (_syncing) return;
-    if (_ref == null) return;
+    if (_syncFn == null) return;
 
     _syncing = true;
 
     try {
       debugPrint('🔄 Health Sync Triggered: $reason');
 
-      final syncNotifier = _ref!.read(healthSyncProvider.notifier);
-      final success = await syncNotifier.sync();
+      final success = await _syncFn!();
 
       if (success) {
         _lastSync = DateTime.now();
