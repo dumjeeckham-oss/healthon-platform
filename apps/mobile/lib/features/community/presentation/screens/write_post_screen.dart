@@ -149,17 +149,6 @@ class _CommunityWritePostScreenState
   // ② Add / Remove Images
   // ===============================================================
 
-  void _addImage(String path) {
-    if (_selectedImages.length >= _maxImages) {
-      _showSnackBar('사진은 최대 $_maxImages장까지 첨부할 수 있습니다');
-      return;
-    }
-
-    setState(() {
-      _selectedImages.add(path);
-    });
-  }
-
   void _removeImage(int index) {
     setState(() {
       _selectedImages.removeAt(index);
@@ -768,7 +757,6 @@ class _CommunityWritePostScreenState
             // --- Forest Snapshot 동적 옵션 ---
             Consumer(
               builder: (context, ref, _) {
-                final todayAsync = ref.watch(healthTodayProvider);
                 final weekAsync = ref.watch(healthWeekProvider);
                 final weekSteps = weekAsync.valueOrNull?.$1 ?? 0;
 

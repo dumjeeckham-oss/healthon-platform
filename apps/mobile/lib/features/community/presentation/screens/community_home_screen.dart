@@ -57,7 +57,6 @@ class _CommunityHomeScreenState
 
   bool _isLoadingMore = false;
 
-  static const int _pageSize = 10;
 
   //----------------------------------------------------
   // Story mock
@@ -315,8 +314,6 @@ class _CommunityHomeScreenState
                 controller: _tabController,
                 children:
                     tabs.map((tab) {
-                  final bool isAll = tab.$2 == null;
-
                   return RefreshIndicator(
                     onRefresh: _refresh,
                     child: _FeedList(
@@ -1050,28 +1047,3 @@ class _SkeletonCard extends StatelessWidget {
   }
 }
 
-// ===============================================================
-// ⑤ Helper — Always-Complete Animation
-// ===============================================================
-
-class _AlwaysCompleteAnimation extends Animation<double> {
-  const _AlwaysCompleteAnimation();
-
-  @override
-  void addListener(VoidCallback listener) {}
-
-  @override
-  void removeListener(VoidCallback listener) {}
-
-  @override
-  void addStatusListener(AnimationStatusListener listener) {}
-
-  @override
-  void removeStatusListener(AnimationStatusListener listener) {}
-
-  @override
-  AnimationStatus get status => AnimationStatus.completed;
-
-  @override
-  double get value => 1.0;
-}

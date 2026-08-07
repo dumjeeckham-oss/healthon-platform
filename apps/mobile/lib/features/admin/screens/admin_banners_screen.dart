@@ -17,12 +17,6 @@ import '../admin_provider.dart';
 String _formatDate(DateTime dt) =>
     '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
 
-String _linkTypeLabel(BannerLinkType type) => switch (type) {
-  BannerLinkType.external_url => '외부 링크',
-  BannerLinkType.internal_route => '내부 경로',
-  BannerLinkType.none => '링크 없음',
-};
-
 IconData _linkTypeIcon(BannerLinkType type) => switch (type) {
   BannerLinkType.external_url => Icons.open_in_new,
   BannerLinkType.internal_route => Icons.route,

@@ -364,15 +364,6 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     ReportStatus.suspended => Colors.deepPurple,
   };
 
-  IconData _statusIcon(ReportStatus status) => switch (status) {
-    ReportStatus.pending => Icons.hourglass_empty,
-    ReportStatus.reviewed => Icons.check_circle,
-    ReportStatus.deleted => Icons.delete,
-    ReportStatus.hidden => Icons.visibility_off,
-    ReportStatus.warned => Icons.warning_amber,
-    ReportStatus.suspended => Icons.block,
-  };
-
   String _actionLabel(String? action) => switch (action) {
     'deleted' => '콘텐츠 삭제',
     'hidden' => '숨김 처리',
@@ -386,9 +377,6 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
-  }
 }
 
 // ===============================================================

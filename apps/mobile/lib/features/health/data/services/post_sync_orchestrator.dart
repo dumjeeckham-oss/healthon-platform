@@ -17,7 +17,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'forest_sync_service.dart';
 import 'challenge_sync_service.dart';
 import 'mission_sync_service.dart';
-import 'ranking_service.dart';
 import '../../../social_engine/activity_engine.dart';
 
 class PostSyncOrchestrator {
@@ -30,10 +29,7 @@ class PostSyncOrchestrator {
     _forestSync = ForestSyncService(_client);
     _challengeSync = ChallengeSyncService(_client);
     _missionSync = MissionSyncService(_client);
-    _rankingService = RankingService(_client);
   }
-
-  late final RankingService _rankingService;
 
   /// Health Sync 완료 후 모든 연동 업데이트 실행
   Future<PostSyncResult> runAll(String userId) async {

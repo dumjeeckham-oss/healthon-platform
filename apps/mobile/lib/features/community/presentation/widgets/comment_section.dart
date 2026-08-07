@@ -78,8 +78,6 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
       builder: (_) => EmojiBottomSheet(
         onEmojiSelected: (emoji) {
           final text = _composerCtrl.text;
-          final cursorPos = _composerCtrl.selection.baseOffset;
-          // 실제 cursor 위치 기반 삽입
           final sel = _composerCtrl.selection;
           final start = sel.start;
           final end = sel.end;

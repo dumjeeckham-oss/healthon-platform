@@ -9,8 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../data/community_realtime_service.dart';
-import '../../domain/models/community_post.dart';
-import '../../domain/models/community_comment.dart';
 
 // ===============================================================
 // Providers

@@ -90,9 +90,12 @@ class Bootstrap {
   static Future<void> _initializeEnvironment() async {
     debugPrint('📄 Loading .env');
 
-    await dotenv.load(fileName: '.env');
-
-    debugPrint('✅ .env Loaded');
+    try {
+      await dotenv.load(fileName: '.env');
+      debugPrint('✅ .env Loaded');
+    } catch (_) {
+      debugPrint('⚠ .env not found, using system env vars');
+    }
   }
 
   //==============================================================
@@ -102,9 +105,17 @@ class Bootstrap {
   static Future<void> _initializeSupabase() async {
     debugPrint('☁ Initializing Supabase');
 
+    final url = dotenv.env['SUPABASE_URL'];
+    final key = dotenv.env['SUPABASE_PUBLISHABLE_KEY'];
+
+    if (url == null || key == null) {
+      debugPrint('⚠ Supabase config missing — skipping init');
+      return;
+    }
+
     await Supabase.initialize(
-      url: dotenv.env['SUPABASE_URL']!,
-      publishableKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
+      url: url,
+      publishableKey: key,
     );
 
     debugPrint('✅ Supabase Initialized');

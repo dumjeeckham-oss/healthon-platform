@@ -181,8 +181,6 @@ final recommendedUsersProvider = FutureProvider<List<RecommendedUser>>((ref) asy
   final userId = ref.watch(socialGraphUserIdProvider);
   if (userId == null) return [];
 
-  final supabase = ref.watch(socialGraphSupabaseProvider);
-
   try {
     // 팔로우/친구 아닌 사용자 중 걸음 많은 top 10
 
