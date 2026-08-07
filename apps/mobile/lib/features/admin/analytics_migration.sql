@@ -1,10 +1,10 @@
 -- ================================================================
--- HealthON Phase 8 — Analytics Migration
--- 활용 통계 / 리텐션 / DAU / MAU / 챌린지 전환율
+-- HealthON Phase 8 — Analytics Migration (FIXED)
+-- public.users 참조 제거 → auth.users.raw_user_meta_data 사용
 -- ================================================================
 
 -- ================================================================
--- 1. daily_stats — 일별 집계 스냅샷 (관리자 대시보드용)
+-- 1. daily_stats
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS public.daily_stats (
@@ -23,17 +23,19 @@ CREATE TABLE IF NOT EXISTS public.daily_stats (
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE public.daily_stats IS '일별 집계 (Edge Function으로 매일 자정 갱신)';
-
 ALTER TABLE public.daily_stats ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "daily_stats_select_admin" ON public.daily_stats
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL
+    AND (auth.jwt()->>'role' = 'service_role'
+      OR auth.uid() IN (
+        SELECT id FROM auth.users WHERE raw_user_meta_data->>'role' = 'admin'
+      ))
   );
 
 -- ================================================================
--- 2. weekly_retention — 주간 리텐션
+-- 2. weekly_retention
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS public.weekly_retention (
@@ -49,11 +51,15 @@ ALTER TABLE public.weekly_retention ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "retention_select_admin" ON public.weekly_retention
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL
+    AND (auth.jwt()->>'role' = 'service_role'
+      OR auth.uid() IN (
+        SELECT id FROM auth.users WHERE raw_user_meta_data->>'role' = 'admin'
+      ))
   );
 
 -- ================================================================
--- 3. challenge_funnel — 챌린지 전환 퍼널
+-- 3. challenge_funnel
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS public.challenge_funnel (
@@ -72,11 +78,15 @@ ALTER TABLE public.challenge_funnel ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "funnel_select_admin" ON public.challenge_funnel
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL
+    AND (auth.jwt()->>'role' = 'service_role'
+      OR auth.uid() IN (
+        SELECT id FROM auth.users WHERE raw_user_meta_data->>'role' = 'admin'
+      ))
   );
 
 -- ================================================================
--- 4. RPC: refresh_daily_stats — 일별 통계 갱신
+-- 4. RPC: refresh_daily_stats (public.users → auth.users)
 -- ================================================================
 
 CREATE OR REPLACE FUNCTION public.refresh_daily_stats(
@@ -87,35 +97,29 @@ DECLARE
   v_active_c INTEGER; v_completed_c INTEGER; v_completed_m INTEGER;
   v_posts INTEGER; v_comments INTEGER; v_likes INTEGER; v_cheers INTEGER;
 BEGIN
-  -- DAU (오늘 로그인 또는 활동)
   SELECT COUNT(DISTINCT user_id) INTO v_dau
   FROM public.health_daily WHERE date = p_date;
 
-  -- 신규 가입
-  SELECT COUNT(*) INTO v_new
-  FROM public.users WHERE DATE(created_at) = p_date;
+  -- 신규 가입 (auth.users 기준)
+  SELECT COUNT(*)::INTEGER INTO v_new
+  FROM auth.users WHERE DATE(created_at) = p_date;
 
-  -- 걸음
-  SELECT COALESCE(SUM(steps), 0), COALESCE(SUM(distance_km), 0)
+  SELECT COALESCE(SUM(steps), 0)::BIGINT, COALESCE(SUM(distance_km), 0)
   INTO v_steps, v_dist FROM public.health_daily WHERE date = p_date;
 
-  -- 활성/완료 챌린지
   SELECT COUNT(*) INTO v_active_c FROM public.challenge_definitions
   WHERE is_active = true AND p_date BETWEEN start_date AND end_date;
 
   SELECT COUNT(*) INTO v_completed_c FROM public.activity_events
   WHERE type = 'challenge_completed' AND DATE(created_at) = p_date;
 
-  -- 미션 완료
   SELECT COUNT(*) INTO v_completed_m FROM public.activity_events
   WHERE type = 'mission_completed' AND DATE(created_at) = p_date;
 
-  -- 커뮤니티
   SELECT COUNT(*) INTO v_posts FROM public.community_posts WHERE DATE(created_at) = p_date;
   SELECT COUNT(*) INTO v_comments FROM public.community_comments WHERE DATE(created_at) = p_date;
   SELECT COUNT(*) INTO v_likes FROM public.community_post_likes WHERE DATE(created_at) = p_date;
 
-  -- 응원
   SELECT COUNT(*) INTO v_cheers FROM public.family_cheers WHERE DATE(created_at) = p_date;
 
   INSERT INTO public.daily_stats (date, dau, new_users, total_steps, total_distance_km,
@@ -132,7 +136,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ================================================================
--- 5. RPC: get_trend_data — 30일 트렌드
+-- 5. RPC: get_trend_data
 -- ================================================================
 
 CREATE OR REPLACE FUNCTION public.get_trend_data(
@@ -150,7 +154,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ================================================================
--- 6. RPC: get_category_distribution — 커뮤니티 카테고리 분포
+-- 6. RPC: get_category_distribution
 -- ================================================================
 
 CREATE OR REPLACE FUNCTION public.get_category_distribution()

@@ -1,18 +1,49 @@
 -- ================================================================
--- HealthON Admin CMS — Phase 4 Migration (CORRECTED)
--- 회원 테이블: public.users (NOT public.profiles)
--- 모든 FK: auth.users(id) 직접 참조
+-- HealthON Admin CMS — Phase 4 Migration (RLS FIXED)
+--
+-- public.users 참조 제거. RLS는 auth.users.raw_user_meta_data 사용.
+-- public.users 테이블은 여기서 명시적으로 생성.
 -- ================================================================
 
 -- ================================================================
--- STEP 0: public.users 확장 (Admin CMS 필수 컬럼)
+-- STEP 0: public.users 생성 (Flutter AuthUser ↔ Supabase 매핑)
 -- ================================================================
 
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ;
+CREATE TABLE IF NOT EXISTS public.users (
+  id                  UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email               TEXT,
+  name                TEXT,
+  photo_url           TEXT,
+  nickname            TEXT,
+  phone               TEXT,
+  family_id           TEXT,
+  is_admin            BOOLEAN NOT NULL DEFAULT false,
+  is_profile_completed BOOLEAN NOT NULL DEFAULT false,
+  is_suspended        BOOLEAN NOT NULL DEFAULT false,
+  last_login_at       TIMESTAMPTZ,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-COMMENT ON COLUMN public.users.is_suspended IS '관리자 활동정지 여부';
-COMMENT ON COLUMN public.users.last_login_at IS '마지막 로그인 일시';
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "users_select_own" ON public.users
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "users_insert_own" ON public.users
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "users_update_own" ON public.users
+  FOR UPDATE USING (auth.uid() = id);
+
+-- 관리자 전용: 모든 사용자 조회
+CREATE POLICY "users_select_admin" ON public.users
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
+  );
 
 -- ================================================================
 -- STEP 1: admin_notices
@@ -43,22 +74,27 @@ CREATE INDEX IF NOT EXISTS idx_admin_notices_pinned ON public.admin_notices(is_p
 
 ALTER TABLE public.admin_notices ENABLE ROW LEVEL SECURITY;
 
--- RLS: 모두 조회 가능
 CREATE POLICY "notices_select_all" ON public.admin_notices
   FOR SELECT USING (true);
 
--- RLS: 관리자만 CUD (public.users.is_admin 체크)
+-- 관리자만 CUD (auth.users.raw_user_meta_data->>'role' = 'admin')
 CREATE POLICY "notices_mutate_admin" ON public.admin_notices
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE id = auth.uid() AND is_admin = true
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (
+        SELECT 1 FROM auth.users
+        WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin'
+      )
     )
   )
   WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE id = auth.uid() AND is_admin = true
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (
+        SELECT 1 FROM auth.users
+        WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin'
+      )
     )
   );
 
@@ -94,10 +130,16 @@ CREATE POLICY "challenge_def_select_all" ON public.challenge_definitions
 
 CREATE POLICY "challenge_def_mutate_admin" ON public.challenge_definitions
   FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   )
   WITH CHECK (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   );
 
 -- ================================================================
@@ -130,10 +172,16 @@ CREATE POLICY "mission_def_select_all" ON public.mission_definitions
 
 CREATE POLICY "mission_def_mutate_admin" ON public.mission_definitions
   FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   )
   WITH CHECK (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   );
 
 -- ================================================================
@@ -161,10 +209,16 @@ CREATE POLICY "forest_seasons_select_all" ON public.forest_seasons
 
 CREATE POLICY "forest_seasons_mutate_admin" ON public.forest_seasons
   FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   )
   WITH CHECK (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   );
 
 -- ================================================================
@@ -193,10 +247,16 @@ CREATE POLICY "banners_select_all" ON public.admin_banners
 
 CREATE POLICY "banners_mutate_admin" ON public.admin_banners
   FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   )
   WITH CHECK (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   );
 
 -- ================================================================
@@ -220,18 +280,19 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_created ON public.audit_log(created_at 
 
 ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
 
--- audit_log: 관리자만 조회
 CREATE POLICY "audit_log_select_admin" ON public.audit_log
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   );
 
--- audit_log: 인증된 사용자면 insert 가능 (서비스 레이어에서 호출)
 CREATE POLICY "audit_log_insert_authenticated" ON public.audit_log
   FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 
 -- ================================================================
--- STEP 7: community_reports 확장 (Admin CMS 필요 컬럼)
+-- STEP 7: community_reports 확장 + RLS 수정
 -- ================================================================
 
 ALTER TABLE public.community_reports
@@ -259,15 +320,27 @@ ALTER TABLE public.community_reports
 ALTER TABLE public.community_reports
   ADD COLUMN IF NOT EXISTS reporter_name TEXT;
 
--- community_reports RLS 수정 (auth.users.raw_user_meta_data → public.users.is_admin)
+-- RLS: 기존 정책 교체
 DROP POLICY IF EXISTS "Only admins can read reports" ON public.community_reports;
-CREATE POLICY "only_admins_select_reports" ON public.community_reports
+DROP POLICY IF EXISTS "only_admins_select_reports" ON public.community_reports;
+DROP POLICY IF EXISTS "admins_update_reports" ON public.community_reports;
+
+CREATE POLICY "reports_select_admin" ON public.community_reports
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   );
 
--- 관리자가 신고 UPDATE 가능
-CREATE POLICY "admins_update_reports" ON public.community_reports
+CREATE POLICY "reports_update_admin" ON public.community_reports
   FOR UPDATE USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND is_admin = true)
+    auth.uid() IS NOT NULL AND (
+      auth.jwt()->>'role' = 'service_role'
+      OR EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND raw_user_meta_data->>'role' = 'admin')
+    )
   );
+
+-- 신고 접수는 인증된 사용자 누구나
+CREATE POLICY "reports_insert_auth" ON public.community_reports
+  FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
