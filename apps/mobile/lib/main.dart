@@ -17,13 +17,31 @@ void main() async {
       ),
     );
   } catch (e, stackTrace) {
+    // Don't rethrow — show error UI instead of white screen
     FlutterError.reportError(
       FlutterErrorDetails(
         exception: e,
         stack: stackTrace,
       ),
     );
-    rethrow;
+    runApp(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Text(
+                  '앱 초기화 중 오류가 발생했습니다.\n\n$e',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

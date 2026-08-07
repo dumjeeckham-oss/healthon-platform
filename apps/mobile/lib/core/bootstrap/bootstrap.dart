@@ -1,7 +1,6 @@
 ﻿import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -88,6 +87,12 @@ class Bootstrap {
   //==============================================================
 
   static Future<void> _initializeEnvironment() async {
+    // On web, dotenv asset loading does not work — use --dart-define instead
+    if (kIsWeb) {
+      debugPrint('📄 Web: skip .env, use --dart-define');
+      return;
+    }
+
     debugPrint('📄 Loading .env');
 
     try {
@@ -105,10 +110,13 @@ class Bootstrap {
   static Future<void> _initializeSupabase() async {
     debugPrint('☁ Initializing Supabase');
 
-    final url = dotenv.env['SUPABASE_URL'];
-    final key = dotenv.env['SUPABASE_PUBLISHABLE_KEY'];
+    // .env (native) → dart-define (web) → null
+    final url = dotenv.env['SUPABASE_URL'] ??
+        const String.fromEnvironment('SUPABASE_URL');
+    final key = dotenv.env['SUPABASE_PUBLISHABLE_KEY'] ??
+        const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 
-    if (url == null || key == null) {
+    if (url.isEmpty || key.isEmpty) {
       debugPrint('⚠ Supabase config missing — skipping init');
       return;
     }

@@ -46,7 +46,11 @@ class _HomeScreenState
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text("건강ON"),
+        title: Image.asset(
+          'assets/images/logo_horizontal.png',
+          height: 32,
+          fit: BoxFit.contain,
+        ),
         centerTitle: false,
         elevation: 0,
       ),

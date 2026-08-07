@@ -86,13 +86,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     const SizedBox(height: 40),
 
-                    const Icon(
-                      Icons.favorite,
-                      color: Colors.green,
-                      size: 80,
+                    Image.asset(
+                      'assets/images/logo_main.png',
+                      height: 100,
+                      fit: BoxFit.contain,
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     const Text(
                       "건강ON",

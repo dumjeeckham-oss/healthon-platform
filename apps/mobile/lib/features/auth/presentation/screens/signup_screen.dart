@@ -91,10 +91,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 children: [
                   const SizedBox(height: 20),
 
-                  const Icon(
-                    Icons.person_add,
-                    size: 72,
-                    color: Colors.green,
+                  Image.asset(
+                    'assets/images/logo_main.png',
+                    height: 80,
+                    fit: BoxFit.contain,
                   ),
 
                   const SizedBox(height: 20),
