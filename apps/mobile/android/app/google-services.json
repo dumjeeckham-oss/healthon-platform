@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "747298303406",
+    "project_id": "healthon-e79fd",
+    "storage_bucket": "healthon-e79fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747298303406:android:05890c908b645a5e1dac3f",
+        "android_client_info": {
+          "package_name": "com.healthon.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8uCq_2JSAAJcnh2yBIZ0NQnSdA0C7Wpo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
