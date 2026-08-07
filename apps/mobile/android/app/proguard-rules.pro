@@ -12,9 +12,9 @@
 # Health Connect
 -keep class androidx.health.** { *; }
 
-# Riverpod
--keep class riverpod.** { *; }
--dontwarn riverpod.**
+# Google Play Core (Flutter deferred components)
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
 
 # Keep R8/ProGuard from stripping generic signatures
 -keepattributes Signature

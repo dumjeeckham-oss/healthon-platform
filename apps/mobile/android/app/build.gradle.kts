@@ -74,4 +74,7 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-messaging")
+
+    // Google Play Core — Flutter deferred components / Play Feature Delivery
+    implementation("com.google.android.play:core:1.10.3")
 }
