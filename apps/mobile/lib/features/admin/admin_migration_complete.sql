@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS public.users (
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "users_select_own" ON public.users;
+DROP POLICY IF EXISTS "users_insert_own" ON public.users;
+DROP POLICY IF EXISTS "users_update_own" ON public.users;
+DROP POLICY IF EXISTS "users_select_admin" ON public.users;
+
 CREATE POLICY "users_select_own" ON public.users
   FOR SELECT USING (auth.uid() = id);
 
@@ -74,10 +79,12 @@ CREATE INDEX IF NOT EXISTS idx_admin_notices_pinned ON public.admin_notices(is_p
 
 ALTER TABLE public.admin_notices ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "notices_select_all" ON public.admin_notices;
+DROP POLICY IF EXISTS "notices_mutate_admin" ON public.admin_notices;
+
 CREATE POLICY "notices_select_all" ON public.admin_notices
   FOR SELECT USING (true);
 
--- 관리자만 CUD (auth.users.raw_user_meta_data->>'role' = 'admin')
 CREATE POLICY "notices_mutate_admin" ON public.admin_notices
   FOR ALL USING (
     auth.uid() IS NOT NULL AND (
@@ -125,6 +132,9 @@ CREATE TABLE IF NOT EXISTS public.challenge_definitions (
 
 ALTER TABLE public.challenge_definitions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "challenge_def_select_all" ON public.challenge_definitions;
+DROP POLICY IF EXISTS "challenge_def_mutate_admin" ON public.challenge_definitions;
+
 CREATE POLICY "challenge_def_select_all" ON public.challenge_definitions
   FOR SELECT USING (true);
 
@@ -167,6 +177,9 @@ CREATE TABLE IF NOT EXISTS public.mission_definitions (
 
 ALTER TABLE public.mission_definitions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "mission_def_select_all" ON public.mission_definitions;
+DROP POLICY IF EXISTS "mission_def_mutate_admin" ON public.mission_definitions;
+
 CREATE POLICY "mission_def_select_all" ON public.mission_definitions
   FOR SELECT USING (true);
 
@@ -203,6 +216,9 @@ CREATE TABLE IF NOT EXISTS public.forest_seasons (
 );
 
 ALTER TABLE public.forest_seasons ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "forest_seasons_select_all" ON public.forest_seasons;
+DROP POLICY IF EXISTS "forest_seasons_mutate_admin" ON public.forest_seasons;
 
 CREATE POLICY "forest_seasons_select_all" ON public.forest_seasons
   FOR SELECT USING (true);
@@ -242,6 +258,9 @@ CREATE TABLE IF NOT EXISTS public.admin_banners (
 
 ALTER TABLE public.admin_banners ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "banners_select_all" ON public.admin_banners;
+DROP POLICY IF EXISTS "banners_mutate_admin" ON public.admin_banners;
+
 CREATE POLICY "banners_select_all" ON public.admin_banners
   FOR SELECT USING (true);
 
@@ -279,6 +298,9 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_admin ON public.audit_log(admin_id);
 CREATE INDEX IF NOT EXISTS idx_audit_log_created ON public.audit_log(created_at DESC);
 
 ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "audit_log_select_admin" ON public.audit_log;
+DROP POLICY IF EXISTS "audit_log_insert_authenticated" ON public.audit_log;
 
 CREATE POLICY "audit_log_select_admin" ON public.audit_log
   FOR SELECT USING (
@@ -324,6 +346,10 @@ ALTER TABLE public.community_reports
 DROP POLICY IF EXISTS "Only admins can read reports" ON public.community_reports;
 DROP POLICY IF EXISTS "only_admins_select_reports" ON public.community_reports;
 DROP POLICY IF EXISTS "admins_update_reports" ON public.community_reports;
+
+DROP POLICY IF EXISTS "reports_select_admin" ON public.community_reports;
+DROP POLICY IF EXISTS "reports_update_admin" ON public.community_reports;
+DROP POLICY IF EXISTS "reports_insert_auth" ON public.community_reports;
 
 CREATE POLICY "reports_select_admin" ON public.community_reports
   FOR SELECT USING (

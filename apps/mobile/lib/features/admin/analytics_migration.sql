@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS public.daily_stats (
 
 ALTER TABLE public.daily_stats ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "daily_stats_select_admin" ON public.daily_stats;
+
 CREATE POLICY "daily_stats_select_admin" ON public.daily_stats
   FOR SELECT USING (
     auth.uid() IS NOT NULL
@@ -48,6 +50,8 @@ CREATE TABLE IF NOT EXISTS public.weekly_retention (
 );
 
 ALTER TABLE public.weekly_retention ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "retention_select_admin" ON public.weekly_retention;
 
 CREATE POLICY "retention_select_admin" ON public.weekly_retention
   FOR SELECT USING (
@@ -75,6 +79,8 @@ CREATE TABLE IF NOT EXISTS public.challenge_funnel (
 );
 
 ALTER TABLE public.challenge_funnel ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "funnel_select_admin" ON public.challenge_funnel;
 
 CREATE POLICY "funnel_select_admin" ON public.challenge_funnel
   FOR SELECT USING (

@@ -1,9 +1,9 @@
 -- ================================================================
--- HealthON Phase 5 — Push Notification Migration
+-- HealthON Phase 5 — Push Notification Migration (IDEMPOTENT)
 -- ================================================================
 
 -- ================================================================
--- 1. push_tokens — FCM 디바이스 토큰 저장
+-- 1. push_tokens
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS public.push_tokens (
@@ -24,11 +24,13 @@ CREATE INDEX IF NOT EXISTS idx_push_tokens_active ON public.push_tokens(is_activ
 
 ALTER TABLE public.push_tokens ENABLE ROW LEVEL SECURITY;
 
--- 본인 토큰만 조회
+DROP POLICY IF EXISTS "push_tokens_select_own" ON public.push_tokens;
+DROP POLICY IF EXISTS "push_tokens_insert_own" ON public.push_tokens;
+DROP POLICY IF EXISTS "push_tokens_delete_own" ON public.push_tokens;
+
 CREATE POLICY "push_tokens_select_own" ON public.push_tokens
   FOR SELECT USING (auth.uid() = user_id);
 
--- 본인 토큰만 등록/수정
 CREATE POLICY "push_tokens_insert_own" ON public.push_tokens
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
@@ -36,7 +38,7 @@ CREATE POLICY "push_tokens_delete_own" ON public.push_tokens
   FOR DELETE USING (auth.uid() = user_id);
 
 -- ================================================================
--- 2. push_notification_queue — 전송 큐
+-- 2. push_notification_queue
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS public.push_notification_queue (
@@ -60,16 +62,17 @@ CREATE INDEX IF NOT EXISTS idx_push_queue_user ON public.push_notification_queue
 
 ALTER TABLE public.push_notification_queue ENABLE ROW LEVEL SECURITY;
 
--- 본인 알림만 조회
+DROP POLICY IF EXISTS "push_queue_select_own" ON public.push_notification_queue;
+DROP POLICY IF EXISTS "push_queue_insert_service" ON public.push_notification_queue;
+
 CREATE POLICY "push_queue_select_own" ON public.push_notification_queue
   FOR SELECT USING (auth.uid() = user_id);
 
--- 시스템 insert만 (서비스 레이어)
 CREATE POLICY "push_queue_insert_service" ON public.push_notification_queue
   FOR INSERT WITH CHECK (true);
 
 -- ================================================================
--- 3. notification_settings — 사용자별 푸시 설정
+-- 3. notification_settings
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS public.notification_settings (
@@ -90,6 +93,10 @@ CREATE TABLE IF NOT EXISTS public.notification_settings (
 );
 
 ALTER TABLE public.notification_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "notif_settings_select_own" ON public.notification_settings;
+DROP POLICY IF EXISTS "notif_settings_upsert_own" ON public.notification_settings;
+DROP POLICY IF EXISTS "notif_settings_update_own" ON public.notification_settings;
 
 CREATE POLICY "notif_settings_select_own" ON public.notification_settings
   FOR SELECT USING (auth.uid() = user_id);

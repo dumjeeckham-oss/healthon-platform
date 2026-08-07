@@ -86,6 +86,10 @@ ALTER TABLE public.family_cheers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.family_challenge_participation ENABLE ROW LEVEL SECURITY;
 
 -- families
+DROP POLICY IF EXISTS "families_select_members" ON public.families;
+DROP POLICY IF EXISTS "families_insert_auth" ON public.families;
+DROP POLICY IF EXISTS "families_update_leader" ON public.families;
+
 CREATE POLICY "families_select_members" ON public.families
   FOR SELECT USING (
     EXISTS (
@@ -101,6 +105,10 @@ CREATE POLICY "families_update_leader" ON public.families
   FOR UPDATE USING (leader_id = auth.uid());
 
 -- family_members
+DROP POLICY IF EXISTS "family_members_select" ON public.family_members;
+DROP POLICY IF EXISTS "family_members_insert_auth" ON public.family_members;
+DROP POLICY IF EXISTS "family_members_update_own" ON public.family_members;
+
 CREATE POLICY "family_members_select" ON public.family_members
   FOR SELECT USING (auth.uid() = user_id);
 
@@ -111,6 +119,9 @@ CREATE POLICY "family_members_update_own" ON public.family_members
   FOR UPDATE USING (auth.uid() = user_id);
 
 -- family_cheers
+DROP POLICY IF EXISTS "family_cheers_select_members" ON public.family_cheers;
+DROP POLICY IF EXISTS "family_cheers_insert_members" ON public.family_cheers;
+
 CREATE POLICY "family_cheers_select_members" ON public.family_cheers
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.family_members fm WHERE fm.family_id = family_cheers.family_id AND fm.user_id = auth.uid())
@@ -122,6 +133,8 @@ CREATE POLICY "family_cheers_insert_members" ON public.family_cheers
   );
 
 -- family_challenge_participation
+DROP POLICY IF EXISTS "family_challenge_select" ON public.family_challenge_participation;
+
 CREATE POLICY "family_challenge_select" ON public.family_challenge_participation
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.family_members fm WHERE fm.family_id = family_challenge_participation.family_id AND fm.user_id = auth.uid())
