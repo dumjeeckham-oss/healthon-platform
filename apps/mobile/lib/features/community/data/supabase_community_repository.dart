@@ -1,6 +1,8 @@
-﻿import 'dart:io';
+﻿import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/platform/file_bytes_stub.dart'
+  if (dart.library.io) '../../../core/platform/file_bytes_io.dart'
+  if (dart.library.html) '../../../core/platform/file_bytes_web.dart';
 
 import '../domain/models/community_post.dart';
 import '../domain/models/community_comment.dart';
@@ -370,7 +372,8 @@ class SupabaseCommunityRepository implements ICommunityRepository {
       final List<String> urls = [];
       for (final path in localPaths) {
         final fileName = '${postId}_${DateTime.now().millisecondsSinceEpoch}_${urls.length}.jpg';
-        await _client.storage.from(_commentImageBucket).upload(fileName, File(path));
+        final bytes = await readFileBytes(path);
+        await _client.storage.from(_commentImageBucket).uploadBinary(fileName, bytes);
         final publicUrl = _client.storage.from(_commentImageBucket).getPublicUrl(fileName);
         urls.add(publicUrl);
       }

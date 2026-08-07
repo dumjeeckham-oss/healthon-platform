@@ -7,7 +7,6 @@
 library;
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -56,7 +55,7 @@ class PushNotificationService {
       _messaging = FirebaseMessaging.instance;
 
       // iOS 권한
-      if (Platform.isIOS) {
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
         await _messaging!.requestPermission(
           alert: true, badge: true, sound: true, provisional: false,
         );

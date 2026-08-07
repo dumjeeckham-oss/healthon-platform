@@ -1,4 +1,5 @@
-﻿import 'dart:io' show Platform;
+﻿import 'package:flutter/foundation.dart' show defaultTargetPlatform;
+import 'package:flutter/services.dart' show TargetPlatform;
 
 
 import 'package:health/health.dart';
@@ -21,9 +22,9 @@ class HealthSyncService {
 
   HealthDevice get detectedDevice {
     if (_detectedDevice != null) return _detectedDevice!;
-    if (Platform.isAndroid) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       _detectedDevice = HealthDevice.healthConnect;
-    } else if (Platform.isIOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       _detectedDevice = HealthDevice.appleHealth;
     } else {
       _detectedDevice = HealthDevice.unknown;
@@ -34,7 +35,7 @@ class HealthSyncService {
   /// 기기에서 Health 데이터 사용 가능 여부
   Future<bool> isAvailable() async {
     try {
-      if (Platform.isAndroid) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
         return await _health.isHealthConnectAvailable();
       }
       // iOS는 HealthFactory 생성 시점에 확인

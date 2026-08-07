@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
+import 'package:flutter/services.dart' show TargetPlatform;
 
 import 'package:health/health.dart';
 
@@ -73,7 +74,7 @@ class HealthService {
     );
   }
 
-  bool get isAndroid => Platform.isAndroid;
+  bool get isAndroid => defaultTargetPlatform == TargetPlatform.android;
 
-  bool get isIOS => Platform.isIOS;
+  bool get isIOS => defaultTargetPlatform == TargetPlatform.iOS;
 }

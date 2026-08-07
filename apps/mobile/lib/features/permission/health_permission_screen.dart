@@ -1,4 +1,5 @@
-import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,7 +85,7 @@ class _HealthPermissionScreenState extends ConsumerState<HealthPermissionScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isAndroid = Platform.isAndroid;
+    final isAndroid = defaultTargetPlatform == TargetPlatform.android;
     final deviceName = isAndroid ? 'Health Connect' : 'Apple Health';
     final icon = isAndroid ? Icons.health_and_safety : Icons.favorite;
 

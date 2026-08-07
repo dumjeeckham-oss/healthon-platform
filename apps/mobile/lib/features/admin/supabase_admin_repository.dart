@@ -553,4 +553,16 @@ class SupabaseAdminRepository {
         return ReportStatus.pending;
     }
   }
+
+  // =============================================================
+  // Member Management
+  // =============================================================
+
+  Future<void> toggleAdmin(String userId, bool isAdmin) async {
+    await _client.from('users').update({'is_admin': isAdmin}).eq('id', userId);
+  }
+
+  Future<void> toggleSuspend(String userId, bool isSuspended) async {
+    await _client.from('users').update({'is_suspended': isSuspended}).eq('id', userId);
+  }
 }
