@@ -1,17 +1,16 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Push Notification Provider
 ///
 /// FCM + Local Notifications + Settings + Admin Queue
 /// ===============================================================
+
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'push_notification_service.dart';
-import 'push_settings.dart';
-import '../admin/admin_models.dart' show AuditAction;
-import '../admin/supabase_admin_repository.dart' show SupabaseAdminRepository;
 
 // ===============================================================
 // Push Service
@@ -42,7 +41,7 @@ class PushSettingsNotifier extends StateNotifier<AsyncValue<PushSettings>> {
     try {
       final row = await _client.from('notification_settings').select().eq('user_id', userId).maybeSingle();
       state = AsyncValue.data(row != null ? PushSettings.fromSupabase(row) : PushSettings.defaults(userId: userId));
-    } catch (e, st) {
+    } catch (e) {
       state = AsyncValue.data(PushSettings.defaults(userId: userId));
     }
   }

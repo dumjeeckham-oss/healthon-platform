@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../social_provider.dart';
-import '../timeline_algorithm.dart';
 import 'achievement_cards.dart';
 
 /// ===============================================================

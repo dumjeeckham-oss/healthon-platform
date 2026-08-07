@@ -1,9 +1,11 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Ranking Service (Supabase SQL 기반) v2 — Social Engine 연동
 ///
 /// health_daily.steps 합계 → 주간/월간/전체 랭킹
 /// 랭킹 변동 시 ActivityEvent 자동 발생
 /// ===============================================================
+
+library;
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -163,7 +165,7 @@ class RankingService {
         .select('user_id')
         .eq('family_id', familyId);
 
-    if (familyResult == null || (familyResult as List).isEmpty) {
+    if ((familyResult as List).isEmpty) {
       final raw = await _getRawRanking(limit: limit);
       return _toResults(raw.where((r) => r['user_id'] == userId).toList());
     }

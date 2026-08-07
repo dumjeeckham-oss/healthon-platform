@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -274,7 +274,7 @@ class CommentTile extends ConsumerWidget {
     );
   }
 
-  ReportReason? _selectedReportReason;
+  final ReportReason? _selectedReportReason = null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

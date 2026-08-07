@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/comment_mention_provider.dart';
@@ -21,14 +21,12 @@ mixin MentionMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   OverlayEntry? _mentionOverlay;
 
   bool _mentionActive = false;
-  String _mentionQuery = '';
 
   void _handleMentionDetection(String text, int cursorPos) {
     final atIndex = _findAtBeforeCursor(text, cursorPos);
     if (atIndex >= 0) {
       final query = text.substring(atIndex + 1, cursorPos);
       if (!query.contains(' ') && !query.contains('\n')) {
-        _mentionQuery = query;
         if (!_mentionActive) {
           _mentionActive = true;
           ref.read(mentionUserProvider.notifier).search(query);

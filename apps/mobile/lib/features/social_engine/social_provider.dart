@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'activity_engine.dart';
@@ -99,7 +99,7 @@ final communityFeedProvider = FutureProvider<List<CommunityPost>>((ref) async {
         .order('created_at', ascending: false)
         .limit(100);
 
-    if (rows == null || (rows as List).isEmpty) return [];
+    if ((rows as List).isEmpty) return [];
 
     return (rows as List)
         .map((e) => CommunityPostSupabaseMapper.fromSupabase(e as Map<String, dynamic>))

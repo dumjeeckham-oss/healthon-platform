@@ -1,8 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../data/community_repository.dart';
-import '../../data/community_mapper.dart';
 import '../../data/supabase_community_repository.dart';
 import '../../domain/models/community_post.dart';
 import '../../domain/models/community_comment.dart';

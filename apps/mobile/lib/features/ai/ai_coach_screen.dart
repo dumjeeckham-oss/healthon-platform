@@ -1,13 +1,14 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON Phase 9 — AI Smart Coach Screen (Enhanced)
 ///
 /// 탭 기반: AI 코치 | AI 채팅 | 챌린지 추천 | 설정
 /// ===============================================================
 
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../shared/theme/app_colors.dart';
 import 'ai_provider.dart';
 import 'ai_models.dart';
 import 'ai_health_chatbot.dart';

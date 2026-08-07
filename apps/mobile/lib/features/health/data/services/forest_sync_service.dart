@@ -1,14 +1,15 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Forest Sync Service (v2 — Social Engine 연동)
 ///
 /// health_daily.steps 합계 → Forest tree 성장률 자동 연동
 /// Forest 레벨업 시 ActivityEvent 자동 발생
 /// ===============================================================
 
+library;
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../social_engine/activity_engine.dart';
-import '../../../social_engine/activity_models.dart';
 
 class ForestSyncService {
   final SupabaseClient _client;

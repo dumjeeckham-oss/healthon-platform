@@ -1,14 +1,15 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Challenge Sync Service (v2 — Social Engine 연동)
 ///
 /// health_daily 거리 합계 → challenge_progress 자동 계산
 /// Challenge 이정표 도달/완료 시 ActivityEvent 자동 발생
 /// ===============================================================
 
+library;
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../social_engine/activity_engine.dart';
-import '../../../social_engine/activity_models.dart';
 
 class ChallengeSyncService {
   final SupabaseClient _client;

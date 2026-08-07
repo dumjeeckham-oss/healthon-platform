@@ -185,10 +185,6 @@ final recommendedUsersProvider = FutureProvider<List<RecommendedUser>>((ref) asy
 
   try {
     // 팔로우/친구 아닌 사용자 중 걸음 많은 top 10
-    final rows = await supabase.rpc('get_health_weekly', params: {
-      'p_user_id': userId,
-      'p_start_date': DateTime.now().subtract(const Duration(days: 6)).toIso8601String().substring(0, 10),
-    });
 
     return [];
   } catch (_) {

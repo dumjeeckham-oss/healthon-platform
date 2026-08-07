@@ -1,8 +1,10 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON Phase 9 — AI Settings Screen
 ///
 /// AI 알림 설정 화면
 /// ===============================================================
+
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,4 +1,4 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Community Screen (Realtime)
 ///
 /// 실시간 연결 상태 + 실시간 포스트/댓글/좋아요 동기화
@@ -32,7 +32,6 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   Widget build(BuildContext context) {
     final connState = ref.watch(communityRealtimeNotifierProvider);
     final postChanges = ref.watch(realtimePostStreamProvider);
-    final commentChanges = ref.watch(realtimeCommentStreamProvider);
 
     return Scaffold(
       appBar: AppBar(

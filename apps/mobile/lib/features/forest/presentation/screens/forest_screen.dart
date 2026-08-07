@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../health/presentation/providers/health_provider.dart';
-import '../widgets/forest_card.dart';
 
 /// ===============================================================
 /// Forest Screen — health_daily.steps 기반

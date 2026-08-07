@@ -33,8 +33,6 @@ class _CommunityHomeScreenState
 
   bool _searchActive = false;
 
-  String _searchQuery = '';
-
   //----------------------------------------------------
   // Feed Filter
   //----------------------------------------------------
@@ -273,14 +271,13 @@ class _CommunityHomeScreenState
               },
               onChanged: (v) {
                 setState(() {
-                  _searchQuery = v;
+                  // _searchQuery removed
                 });
               },
               onClose: () {
                 setState(() {
                   _searchActive = false;
                   _searchController.clear();
-                  _searchQuery = '';
                 });
               },
             ),

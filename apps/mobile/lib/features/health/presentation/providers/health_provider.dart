@@ -1,9 +1,11 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Health Providers (최종 통합)
 ///
 /// 기존 health_provider.dart 를 대체합니다.
 /// 모든 기존 메서드 시그니처를 유지하면서 신규 Repository 기반으로 동작합니다.
 /// ===============================================================
+
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

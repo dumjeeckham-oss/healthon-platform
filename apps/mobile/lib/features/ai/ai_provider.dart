@@ -1,8 +1,10 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON Phase 9 — AI Provider (Enhanced)
 ///
 /// AI Coach + Notification Engine + Chatbot + Analytics + Challenge Matcher
 /// ===============================================================
+
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -121,8 +123,6 @@ final aiActivityScoreProvider = Provider<int>((ref) {
   final profile = ref.watch(aiProfileProvider).valueOrNull;
   if (profile == null) return 0;
 
-  final stepsLast7 = profile.avgWeeklySteps;
-  final stepsLast30 = profile.avgDailySteps * 30;
 
   return ref.watch(healthAnalyticsProvider).calculateActivityScore(
     stepsLast7Days: List.filled(7, profile.avgDailySteps),

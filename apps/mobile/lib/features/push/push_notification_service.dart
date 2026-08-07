@@ -1,13 +1,14 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Push Notification Service
 ///
 /// FCM 토큰 관리 + flutter_local_notifications + Supabase 동기화
 /// ===============================================================
 
+library;
+
 import 'dart:async';
 import 'dart:io';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';

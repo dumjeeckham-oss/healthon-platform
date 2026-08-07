@@ -1,9 +1,11 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Admin Models v2 (Production)
 ///
 /// 관리자 CMS 용 완전한 모델 정의
 /// StateNotifier + Realtime + Storage + Audit Log 지원
 /// ===============================================================
+
+library;
 
 import 'package:flutter/foundation.dart';
 

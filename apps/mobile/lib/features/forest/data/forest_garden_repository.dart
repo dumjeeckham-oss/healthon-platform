@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+﻿import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/models/forest_tile.dart';
 
 class ForestGardenRepository {
@@ -19,7 +19,7 @@ class ForestGardenRepository {
       return _createDefaultGarden(userId);
     }
 
-    return result.map((e) => ForestTile.fromMap(e as Map<String, dynamic>)).toList();
+    return result.map((e) => ForestTile.fromMap(e)).toList();
   }
 
   /// 최초 숲 생성 (5x5)

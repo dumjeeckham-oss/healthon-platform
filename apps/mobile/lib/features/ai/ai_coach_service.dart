@@ -1,9 +1,11 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — AI Smart Coach Service
 ///
 /// 걸음 패턴 분석 / Forest 성장 예측 / 인사이트 생성
 /// Supabase health_daily 데이터 기반
 /// ===============================================================
+
+library;
 
 import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -25,7 +27,7 @@ class AICoachService {
           .eq('user_id', userId).gte('date', thirtyDaysAgo.toIso8601String().substring(0, 10))
           .order('date', ascending: false);
 
-      if (rows == null || (rows as List).isEmpty) {
+      if ((rows as List).isEmpty) {
         return UserActivityProfile(userId: userId, activityLevel: 'sedentary');
       }
 

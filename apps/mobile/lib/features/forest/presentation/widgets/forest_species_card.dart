@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../domain/models/forest_species.dart';
 
@@ -21,7 +21,7 @@ class ForestSpeciesCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(species.name, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
-            Text(species.description ?? '', style: Theme.of(context).textTheme.bodySmall),
+            Text(species.description, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),

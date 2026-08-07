@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,7 +21,6 @@ class SupabaseCommunityRepository implements ICommunityRepository {
   static const String _bookmarkTable = 'community_bookmarks';
   static const String _commentLikeTable = 'community_comment_likes';
   static const String _reportTable = 'community_reports';
-  static const String _notificationTable = 'community_notifications';
   static const String _commentImageBucket = 'community-comment-images';
 
   // =============================================================

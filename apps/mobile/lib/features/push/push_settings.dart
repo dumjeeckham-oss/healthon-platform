@@ -1,4 +1,6 @@
-/// HealthON Push Settings Model
+﻿/// HealthON Push Settings Model
+
+library;
 
 class PushSettings {
   final String userId;

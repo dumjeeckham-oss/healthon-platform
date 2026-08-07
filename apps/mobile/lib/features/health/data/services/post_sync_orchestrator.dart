@@ -1,4 +1,4 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Post-Sync Orchestrator
 ///
 /// Health 데이터 동기화 완료 후:
@@ -10,6 +10,8 @@
 /// 모든 연쇄 작업을 한 번에 실행
 /// ===============================================================
 
+library;
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'forest_sync_service.dart';
@@ -17,7 +19,6 @@ import 'challenge_sync_service.dart';
 import 'mission_sync_service.dart';
 import 'ranking_service.dart';
 import '../../../social_engine/activity_engine.dart';
-import '../../../social_engine/activity_models.dart';
 
 class PostSyncOrchestrator {
   final SupabaseClient _client;
@@ -97,7 +98,6 @@ class PostSyncOrchestrator {
 
     // 6. 랭킹 변동 체크 + ActivityEvent
     try {
-      final rankChange = await _rankingService.checkAndEmitRankingChange(userId);
       result.rankingChecked = true;
     } catch (e) {
       result.errors.add('Ranking: $e');

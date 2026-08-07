@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../providers/family_provider.dart';
-import '../../data/family_repository.dart';
 
 class FamilyRankingCard extends ConsumerWidget {
   final String familyId;

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../admin_models.dart';
@@ -394,7 +394,6 @@ class _AdminSeasonsScreenState extends ConsumerState<AdminSeasonsScreen> {
         ),
         data: (seasons) {
           final activeSeason = seasons.where((s) => s.isActive).firstOrNull;
-          final inactiveSeasons = seasons.where((s) => !s.isActive).toList();
 
           return Column(
             children: [

@@ -1,4 +1,6 @@
-/// HealthON — Social Engine Widgets
+﻿/// HealthON — Social Engine Widgets
+library;
+
 export 'achievement_cards.dart';
 export 'notification_badge.dart';
 export 'notification_list.dart';

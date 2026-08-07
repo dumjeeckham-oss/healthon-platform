@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+﻿import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// ===============================================================
 /// Family Ranking User
@@ -63,8 +63,8 @@ class FamilyRankingRepository {
       int totalSteps = 0;
       double totalDistance = 0.0;
 
-      if (result is List && result.isNotEmpty) {
-        final row = result.first as Map<String, dynamic>;
+      if (result.isNotEmpty) {
+        final row = result.first;
         totalSteps = (row['sum'] ?? 0) as int;
         totalDistance = (row['distance_km.sum()'] ?? 0).toDouble();
       }

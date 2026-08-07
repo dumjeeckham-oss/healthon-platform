@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/presentation/providers/current_user_provider.dart';
@@ -13,11 +13,8 @@ import '../../family/presentation/widgets/family_ranking_card.dart';
 import '../../family/presentation/providers/family_provider.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
 import '../../forest/presentation/widgets/forest_card.dart';
-import '../../forest/presentation/providers/forest_provider.dart';
 import '../../forest/domain/models/forest_summary.dart';
-import '../../forest/presentation/providers/forest_provider.dart';
 import '../../forest/presentation/screens/forest_book_screen.dart';
-import '../../daily_mission/presentation/widgets/daily_mission_card.dart';
 import '../../daily_mission/presentation/providers/daily_mission_provider.dart';
 
 
@@ -36,7 +33,6 @@ class _HomeScreenState
   Widget build(BuildContext context) {
     ref.watch(walkingSyncProvider);
     final user = ref.watch(currentUserProvider);
-    final missions = ref.watch(dailyMissionProvider);
     final familyAsync = ref.watch(familyProvider);
     final familyId = familyAsync.valueOrNull?.id ?? '';
     

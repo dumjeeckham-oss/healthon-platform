@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../admin_models.dart';
 import '../admin_provider.dart';
-import '../supabase_admin_repository.dart';
 
 /// ===============================================================
 /// HealthON — 법인소식 관리 화면
@@ -33,8 +32,6 @@ class _AdminNewsScreenState extends ConsumerState<AdminNewsScreen> {
   @override
   Widget build(BuildContext context) {
     final newsAsync = ref.watch(adminCorporateNewsProvider);
-    const dark = Color(0xFF1E1E2D);
-    const accent = Color(0xFF2E7D32);
 
     return Column(
       children: [

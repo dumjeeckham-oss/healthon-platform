@@ -1,7 +1,9 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Community Realtime Service
 /// Supabase Realtime 채널 구독 + 상태 동기화
 /// ===============================================================
+
+library;
 
 import 'dart:async';
 
@@ -169,7 +171,7 @@ class CommunityRealtimeService {
     final changeType = _mapType(payload.eventType.name);
 
     try {
-      if (payload.newRecord != null && changeType != RealtimeChangeType.delete) {
+      if (changeType != RealtimeChangeType.delete) {
         final post = CommunityPost.fromMap({
           'id': payload.newRecord['id'],
           'user_id': payload.newRecord['user_id'],
@@ -198,7 +200,6 @@ class CommunityRealtimeService {
 
     try {
       final record = changeType == RealtimeChangeType.delete ? payload.oldRecord : payload.newRecord;
-      if (record == null) return;
 
       final cmp = record['created_at'] as String?;
 
@@ -221,13 +222,13 @@ class CommunityRealtimeService {
   }
 
   void _handleLikePayload(PostgresChangePayload payload) {
-    final postId = (payload.newRecord ?? payload.oldRecord)['post_id'] as String?;
+    final postId = payload.newRecord['post_id'] as String?;
     if (postId == null) return;
     _likeChanges.add(RealtimeLikeChange(postId: postId, newCount: -1));
   }
 
   void _handleBookmarkPayload(PostgresChangePayload payload) {
-    final postId = (payload.newRecord ?? payload.oldRecord)['post_id'] as String?;
+    final postId = payload.newRecord['post_id'] as String?;
     if (postId == null) return;
     _bookmarkChanges.add(RealtimeBookmarkChange(postId: postId, newCount: -1));
   }

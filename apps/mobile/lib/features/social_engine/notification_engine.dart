@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+﻿import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'activity_models.dart';
 import 'activity_engine.dart';
@@ -93,7 +93,7 @@ class NotificationEngine {
           .eq('is_read', false)
           .count(CountOption.exact);
 
-      return result.count ?? 0;
+      return result.count;
     } catch (_) {
       return 0;
     }

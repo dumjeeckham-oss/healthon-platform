@@ -1,4 +1,3 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/models/community_post.dart';
 import '../domain/models/community_comment.dart';

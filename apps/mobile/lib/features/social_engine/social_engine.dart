@@ -1,4 +1,4 @@
-/// HealthON — Social Engine
+﻿/// HealthON — Social Engine
 ///
 /// 활동 이벤트 발생 → 자동 피드 생성 → 푸시 알림 → 통합 타임라인
 ///
@@ -12,6 +12,8 @@
 ///   - NotificationEngine: 알림 관리
 ///   - TimelineAlgorithm: 통합 타임라인 정렬
 ///   - AchievementCard: Forest/Challenge/Badge 자동 카드 위젯
+
+library;
 
 export 'activity_models.dart';
 export 'activity_rule.dart';

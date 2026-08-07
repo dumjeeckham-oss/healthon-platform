@@ -1,8 +1,10 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Push Notification Settings Screen
 ///
 /// 푸시 설정 화면 (마이페이지 → 알림 설정)
 /// ===============================================================
+
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

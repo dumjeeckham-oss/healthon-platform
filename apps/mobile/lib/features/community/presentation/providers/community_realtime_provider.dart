@@ -54,14 +54,13 @@ final realtimeLikeStreamProvider = StreamProvider<RealtimeLikeChange>((ref) {
 final typingUsersProvider = StateProvider<Map<String, String>>((ref) => {});
 
 final typingControllerProvider = Provider<RealtimeTypingController>((ref) {
-  return RealtimeTypingController(ref.watch(communitySupabaseProvider));
+  return RealtimeTypingController();
 });
 
 class RealtimeTypingController {
-  final SupabaseClient _client;
   Timer? _typingTimer;
 
-  RealtimeTypingController(this._client);
+  RealtimeTypingController();
 
   void startTyping(String postId, String userName) {
     _typingTimer?.cancel();
@@ -83,18 +82,17 @@ class RealtimeTypingController {
 
 final communityRealtimeNotifierProvider = StateNotifierProvider<CommunityRealtimeNotifier, RealtimeConnectionState>((ref) {
   final service = ref.watch(communityRealtimeServiceProvider);
-  return CommunityRealtimeNotifier(service, ref);
+  return CommunityRealtimeNotifier(service);
 });
 
 class CommunityRealtimeNotifier extends StateNotifier<RealtimeConnectionState> {
   final CommunityRealtimeService _service;
-  final Ref _ref;
   StreamSubscription<RealtimePostChange>? _postSub;
   StreamSubscription<RealtimeCommentChange>? _commentSub;
   StreamSubscription<RealtimeLikeChange>? _likeSub;
   StreamSubscription<RealtimeBookmarkChange>? _bookmarkSub;
 
-  CommunityRealtimeNotifier(this._service, this._ref) : super(RealtimeConnectionState.disconnected);
+  CommunityRealtimeNotifier(this._service) : super(RealtimeConnectionState.disconnected);
 
   Future<void> connect() async {
     if (state == RealtimeConnectionState.connected) return;

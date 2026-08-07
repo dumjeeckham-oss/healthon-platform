@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../health/presentation/providers/health_provider.dart';
@@ -769,7 +769,6 @@ class _CommunityWritePostScreenState
             Consumer(
               builder: (context, ref, _) {
                 final todayAsync = ref.watch(healthTodayProvider);
-                final steps = todayAsync.valueOrNull?.steps ?? 0;
                 final weekAsync = ref.watch(healthWeekProvider);
                 final weekSteps = weekAsync.valueOrNull?.$1 ?? 0;
 

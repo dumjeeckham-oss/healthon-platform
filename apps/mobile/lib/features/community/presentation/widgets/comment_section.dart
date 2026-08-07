@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/community_comment.dart';
@@ -79,7 +79,6 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
         onEmojiSelected: (emoji) {
           final text = _composerCtrl.text;
           final cursorPos = _composerCtrl.selection.baseOffset;
-          final newText = text.substring(0, cursorPos - (cursorPos < 0 ? 0 : 0)) + emoji + text.substring(cursorPos < 0 ? text.length : cursorPos);
           // 실제 cursor 위치 기반 삽입
           final sel = _composerCtrl.selection;
           final start = sel.start;

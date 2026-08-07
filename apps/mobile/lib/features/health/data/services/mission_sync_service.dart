@@ -1,9 +1,11 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Mission Sync Service
 ///
 /// health_daily.steps → Mission 자동 완료 체크
 /// 예) 오늘 7000걸음 → Mission 자동 완료 → Reward 지급
 /// ===============================================================
+
+library;
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 

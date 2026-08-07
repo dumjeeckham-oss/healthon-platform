@@ -1,16 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'admin_dashboard_screen.dart';
-import 'admin_members_screen.dart';
-import 'admin_notices_screen.dart';
-import 'admin_reports_screen.dart';
-import 'admin_challenges_screen.dart';
-import 'admin_missions_screen.dart';
-import 'admin_seasons_screen.dart';
-import 'admin_banners_screen.dart';
-import 'admin_analytics_screen.dart';
 
 /// ===============================================================
 /// HealthON — Admin Shell (반응형 사이드바 + 컨텐츠)

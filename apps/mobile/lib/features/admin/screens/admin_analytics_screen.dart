@@ -1,4 +1,4 @@
-/// ===============================================================
+﻿/// ===============================================================
 /// HealthON — Analytics Dashboard Screen
 ///
 /// DAU/WAU/MAU + 트렌드 차트 + 카테고리 분포 + 챌린지 퍼널
@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../analytics_provider.dart';
 import '../analytics_repository.dart';
-import '../admin_models.dart';
 
 class AnalyticsDashboardScreen extends ConsumerStatefulWidget {
   const AnalyticsDashboardScreen({super.key});
