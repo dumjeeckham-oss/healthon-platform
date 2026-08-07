@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/models/community_post.dart';
+import '../../../domain/models/community_post.dart';
 
 class CommunityPostCard extends StatelessWidget {
   final CommunityPost post;

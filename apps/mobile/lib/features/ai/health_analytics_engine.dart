@@ -165,9 +165,9 @@ class HealthAnalyticsEngine {
 
     return TrendAnalysis(
       direction: direction,
-      changePercent: changePercent,
+      changePercent: changePercent.toDouble(),
       confidence: confidence,
-      predictedNextWeek: (yMean + slope * 7).round().clamp(0, 50000),
+      predictedNextWeek: (yMean + slope * 7).round().clamp(0, 50000).toInt(),
     );
   }
 

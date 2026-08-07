@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -835,7 +836,7 @@ class _MemberActions extends ConsumerWidget {
         if (member.isAdmin)
           OutlinedButton.icon(
             onPressed: () => ref.read(adminMembersProvider.notifier).revokeAdmin(member.userId),
-            icon: const Icon(Icons.admin_panel_settings_off, size: 16),
+            icon: const Icon(Icons.admin_panel_settings, size: 16),
             label: const Text('관리자 회수', style: TextStyle(fontSize: 12)),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.orange[800],

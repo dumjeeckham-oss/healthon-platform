@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../health/presentation/providers/health_provider.dart';
+import '../../health/presentation/providers/health_provider.dart';
 
 /// ===============================================================
 /// Challenge Screen — health_daily.distance_km 기반

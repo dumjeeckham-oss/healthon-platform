@@ -32,9 +32,7 @@ class PostSyncOrchestrator {
     _rankingService = RankingService(_client);
   }
 
-  late final ForestSyncService _forestSync;
-  late final ChallengeSyncService _challengeSync;
-  late final MissionSyncService _missionSync;
+  late final RankingService _rankingService;
 
   /// Health Sync 완료 후 모든 연동 업데이트 실행
   Future<PostSyncResult> runAll(String userId) async {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app.dart';
+import 'app/app.dart';
 import 'core/bootstrap/bootstrap.dart';
 import 'features/health/data/services/app_lifecycle_sync.dart';
 
@@ -41,7 +41,7 @@ class _HealthOnRootState extends ConsumerState<_HealthOnRoot>
   void initState() {
     super.initState();
     // AppLifecycleSync에 ProviderRef 주입
-    AppLifecycleSync().init(ref);
+    AppLifecycleSync().init(ref as Ref<Object?>);
   }
 
   @override

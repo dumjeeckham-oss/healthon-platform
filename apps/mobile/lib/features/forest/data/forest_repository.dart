@@ -85,10 +85,10 @@ Future<void> updateDistance({
         .from('forest_badges')
         .upsert({
       'user_id': userId,
-      'badge_id': badge.id,
-      'title': badge.title,
+      'badge_code': badge.code,
+      'badge_name': badge.title,
       'description': badge.description,
-      'icon': badge.icon,
+      'badge_icon': badge.icon,
       'created_at':
           DateTime.now().toIso8601String(),
     });

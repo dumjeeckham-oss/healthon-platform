@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'data/family_repository.dart';
+import '../../data/family_repository.dart';
 
 final familySupabaseProvider = Provider<SupabaseClient>((ref) => Supabase.instance.client);
 final familyRepoProvider = Provider<FamilyRepository>((ref) => FamilyRepository(ref.watch(familySupabaseProvider)));
@@ -59,7 +59,7 @@ final familyProvider = StateNotifierProvider<FamilyNotifier, AsyncValue<FamilyIn
 // Family Members
 // ===============================================================
 
-final familyMembersProvider = FutureProvider.family<List<FamilyMemberInfo>>((ref, familyId) async {
+final familyMembersProvider = FutureProvider.family<List<FamilyMemberInfo>, String>((ref, familyId) async {
   if (familyId.isEmpty) return [];
   return ref.watch(familyRepoProvider).getFamilyMembers(familyId);
 });
@@ -68,7 +68,7 @@ final familyMembersProvider = FutureProvider.family<List<FamilyMemberInfo>>((ref
 // Family Ranking
 // ===============================================================
 
-final familyRankingProvider = FutureProvider.family<List<FamilyRankingEntry>>((ref, familyId) async {
+final familyRankingProvider = FutureProvider.family<List<FamilyRankingEntry>, String>((ref, familyId) async {
   if (familyId.isEmpty) return [];
   return ref.watch(familyRepoProvider).getFamilyRanking(familyId);
 });

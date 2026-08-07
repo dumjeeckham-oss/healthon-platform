@@ -658,3 +658,11 @@ final adminRealtimeSeasonProvider = StreamProvider<AdminRealtimeEvent<Map<String
 final adminRealtimeBannerProvider = StreamProvider<AdminRealtimeEvent<Map<String, dynamic>>>((ref) {
   return ref.watch(adminRepositoryProvider).subscribeToTable('admin_banners');
 });
+
+// ===============================================================
+// Corporate News
+// ===============================================================
+
+final adminCorporateNewsProvider = FutureProvider<List<CorporateNews>>((ref) async {
+  return ref.watch(adminRepositoryProvider).getCorporateNews();
+});

@@ -88,9 +88,10 @@ class NotificationEngine {
     try {
       final result = await _client
           .from(_notificationTable)
-          .select('id', FetchOptions(count: CountOption.exact))
+          .select('id')
           .eq('user_id', userId)
-          .eq('is_read', false);
+          .eq('is_read', false)
+          .count(CountOption.exact);
 
       return result.count ?? 0;
     } catch (_) {

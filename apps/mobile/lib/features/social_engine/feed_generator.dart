@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'activity_models.dart';
 import 'activity_engine.dart';
-import '../../community/domain/models/community_post.dart';
+import '../community/domain/models/community_post.dart';
 
 /// ===============================================================
 /// HealthON — Feed Generator

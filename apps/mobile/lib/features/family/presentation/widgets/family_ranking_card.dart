@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../providers/family_provider.dart';
+import '../../data/family_repository.dart';
 
 class FamilyRankingCard extends ConsumerWidget {
-  const FamilyRankingCard({super.key});
+  final String familyId;
+
+  const FamilyRankingCard({super.key, required this.familyId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rankingAsync = ref.watch(familyRankingProvider);
+    final rankingAsync = ref.watch(familyRankingProvider(familyId));
 
     return rankingAsync.when(
       loading: () => const Card(
@@ -72,8 +75,11 @@ class FamilyRankingCard extends ConsumerWidget {
 
                 const SizedBox(height: 20),
 
-                ...ranking.map((member) {
-                  final isMe = member.id == currentUserId;
+                ...ranking.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final member = entry.value;
+                  final rank = idx + 1;
+                  final isMe = member.userId == currentUserId;
 
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
@@ -85,14 +91,14 @@ class FamilyRankingCard extends ConsumerWidget {
                                   member.photoUrl!.isNotEmpty
                               ? NetworkImage(member.photoUrl!)
                               : null,
-                      child: member.photoUrl == null
+                      child: member.photoUrl == null || member.photoUrl!.isEmpty
                           ? const Icon(Icons.person)
                           : null,
                     ),
 
                     title: Row(
                       children: [
-                        Text(member.name),
+                        Text(member.name ?? ''),
 
                         if (isMe)
                           Container(
@@ -120,19 +126,19 @@ class FamilyRankingCard extends ConsumerWidget {
                     ),
 
                     subtitle: Text(
-                      "${member.totalSteps.toString()} 걸음",
+                      "${member.todaySteps.toString()} 걸음",
                     ),
 
                     trailing: CircleAvatar(
                       radius: 18,
                       backgroundColor:
-                          member.rank == 1
+                          rank == 1
                               ? Colors.amber
                               : Colors.grey.shade300,
                       child: Text(
-                        "${member.rank}",
+                        "$rank",
                         style: TextStyle(
-                          color: member.rank == 1
+                          color: rank == 1
                               ? Colors.white
                               : Colors.black87,
                           fontWeight: FontWeight.bold,

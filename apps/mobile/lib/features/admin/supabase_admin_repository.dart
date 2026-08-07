@@ -6,7 +6,7 @@
 /// ===============================================================
 
 import 'dart:async';
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -43,7 +43,7 @@ class SupabaseAdminRepository {
   Future<String> uploadImage({
     required String bucket,
     required String path,
-    required List<int> bytes,
+    required Uint8List bytes,
     required String fileName,
     String? contentType,
   }) async {
@@ -82,12 +82,12 @@ class SupabaseAdminRepository {
     final controller = StreamController<AdminRealtimeEvent<Map<String, dynamic>>>();
 
     channel.onPostgresChanges(
-      event: RealtimeChannelEvent.all,
+      event: PostgresChangeEvent.all,
       schema: 'public',
       table: table,
       callback: (payload) {
         controller.add(AdminRealtimeEvent(
-          eventType: payload.eventType,
+          eventType: payload.eventType.name,
           table: table,
           oldRecord: payload.oldRecord,
           newRecord: payload.newRecord,
@@ -143,17 +143,17 @@ class SupabaseAdminRepository {
     final todayStr = _dateStr(today);
 
     final results = await Future.wait([
-      _client.from('users').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', todayStr),
-      _client.from('users').select('id', FetchOptions(count: CountOption.exact)).gte('last_login_at', todayStr),
+      _client.from('users').select('id').gte('created_at', todayStr),
+      _client.from('users').select('id').gte('last_login_at', todayStr),
       _client.from('health_daily').select('steps.sum(), distance_km.sum()').eq('date', todayStr),
-      _client.from('community_posts').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', todayStr),
-      _client.from('community_comments').select('id', FetchOptions(count: CountOption.exact)).gte('created_at', todayStr),
+      _client.from('community_posts').select('id').gte('created_at', todayStr),
+      _client.from('community_comments').select('id').gte('created_at', todayStr),
       _client.from('users').select('id, is_suspended'),
-      _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'challenge_completed').gte('created_at', todayStr),
-      _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'mission_completed').gte('created_at', todayStr),
-      _client.from('activity_events').select('id', FetchOptions(count: CountOption.exact)).eq('type', 'forest_level_up').gte('created_at', todayStr),
+      _client.from('activity_events').select('id').eq('type', 'challenge_completed').gte('created_at', todayStr),
+      _client.from('activity_events').select('id').eq('type', 'mission_completed').gte('created_at', todayStr),
+      _client.from('activity_events').select('id').eq('type', 'forest_level_up').gte('created_at', todayStr),
       _client.from('challenge_definitions').select('id, is_active'),
-      _client.from('community_reports').select('id', FetchOptions(count: CountOption.exact)).eq('status', 'pending'),
+      _client.from('community_reports').select('id').eq('status', 'pending'),
     ]);
 
     final users = results[5] as List;
@@ -189,7 +189,7 @@ class SupabaseAdminRepository {
       final dateStr = _dateStr(d);
       labels.add('${d.month}/${d.day}');
       if (isCount) {
-        final raw = await _client.from(table).select(field, FetchOptions(count: CountOption.exact)).eq('date', dateStr);
+        final raw = await _client.from(table).select(field).eq('date', dateStr);
         values.add((raw as List).length.toDouble());
       } else {
         final raw = await _client.from(table).select('$field.sum()').eq('date', dateStr);
@@ -206,21 +206,8 @@ class SupabaseAdminRepository {
   // =============================================================
 
   Future<List<AdminMember>> getMembers({MemberFilter? filter, int limit = 50, int offset = 0}) async {
-    var query = _client.from('users').select('''
-      id, email, name, nickname, phone, photo_url,
-      is_admin, is_suspended, created_at, last_login_at
-    ''');
-
-    if (filter?.search != null && filter!.search!.isNotEmpty) {
-      query = query.or('name.ilike.%${filter.search}%,email.ilike.%${filter.search}%');
-    }
-    if (filter?.isAdmin == true) query = query.eq('is_admin', true);
-    if (filter?.isSuspended == true) query = query.eq('is_suspended', true);
-
     final ascending = (filter?.sortOrder ?? MemberSortOrder.desc) == MemberSortOrder.asc;
-    query = query.order('created_at', ascending: ascending).range(offset, offset + limit - 1);
-
-    final rows = await query;
+    final rows = await _client.from('users').select('id, email, name, nickname, phone, photo_url, is_admin, is_suspended, created_at, last_login_at').order('created_at', ascending: ascending).range(offset, offset + limit - 1);
     return (rows as List).map((e) {
       final row = e as Map<String, dynamic>;
       return AdminMember.fromSupabase({...row, 'user_id': row['id'], 'avatar_url': row['photo_url']});
@@ -256,16 +243,22 @@ class SupabaseAdminRepository {
   // =============================================================
 
   Future<List<AdminNotice>> getNotices({String? category, int limit = 50}) async {
-    var query = _client.from('admin_notices').select()
+    final rows = await _client.from('admin_notices').select()
         .order('is_pinned', ascending: false).order('created_at', ascending: false).limit(limit);
-    if (category != null && category.isNotEmpty) query = query.eq('category', category);
-    final rows = await query;
-    return (rows as List).map((e) => AdminNotice.fromSupabase(e as Map<String, dynamic>)).toList();
+    final notices = (rows as List).map((e) => AdminNotice.fromSupabase(e as Map<String, dynamic>));
+    if (category != null && category.isNotEmpty) {
+      return notices.where((n) => n.category == category).toList();
+    }
+    return notices.toList();
   }
 
   Future<AdminNotice?> getNotice(String id) async {
-    final row = await _client.from('admin_notices').select().eq('id', id).maybeSingle();
-    return row != null ? AdminNotice.fromSupabase(row) : null;
+    final rows = await _client.from('admin_notices').select().limit(1);
+    final row = (rows as List).cast<Map<String, dynamic>>().firstWhere(
+      (r) => r['id'] == id,
+      orElse: () => <String, dynamic>{},
+    );
+    return row.isNotEmpty ? AdminNotice.fromSupabase(row) : null;
   }
 
   Future<AdminNotice> createNotice(AdminNotice notice) async {
@@ -307,16 +300,13 @@ class SupabaseAdminRepository {
   // =============================================================
 
   Future<List<AdminReport>> getReports({ReportStatus? status, int limit = 50}) async {
-    var query = _client.from('community_reports').select('''
+    final rows = await _client.from('community_reports').select('''
       id, reporter_id, target_type, target_id, reason, detail, status,
       target_content, target_author_id, resolved_action, resolved_by,
       created_at, resolved_at, reporter_name
     ''').order('created_at', ascending: false).limit(limit);
 
-    if (status != null) query = query.eq('status', status.name);
-
-    final rows = await query;
-    return (rows as List).map((e) {
+    final reports = (rows as List).map((e) {
       final row = e as Map<String, dynamic>;
       return AdminReport(
         id: row['id'] ?? '', reporterId: row['reporter_id'] ?? '',
@@ -324,12 +314,17 @@ class SupabaseAdminRepository {
         targetType: row['target_type'] ?? 'post', targetId: row['target_id'] ?? '',
         targetContent: row['target_content'], targetAuthorId: row['target_author_id'],
         reason: row['reason'] ?? '', detail: row['detail'],
-        status: AdminReport._parseStatus(row['status']),
+        status: _parseReportStatus(row['status'] as String?),
         resolvedAction: row['resolved_action'], resolvedBy: row['resolved_by'],
         createdAt: row['created_at'] != null ? DateTime.parse(row['created_at']) : DateTime.now(),
         resolvedAt: row['resolved_at'] != null ? DateTime.parse(row['resolved_at']) : null,
       );
     }).toList();
+
+    if (status != null) {
+      return reports.where((r) => r.status == status).toList();
+    }
+    return reports;
   }
 
   Future<void> resolveReport(String reportId, ReportStatus status) async {
@@ -487,6 +482,35 @@ class SupabaseAdminRepository {
   }
 
   // =============================================================
+  // Corporate News
+  // =============================================================
+
+  Future<List<CorporateNews>> getCorporateNews({int limit = 50}) async {
+    final rows = await _client.from('admin_corporate_news').select().order('created_at', ascending: false).limit(limit);
+    return (rows as List).map((e) => CorporateNews.fromSupabase(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<CorporateNews> createCorporateNews(CorporateNews news) async {
+    final admin = await _getCurrentAdmin();
+    final result = await _client.from('admin_corporate_news').insert(news.toSupabase()).select().single();
+    final created = CorporateNews.fromSupabase(result);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.created, targetType: 'corporate_news', targetId: created.id, targetName: created.title);
+    return created;
+  }
+
+  Future<void> updateCorporateNews(CorporateNews news) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('admin_corporate_news').update(news.toSupabase()).eq('id', news.id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.updated, targetType: 'corporate_news', targetId: news.id, targetName: news.title);
+  }
+
+  Future<void> deleteCorporateNews(String id) async {
+    final admin = await _getCurrentAdmin();
+    await _client.from('admin_corporate_news').delete().eq('id', id);
+    await _logAudit(adminId: admin.id, adminName: admin.name, action: AuditAction.deleted, targetType: 'corporate_news', targetId: id);
+  }
+
+  // =============================================================
   // Export
   // =============================================================
 
@@ -509,5 +533,22 @@ class SupabaseAdminRepository {
       return '"${value.replaceAll('"', '""')}"';
     }
     return value;
+  }
+
+  static ReportStatus _parseReportStatus(String? status) {
+    switch (status) {
+      case 'reviewed':
+        return ReportStatus.reviewed;
+      case 'deleted':
+        return ReportStatus.deleted;
+      case 'hidden':
+        return ReportStatus.hidden;
+      case 'warned':
+        return ReportStatus.warned;
+      case 'suspended':
+        return ReportStatus.suspended;
+      default:
+        return ReportStatus.pending;
+    }
   }
 }

@@ -129,11 +129,11 @@ class AnalyticsRepository {
       final weekAgo = now.subtract(const Duration(days: 7));
       final monthAgo = now.subtract(const Duration(days: 30));
 
-      final results = await Future.wait([
+      final results = await Future.wait<dynamic>([
         _client.from('daily_stats').select('dau').eq('date', now.toIso8601String().substring(0, 10)).maybeSingle(),
         _client.from('daily_stats').select('dau.sum()').gte('date', weekAgo.toIso8601String().substring(0, 10)),
         _client.from('daily_stats').select('dau.sum()').gte('date', monthAgo.toIso8601String().substring(0, 10)),
-        _client.from('users').select('id', FetchOptions(count: CountOption.exact)),
+        _client.from('users').select('id'),
         _client.from('daily_stats').select('total_steps.sum()').gte('date', now.toIso8601String().substring(0, 10)),
       ]);
 

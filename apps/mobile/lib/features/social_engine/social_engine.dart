@@ -21,7 +21,7 @@ export 'feed_generator.dart';
 export 'notification_engine.dart';
 export 'timeline_algorithm.dart';
 export 'ai_recommendation.dart';
-export 'social_provider.dart';
+export 'social_provider.dart' hide notificationEngineProvider, unreadNotificationCountProvider, recentNotificationsProvider;
 export 'social_graph_provider.dart';
 export 'notification_provider.dart';
 export 'widgets/achievement_cards.dart';

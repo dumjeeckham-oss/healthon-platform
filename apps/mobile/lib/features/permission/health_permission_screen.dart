@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../health/presentation/providers/health_provider_new.dart';
+import '../health/presentation/providers/health_provider.dart';
 
 /// ===============================================================
 /// HealthON — Health Permission Screen

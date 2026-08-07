@@ -8,6 +8,8 @@
 /// - 건강 팁 제공
 /// ===============================================================
 
+import 'dart:math';
+
 import 'ai_models.dart';
 
 class AIHealthChatbot {
@@ -108,7 +110,7 @@ class AIHealthChatbot {
 
   String _forestResponse(int level, int todaySteps) {
     final stepsPerDay = todaySteps > 0 ? todaySteps : 5000;
-    final rawNeeded = (50000 * (1.15).toDouble().pow(level) * 0.7).round();
+    final rawNeeded = (50000 * pow(1.15, level) * 0.7).round();
     final days = (rawNeeded / stepsPerDay).ceil();
 
     return '🌳 현재 Forest 레벨 $level이에요!\n\n'
@@ -240,7 +242,7 @@ class ChatMessage {
   final DateTime timestamp;
   final ChatMessageType type;
 
-  const ChatMessage({
+  ChatMessage({
     required this.text,
     required this.isUser,
     DateTime? timestamp,

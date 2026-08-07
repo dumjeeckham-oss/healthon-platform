@@ -1,8 +1,10 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
+
 import 'package:health/health.dart';
 
-import '../domain/models/health_models.dart';
+import '../../domain/models/health_models.dart';
 
 /// ===============================================================
 /// HealthON — Health Sync Service
@@ -54,7 +56,6 @@ class HealthSyncService {
         HealthDataType.DISTANCE_DELTA,
         HealthDataType.ACTIVE_ENERGY_BURNED,
         HealthDataType.EXERCISE_TIME,
-        HealthDataType.MOVE_MINUTES,
       ];
 
       final permissions = List<HealthDataAccess>.filled(
@@ -184,17 +185,8 @@ class HealthSyncService {
     }
 
     try {
-      // 활동 시간 (분)
-      final moveData = await _health.getHealthDataFromTypes(
-        startTime: dayStart,
-        endTime: dayEnd,
-        types: [HealthDataType.MOVE_MINUTES],
-      );
-      double totalMin = 0;
-      for (final item in moveData) {
-        totalMin += (item.value as NumericHealthValue).numericValue;
-      }
-      activeMinutes = totalMin.round();
+      // 활동 시간 (분) — MOVE_MINUTES not available; skip
+      activeMinutes = 0;
     } catch (e) {
       print('HealthSyncService: active minutes read failed for $date — $e');
     }

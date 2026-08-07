@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../admin_provider.dart';
+import '../admin_models.dart';
 
 /// ===============================================================
 /// HealthON — 관리자 대시보드 화면 v2

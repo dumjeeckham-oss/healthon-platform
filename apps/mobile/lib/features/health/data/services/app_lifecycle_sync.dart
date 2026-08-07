@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../health/presentation/providers/health_provider.dart';
-import '../../health/data/services/post_sync_orchestrator.dart';
+import '../../presentation/providers/health_provider.dart';
+import 'post_sync_orchestrator.dart';
 import '../../../social_engine/activity_dispatcher.dart';
 
 /// ===============================================================
@@ -111,7 +111,7 @@ class AppLifecycleSync extends WidgetsBindingObserver {
 
         // Post-sync: Activity Dispatch (pending events → Feed + Notification)
         try {
-          final dispatcher = ActivityDispatcher(supabase.client);
+          final dispatcher = ActivityDispatcher(Supabase.instance.client);
           final dispatched = await dispatcher.dispatchPending();
           if (dispatched > 0) {
             debugPrint('🔄 Activity Dispatched: $dispatched events');

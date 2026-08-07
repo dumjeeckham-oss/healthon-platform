@@ -7,8 +7,8 @@ import 'feed_generator.dart';
 import 'notification_engine.dart';
 import 'timeline_algorithm.dart';
 import 'ai_recommendation.dart';
-import '../../community/domain/models/community_post.dart';
-import '../../community/data/community_mapper.dart';
+import '../community/domain/models/community_post.dart';
+import '../community/data/community_mapper.dart';
 
 // ===============================================================
 // Supabase Client

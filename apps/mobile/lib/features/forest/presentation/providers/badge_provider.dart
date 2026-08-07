@@ -20,5 +20,5 @@ final badgeProvider =
 
   return ref
       .read(badgeRepositoryProvider)
-      .getBadges(user.id);
+      .getMyBadges(user.id);
 });

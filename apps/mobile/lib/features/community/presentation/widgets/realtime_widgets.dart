@@ -7,7 +7,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../presentation/providers/community_realtime_provider.dart';
+import '../../data/community_realtime_service.dart';
+import '../providers/community_realtime_provider.dart';
 
 class RealtimeConnectionBadge extends ConsumerStatefulWidget {
   const RealtimeConnectionBadge({super.key});

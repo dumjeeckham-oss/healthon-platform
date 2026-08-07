@@ -56,7 +56,7 @@ class AICoachService {
       // 주간 트렌드
       final older7 = steps.skip(min(7, steps.length)).take(7).toList();
       final prevAvg = older7.isNotEmpty ? older7.reduce((a, b) => a + b) ~/ older7.length : avgDaily;
-      final weeklyTrend = prevAvg > 0 ? (avgDaily - prevAvg) / prevAvg.toDouble() : 0;
+      final weeklyTrend = prevAvg > 0 ? (avgDaily - prevAvg) / prevAvg.toDouble() : 0.0;
 
       // 베스트 요일/시간
       final bestDay = dates.isNotEmpty ? dates[0].weekday : 1;
@@ -207,7 +207,7 @@ class AICoachService {
         if (s > bestSteps) { bestSteps = s; bestDay = _dayName(DateTime.tryParse(r['date']?.toString() ?? '')?.weekday ?? 1); }
       }
 
-      final vsLast = lastWeekTotal > 0 ? (totalSteps - lastWeekTotal) / lastWeekTotal.toDouble() : 0;
+      final vsLast = lastWeekTotal > 0 ? (totalSteps - lastWeekTotal) / lastWeekTotal.toDouble() : 0.0;
 
       // 프로필 기반 인사이트
       final profile = await analyzeProfile(userId);

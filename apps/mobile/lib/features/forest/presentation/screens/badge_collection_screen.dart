@@ -29,27 +29,19 @@ class BadgeCollectionScreen extends ConsumerWidget {
         error: (e, s) =>
             Center(child: Text(e.toString())),
 
-        data: (codes) {
-
-          final items = codes
-              .map((e) => ForestBadge.fromCode(e, true))
-              .toList();
-
+        data: (badges) {
           return GridView.builder(
             padding: const EdgeInsets.all(20),
-
-            itemCount: items.length,
-
+            itemCount: badges.length,
             gridDelegate:
                 const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 20,
               mainAxisSpacing: 20,
             ),
-
             itemBuilder: (_, i) {
               return BadgeCard(
-                badge: items[i],
+                badge: badges[i],
               );
             },
           );

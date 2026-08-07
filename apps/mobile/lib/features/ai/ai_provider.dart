@@ -136,7 +136,7 @@ final aiActivityScoreProvider = Provider<int>((ref) {
 // ===============================================================
 
 final aiChatMessagesProvider = StateProvider<List<ChatMessage>>((ref) => [
-  const ChatMessage(
+  ChatMessage(
     text: '안녕하세요! 건강ON AI 코치입니다 🖐️\n궁금한 점을 물어보세요. 걸음 데이터, 목표 추천, Forest 성장까지 무엇이든 답변해드려요!',
     isUser: false,
     type: ChatMessageType.text,

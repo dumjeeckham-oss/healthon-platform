@@ -871,3 +871,106 @@ class AdminRealtimeEvent<T> {
     this.newRecord,
   });
 }
+
+// ===============================================================
+// Corporate News (admin_news_screen 용)
+// ===============================================================
+
+@immutable
+class CorporateNews {
+  final String id;
+  final String title;
+  final String content;
+  final String? imageUrl;
+  final List<String>? images;
+  final List<String>? attachments;
+  final String? category;
+  final bool isPublished;
+  final bool isPinned;
+  final bool autoFeed;
+  final String? authorName;
+  final DateTime? scheduledAt;
+  final DateTime? updatedAt;
+  final DateTime createdAt;
+
+  const CorporateNews({
+    required this.id,
+    required this.title,
+    required this.content,
+    this.imageUrl,
+    this.images,
+    this.attachments,
+    this.category,
+    this.isPublished = false,
+    this.isPinned = false,
+    this.autoFeed = false,
+    this.authorName,
+    this.scheduledAt,
+    this.updatedAt,
+    required this.createdAt,
+  });
+
+  factory CorporateNews.fromSupabase(Map<String, dynamic> row) => CorporateNews(
+    id: row['id'] ?? '',
+    title: row['title'] ?? '',
+    content: row['content'] ?? '',
+    imageUrl: row['image_url'] as String?,
+    images: row['images'] != null ? List<String>.from(row['images']) : null,
+    attachments: row['attachments'] != null ? List<String>.from(row['attachments']) : null,
+    category: row['category'] as String?,
+    isPublished: row['is_published'] == true,
+    isPinned: row['is_pinned'] == true,
+    autoFeed: row['auto_feed'] == true,
+    authorName: row['author_name'] as String?,
+    scheduledAt: row['scheduled_at'] != null ? DateTime.parse(row['scheduled_at']) : null,
+    updatedAt: row['updated_at'] != null ? DateTime.parse(row['updated_at']) : null,
+    createdAt: row['created_at'] != null ? DateTime.parse(row['created_at']) : DateTime.now(),
+  );
+
+  Map<String, dynamic> toSupabase() => {
+    'title': title,
+    'content': content,
+    'image_url': imageUrl,
+    'images': images,
+    'attachments': attachments,
+    'category': category,
+    'is_published': isPublished,
+    'is_pinned': isPinned,
+    'auto_feed': autoFeed,
+    'author_name': authorName,
+    'scheduled_at': scheduledAt?.toIso8601String(),
+    'updated_at': updatedAt?.toIso8601String(),
+  };
+
+  CorporateNews copyWith({
+    String? title,
+    String? content,
+    String? imageUrl,
+    List<String>? images,
+    List<String>? attachments,
+    String? category,
+    bool? isPublished,
+    bool? isPinned,
+    bool? autoFeed,
+    String? authorName,
+    DateTime? scheduledAt,
+    DateTime? updatedAt,
+  }) {
+    return CorporateNews(
+      id: id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      imageUrl: imageUrl ?? this.imageUrl,
+      images: images ?? this.images,
+      attachments: attachments ?? this.attachments,
+      category: category ?? this.category,
+      isPublished: isPublished ?? this.isPublished,
+      isPinned: isPinned ?? this.isPinned,
+      autoFeed: autoFeed ?? this.autoFeed,
+      authorName: authorName ?? this.authorName,
+      scheduledAt: scheduledAt ?? this.scheduledAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt,
+    );
+  }
+}

@@ -152,10 +152,16 @@ class RankingService {
   // =============================================================
 
   Future<List<RankingResult>> getFamilyRanking(String userId, {int limit = 20}) async {
+    final familyId = await _getUserFamilyId(userId);
+    if (familyId == null) {
+      final raw = await _getRawRanking(limit: limit);
+      return _toResults(raw.where((r) => r['user_id'] == userId).toList());
+    }
+
     final familyResult = await _client
         .from('family_members')
         .select('user_id')
-        .eq('family_id', await _getUserFamilyId(userId));
+        .eq('family_id', familyId);
 
     if (familyResult == null || (familyResult as List).isEmpty) {
       final raw = await _getRawRanking(limit: limit);

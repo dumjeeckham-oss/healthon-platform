@@ -135,7 +135,7 @@ class FamilyRepository {
   Future<void> leaveFamily(String familyId) async {
     final userId = _client.auth.currentUser!.id;
     await _client.from('family_members').update({'status': 'left'}).eq('family_id', familyId).eq('user_id', userId);
-    await _client.from('families').update({'member_count': _client.from('family_members').select('id', FetchOptions(count: CountOption.exact)).eq('family_id', familyId).eq('status', 'active')}).eq('id', familyId);
+    await _client.from('families').update({'member_count': _client.from('family_members').select('id').eq('family_id', familyId).eq('status', 'active').count(CountOption.exact)}).eq('id', familyId);
   }
 
   // =============================================================

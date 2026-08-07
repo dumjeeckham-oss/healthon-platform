@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../health/presentation/providers/health_provider.dart';
-import 'progress_ring.dart';
 
 /// ===============================================================
 /// Today Steps Card — health_daily 실시간 연동
@@ -179,5 +178,55 @@ class _StatChip extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Simple progress ring painter used by the TodayStepsCard
+class ProgressRingPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+  final Color bgColor;
+  final double strokeWidth;
+
+  ProgressRingPainter({
+    required this.progress,
+    required this.color,
+    required this.bgColor,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - strokeWidth) / 2;
+
+    final bgPaint = Paint()
+      ..color = bgColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final fgPaint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, bgPaint);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -1.5708,
+      6.2832 * progress,
+      false,
+      fgPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant ProgressRingPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.color != color ||
+        oldDelegate.bgColor != bgColor ||
+        oldDelegate.strokeWidth != strokeWidth;
   }
 }

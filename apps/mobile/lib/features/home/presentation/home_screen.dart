@@ -5,12 +5,16 @@ import '../../auth/presentation/providers/current_user_provider.dart';
 import '../../ai/presentation/widgets/ai_coach_card.dart';
 import '../../walking/presentation/widgets/today_step_card.dart';
 import '../../walking/presentation/providers/today_steps_provider.dart';
+import '../../walking/presentation/providers/walking_sync_provider.dart';
 import '../../challenge/presentation/providers/challenge_provider.dart';
 import '../../challenge/presentation/widgets/challenge_progress_section.dart';
 import '../../challenge/presentation/widgets/team_cheer_card.dart';
 import '../../family/presentation/widgets/family_ranking_card.dart';
+import '../../family/presentation/providers/family_provider.dart';
 import '../../notice/presentation/widgets/notice_card.dart';
 import '../../forest/presentation/widgets/forest_card.dart';
+import '../../forest/presentation/providers/forest_provider.dart';
+import '../../forest/domain/models/forest_summary.dart';
 import '../../forest/presentation/providers/forest_provider.dart';
 import '../../forest/presentation/screens/forest_book_screen.dart';
 import '../../daily_mission/presentation/widgets/daily_mission_card.dart';
@@ -33,6 +37,8 @@ class _HomeScreenState
     ref.watch(walkingSyncProvider);
     final user = ref.watch(currentUserProvider);
     final missions = ref.watch(dailyMissionProvider);
+    final familyAsync = ref.watch(familyProvider);
+    final familyId = familyAsync.valueOrNull?.id ?? '';
     
     final displayName =
     user?.nickname?.isNotEmpty == true
@@ -131,7 +137,7 @@ class _HomeScreenState
 
               const SizedBox(height: 24),
 
-              const ForestCard(),
+              ForestCard(summary: ForestSummary.empty()),
 
               const SizedBox(height: 24),
 
@@ -152,7 +158,7 @@ class _HomeScreenState
 
               const SizedBox(height: 24),
 
-              const FamilyRankingCard(),
+              FamilyRankingCard(familyId: familyId),
 
               const SizedBox(height: 24),
 
@@ -176,7 +182,7 @@ class _HomeScreenState
 
     const SizedBox(height: 24),
 
-    const FamilyRankingCard(),
+    FamilyRankingCard(familyId: familyId),
 
     const SizedBox(height: 24),
 

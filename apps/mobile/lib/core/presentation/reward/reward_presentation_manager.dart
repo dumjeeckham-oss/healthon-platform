@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../features/daily_mission/domain/models/reward_result.dart';
+import '../../../features/forest/domain/models/forest_badge.dart';
 
-import '../../../features/forest/presentation/widgets/levelup_dialog.dart';
+import '../../../features/forest/presentation/dialogs/level_up_dialog.dart';
 import '../../../features/forest/presentation/widgets/badge_dialog.dart';
 import '../../../features/forest/presentation/widgets/tree_unlock_dialog.dart';
 
@@ -62,7 +63,7 @@ class RewardPresentationManager {
 
         case RewardPresentationType.treeUnlock:
 
-          await SoundService.instance.playForest();
+          await SoundService.instance.playForestGrow();
 
           if (!context.mounted) return;
 
@@ -92,9 +93,13 @@ class RewardPresentationManager {
             context: context,
             barrierDismissible: false,
             builder: (_) => BadgeDialog(
-              badgeCode:
-                  result.badgeCode ??
-                  "",
+              badge: ForestBadge(
+                code: result.badgeCode ?? '',
+                title: '',
+                description: '',
+                icon: '🏅',
+                unlocked: true,
+              ),
             ),
           );
 
@@ -106,7 +111,7 @@ class RewardPresentationManager {
 
         case RewardPresentationType.gardenUnlock:
 
-          await SoundService.instance.playForest();
+          await SoundService.instance.playForestGrow();
 
           if (!context.mounted) return;
 

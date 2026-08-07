@@ -16,7 +16,7 @@ class ForestBadge {
   /// DB(Map) → 객체
   factory ForestBadge.fromMap(Map<String, dynamic> map) {
     return ForestBadge(
-      code: map['badge_key'] ?? '',
+      code: map['badge_code'] ?? map['badge_key'] ?? '',
       title: map['badge_name'] ?? '',
       description: map['description'] ?? '',
       icon: map['badge_icon'] ?? '🏅',

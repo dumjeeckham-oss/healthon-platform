@@ -8,11 +8,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../domain/models/health_models.dart';
-import '../data/services/health_sync_service.dart';
-import '../data/services/post_sync_orchestrator.dart';
-import '../data/repositories/health_repository_interface.dart';
-import '../data/repositories/supabase_health_repository.dart';
+import '../../domain/models/health_models.dart';
+import '../../data/services/health_sync_service.dart';
+import '../../data/services/post_sync_orchestrator.dart';
+import '../../data/repositories/health_repository_interface.dart';
+import '../../data/repositories/supabase_health_repository.dart';
 
 // ===============================================================
 // Supabase Client
@@ -141,12 +141,12 @@ final healthWeekProvider = FutureProvider<(int steps, double distance, double ca
     final client = ref.watch(healthSupabaseProvider);
     final user = client.auth.currentUser;
 
-    if (user == null) return (0, 0, 0);
+    if (user == null) return (0, 0.0, 0.0);
 
     return repo.getWeeklySum(user.id);
   } catch (e) {
     print('healthWeekProvider: $e');
-    return (0, 0, 0);
+    return (0, 0.0, 0.0);
   }
 });
 
@@ -160,12 +160,12 @@ final healthMonthProvider = FutureProvider<(int steps, double distance, double c
     final client = ref.watch(healthSupabaseProvider);
     final user = client.auth.currentUser;
 
-    if (user == null) return (0, 0, 0);
+    if (user == null) return (0, 0.0, 0.0);
 
     return repo.getMonthlySum(user.id);
   } catch (e) {
     print('healthMonthProvider: $e');
-    return (0, 0, 0);
+    return (0, 0.0, 0.0);
   }
 });
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/models/community_post.dart';
@@ -32,23 +34,32 @@ class SupabaseCommunityRepository implements ICommunityRepository {
     int limit = 30,
   }) async {
     try {
-      PostgrestFilterBuilder query = _client
-          .from(_postTable)
-          .select()
-          .order('created_at', ascending: false)
-          .limit(limit);
-
       if (category != null) {
-        query = query.eq('category', category.name);
+        final rows = await _client.from(_postTable)
+            .select()
+            .eq('category', category.name)
+            .order('created_at', ascending: false)
+            .limit(limit);
+
+        final List<dynamic> typedRows = rows;
+        return typedRows
+            .map((e) => CommunityPostSupabaseMapper.fromSupabase(
+                  e as Map<String, dynamic>,
+                ))
+            .toList();
+      } else {
+        final rows = await _client.from(_postTable)
+            .select()
+            .order('created_at', ascending: false)
+            .limit(limit);
+
+        final List<dynamic> typedRows = rows;
+        return typedRows
+            .map((e) => CommunityPostSupabaseMapper.fromSupabase(
+                  e as Map<String, dynamic>,
+                ))
+            .toList();
       }
-
-      final List<dynamic> rows = await query;
-
-      return rows
-          .map((e) => CommunityPostSupabaseMapper.fromSupabase(
-                e as Map<String, dynamic>,
-              ))
-          .toList();
     } catch (e, st) {
       throw CommunityRepositoryException(
         '게시글 목록 조회 실패: $e',
@@ -360,7 +371,7 @@ class SupabaseCommunityRepository implements ICommunityRepository {
       final List<String> urls = [];
       for (final path in localPaths) {
         final fileName = '${postId}_${DateTime.now().millisecondsSinceEpoch}_${urls.length}.jpg';
-        final String? uploaded = await _client.storage.from(_commentImageBucket).upload(fileName, path);
+        final String? uploaded = await _client.storage.from(_commentImageBucket).upload(fileName, File(path));
         if (uploaded != null) {
           final publicUrl = _client.storage.from(_commentImageBucket).getPublicUrl(fileName);
           urls.add(publicUrl);

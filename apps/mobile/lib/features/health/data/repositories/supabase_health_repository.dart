@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../domain/models/health_models.dart';
-import '../data/health_mapper.dart';
+import '../../domain/models/health_models.dart';
+import '../health_mapper.dart';
 import 'health_repository_interface.dart';
 
 /// ===============================================================
@@ -137,16 +137,16 @@ class SupabaseHealthRepository implements IHealthRepository {
         'p_start_date': mondayStr,
       });
 
-      if (result == null) return (0, 0, 0);
+      if (result == null) return (0, 0.0, 0.0);
 
       final List data = result is List ? result : [result];
-      if (data.isEmpty) return (0, 0, 0);
+      if (data.isEmpty) return (0, 0.0, 0.0);
 
       final row = data.first as Map<String, dynamic>;
       return (
         (row['total_steps'] ?? 0) as int,
-        _toDouble(row['total_distance']),
-        _toDouble(row['total_calories']),
+        (row['total_distance'] as num).toDouble(),
+        (row['total_calories'] as num).toDouble(),
       );
     } catch (e) {
       throw HealthRepositoryException('주간 합계 조회 실패: $e', cause: e);
@@ -174,16 +174,16 @@ class SupabaseHealthRepository implements IHealthRepository {
         'p_month': m,
       });
 
-      if (result == null) return (0, 0, 0);
+      if (result == null) return (0, 0.0, 0.0);
 
       final List data = result is List ? result : [result];
-      if (data.isEmpty) return (0, 0, 0);
+      if (data.isEmpty) return (0, 0.0, 0.0);
 
       final row = data.first as Map<String, dynamic>;
       return (
         (row['total_steps'] ?? 0) as int,
-        _toDouble(row['total_distance']),
-        _toDouble(row['total_calories']),
+        (row['total_distance'] as num).toDouble(),
+        (row['total_calories'] as num).toDouble(),
       );
     } catch (e) {
       throw HealthRepositoryException('월간 합계 조회 실패: $e', cause: e);
@@ -290,5 +290,64 @@ class SupabaseHealthRepository implements IHealthRepository {
     if (v is int) return v.toDouble();
     if (v is num) return v.toDouble();
     return 0.0;
+  }
+
+  // =============================================================
+  // Walking Provider 호환 메서드
+  // =============================================================
+
+  String get _currentUserId => _client.auth.currentUser?.id ?? '';
+
+  @override
+  Future<int> getTodaySteps() async {
+    final daily = await getToday(_currentUserId);
+    return daily?.steps ?? 0;
+  }
+
+  @override
+  Future<double> estimateDistanceKm() async {
+    final steps = await getTodaySteps();
+    return steps * 0.0007;
+  }
+
+  @override
+  Future<double> estimateCalories() async {
+    final steps = await getTodaySteps();
+    return steps * 0.04;
+  }
+
+  @override
+  Future<List<int>> getLast7DaysSteps() async {
+    final userId = _currentUserId;
+    if (userId.isEmpty) return List.filled(7, 0);
+    final now = DateTime.now();
+    final start = now.subtract(const Duration(days: 6));
+    final data = await getRange(userId, start, now);
+    final List<int> result = [];
+    for (int i = 6; i >= 0; i--) {
+      final d = start.add(Duration(days: i));
+      final match = data.where((e) =>
+          e.date.year == d.year &&
+          e.date.month == d.month &&
+          e.date.day == d.day).toList();
+      result.add(match.isNotEmpty ? match.first.steps : 0);
+    }
+    return result;
+  }
+
+  @override
+  Future<int> getWeeklySteps() async {
+    final userId = _currentUserId;
+    if (userId.isEmpty) return 0;
+    final (steps, _, _) = await getWeeklySum(userId);
+    return steps;
+  }
+
+  @override
+  Future<int> getMonthlySteps() async {
+    final userId = _currentUserId;
+    if (userId.isEmpty) return 0;
+    final (steps, _, _) = await getMonthlySum(userId);
+    return steps;
   }
 }

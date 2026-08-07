@@ -1,12 +1,9 @@
 /// ===============================================================
 /// HealthON — Community Realtime Service
-///
 /// Supabase Realtime 채널 구독 + 상태 동기화
-/// 실시간 게시글/댓글/좋아요/북마크 업데이트
 /// ===============================================================
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -59,7 +56,6 @@ enum RealtimeConnectionState { disconnected, connecting, connected, reconnecting
 
 class CommunityRealtimeService {
   final SupabaseClient _client;
-  final Map<String, RealtimeChannel> _channels = {};
 
   // 상태 스트림
   final _connectionState = ValueNotifier<RealtimeConnectionState>(RealtimeConnectionState.disconnected);
@@ -98,27 +94,27 @@ class CommunityRealtimeService {
     }
   }
 
-  /// 특정 게시글의 댓글만 실시간으로 받기
-  void subscribeToPostComments(String postId) {
-    if (_channels.containsKey('comments_$postId')) return;
+  final Map<String, RealtimeChannel> _commentChannels = {};
 
+  void subscribeToPostComments(String postId) {
     final channel = _client.channel('comments_$postId');
     channel.onPostgresChanges(
-      event: RealtimeChannelEvent.all,
+      event: PostgresChangeEvent.all,
       schema: 'public',
       table: 'community_comments',
-      filter: PostgresColumnFilter(column: 'post_id', operator: 'eq', value: postId),
-      callback: (payload) {
+      filter: PostgresChangeFilter(column: 'post_id', type: PostgresChangeFilterType.eq, value: postId),
+      callback: (PostgresChangePayload payload) {
         _handleCommentPayload(payload, postId);
       },
     ).subscribe();
-    _channels['comments_$postId'] = channel;
+    _commentChannels[postId] = channel;
   }
 
   void unsubscribePostComments(String postId) {
-    final channel = _channels.remove('comments_$postId');
-    channel?.unsubscribe();
-    _client.removeChannel(channel!);
+    final channel = _commentChannels.remove(postId);
+    if (channel != null) {
+      channel.unsubscribe();
+    }
   }
 
   // =============================================================
@@ -128,97 +124,93 @@ class CommunityRealtimeService {
   void _subscribeToPosts() {
     final channel = _client.channel('community_posts_realtime');
     channel.onPostgresChanges(
-      event: RealtimeChannelEvent.all,
+      event: PostgresChangeEvent.all,
       schema: 'public',
       table: 'community_posts',
       callback: _handlePostPayload,
     ).subscribe();
-    _channels['posts'] = channel;
   }
 
   void _subscribeToComments() {
     final channel = _client.channel('community_comments_realtime');
     channel.onPostgresChanges(
-      event: RealtimeChannelEvent.all,
+      event: PostgresChangeEvent.all,
       schema: 'public',
       table: 'community_comments',
-      callback: (payload) => _handleCommentPayload(payload, null),
+      callback: (PostgresChangePayload payload) => _handleCommentPayload(payload, null),
     ).subscribe();
-    _channels['comments_all'] = channel;
   }
 
   void _subscribeToLikes() {
     final channel = _client.channel('community_likes_realtime');
     channel.onPostgresChanges(
-      event: RealtimeChannelEvent.all,
+      event: PostgresChangeEvent.all,
       schema: 'public',
       table: 'community_post_likes',
       callback: _handleLikePayload,
     ).subscribe();
-    _channels['likes'] = channel;
   }
 
   void _subscribeToBookmarks() {
     final channel = _client.channel('community_bookmarks_realtime');
     channel.onPostgresChanges(
-      event: RealtimeChannelEvent.all,
+      event: PostgresChangeEvent.all,
       schema: 'public',
       table: 'community_bookmarks',
       callback: _handleBookmarkPayload,
     ).subscribe();
-    _channels['bookmarks'] = channel;
   }
 
   // =============================================================
   // Payload Handlers
   // =============================================================
 
-  void _handlePostPayload(RealtimePayload payload) {
-    final changeType = _mapType(payload.eventType);
+  void _handlePostPayload(PostgresChangePayload payload) {
+    final changeType = _mapType(payload.eventType.name);
 
     try {
       if (payload.newRecord != null && changeType != RealtimeChangeType.delete) {
-        final post = CommunityPost.fromJson({
-          'id': payload.newRecord!['id'],
-          'user_id': payload.newRecord!['user_id'],
-          'category': payload.newRecord!['category'],
-          'title': payload.newRecord!['title'],
-          'content': payload.newRecord!['content'],
-          'images': payload.newRecord!['images'],
-          'like_count': payload.newRecord!['like_count'],
-          'comment_count': payload.newRecord!['comment_count'],
-          'bookmark_count': payload.newRecord!['bookmark_count'],
-          'report_count': payload.newRecord!['report_count'],
-          'created_at': payload.newRecord!['created_at'],
-          'updated_at': payload.newRecord!['updated_at'],
+        final post = CommunityPost.fromMap({
+          'id': payload.newRecord['id'],
+          'user_id': payload.newRecord['user_id'],
+          'category': payload.newRecord['category'],
+          'title': payload.newRecord['title'],
+          'content': payload.newRecord['content'],
+          'images': payload.newRecord['images'],
+          'like_count': payload.newRecord['like_count'],
+          'comment_count': payload.newRecord['comment_count'],
+          'bookmark_count': payload.newRecord['bookmark_count'],
+          'report_count': payload.newRecord['report_count'],
+          'created_at': payload.newRecord['created_at'],
+          'updated_at': payload.newRecord['updated_at'],
         });
         _postChanges.add(RealtimePostChange(type: changeType, post: post));
       } else {
-        _postChanges.add(RealtimePostChange(type: changeType, postId: payload.oldRecord?['id'] as String?));
+        _postChanges.add(RealtimePostChange(type: changeType, postId: payload.oldRecord['id'] as String?));
       }
     } catch (e) {
       debugPrint('Realtime post handler: $e');
     }
   }
 
-  void _handleCommentPayload(RealtimePayload payload, String? postId) {
-    final changeType = _mapType(payload.eventType);
+  void _handleCommentPayload(PostgresChangePayload payload, String? postId) {
+    final changeType = _mapType(payload.eventType.name);
 
     try {
       final record = changeType == RealtimeChangeType.delete ? payload.oldRecord : payload.newRecord;
       if (record == null) return;
 
-      final cmp = record['created_at'];
+      final cmp = record['created_at'] as String?;
 
       _commentChanges.add(RealtimeCommentChange(
         type: changeType,
         postId: postId ?? record['post_id'] as String?,
         commentId: record['id'] as String?,
         comment: changeType != RealtimeChangeType.delete ? CommunityComment(
-          id: record['id'] ?? '',
-          postId: record['post_id'] ?? '',
-          userId: record['user_id'] ?? '',
-          content: record['content'] ?? '',
+          id: record['id'] as String? ?? '',
+          postId: record['post_id'] as String? ?? '',
+          userId: record['user_id'] as String? ?? '',
+          content: record['content'] as String? ?? '',
           likeCount: record['like_count'] as int? ?? 0,
           createdAt: cmp != null ? DateTime.parse(cmp) : DateTime.now(),
         ) : null,
@@ -228,17 +220,14 @@ class CommunityRealtimeService {
     }
   }
 
-  void _handleLikePayload(RealtimePayload payload) {
-    final postId = (payload.newRecord ?? payload.oldRecord)?['post_id'] as String?;
+  void _handleLikePayload(PostgresChangePayload payload) {
+    final postId = (payload.newRecord ?? payload.oldRecord)['post_id'] as String?;
     if (postId == null) return;
-
-    // like_count 직접 읽기보다 count 쿼리 필요
-    // 여기서는 변경 이벤트만 전달하고 provider가 refetch
     _likeChanges.add(RealtimeLikeChange(postId: postId, newCount: -1));
   }
 
-  void _handleBookmarkPayload(RealtimePayload payload) {
-    final postId = (payload.newRecord ?? payload.oldRecord)?['post_id'] as String?;
+  void _handleBookmarkPayload(PostgresChangePayload payload) {
+    final postId = (payload.newRecord ?? payload.oldRecord)['post_id'] as String?;
     if (postId == null) return;
     _bookmarkChanges.add(RealtimeBookmarkChange(postId: postId, newCount: -1));
   }
@@ -255,41 +244,10 @@ class CommunityRealtimeService {
   // =============================================================
 
   void dispose() {
-    for (final channel in _channels.values) {
-      channel.unsubscribe();
-      _client.removeChannel(channel);
-    }
-    _channels.clear();
     _postChanges.close();
     _commentChanges.close();
     _likeChanges.close();
     _bookmarkChanges.close();
     _connectionState.dispose();
   }
-}
-
-/// PostgresColumnFilter for Supabase realtime filter
-class PostgresColumnFilter {
-  final String column;
-  final String operator;
-  final String value;
-  const PostgresColumnFilter({required this.column, required this.operator, required this.value});
-
-  Map<String, dynamic> toJson() => {'column': column, 'op': operator, 'value': value};
-}
-
-/// RealtimePayload wrapper
-class RealtimePayload {
-  final String eventType;
-  final Map<String, dynamic>? newRecord;
-  final Map<String, dynamic>? oldRecord;
-  const RealtimePayload({required this.eventType, this.newRecord, this.oldRecord});
-}
-
-/// RealtimeChannelEvent
-class RealtimeChannelEvent {
-  static const String all = '*';
-  static const String insert = 'INSERT';
-  static const String update = 'UPDATE';
-  static const String delete = 'DELETE';
 }

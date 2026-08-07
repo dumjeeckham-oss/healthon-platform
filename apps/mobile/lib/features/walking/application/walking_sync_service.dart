@@ -42,9 +42,10 @@ class WalkingSyncService {
     );
 
     // Forest Badge 지급
-    await _badgeRepository.checkAndUnlock(
+    await _badgeRepository.checkAndGrantBadges(
       userId: userId,
       totalKm: totalDistance,
+      treeLevel: 1,
     );
   }
 
@@ -65,9 +66,10 @@ class WalkingSyncService {
       totalKm: totalDistance,
     );
 
-    await _badgeRepository.checkAndUnlock(
+    await _badgeRepository.checkAndGrantBadges(
       userId: userId,
       totalKm: totalDistance,
+      treeLevel: 1,
     );
   }
 }

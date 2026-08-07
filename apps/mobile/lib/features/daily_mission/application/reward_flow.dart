@@ -129,16 +129,16 @@ class RewardFlow {
     bool badgeUnlocked = false;
     String? badgeCode;
 
-    final newBadge =
+    final newBadges =
         await _badgeRepository.checkAndGrantBadges(
       userId: userId,
       totalKm: totalKm,
       treeLevel: newLevel,
     );
 
-    if (newBadge != null) {
+    if (newBadges.isNotEmpty) {
       badgeUnlocked = true;
-      badgeCode = newBadge.code;
+      badgeCode = newBadges.first.code;
     }
 
     ////////////////////////////////////////////////////////////
@@ -148,15 +148,14 @@ class RewardFlow {
     bool gardenUnlocked = false;
     String? gardenTileId;
 
-    final tile =
-        await _gardenRepository.unlockTileByLevel(
-      userId: userId,
-      level: newLevel,
-    );
-
-    if (tile != null) {
+    final oldSize = 5 + (oldLevel ~/ 5);
+    final newSize = 5 + (newLevel ~/ 5);
+    if (newSize > oldSize) {
+      await _gardenRepository.unlockTileByLevel(
+        userId: userId,
+        level: newLevel,
+      );
       gardenUnlocked = true;
-      gardenTileId = tile.id;
     }
 
     ////////////////////////////////////////////////////////////
@@ -219,7 +218,7 @@ class RewardFlow {
       // Forest
       //--------------------------------------------------------
 
-      gainedExp: newSummary.treeExp,
+      gainedExp: newSummary.treeExp.toInt(),
 
       oldLevel: oldLevel,
 

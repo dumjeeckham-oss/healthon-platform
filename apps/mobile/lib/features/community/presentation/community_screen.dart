@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'widgets/realtime_widgets.dart';
 import 'providers/community_realtime_provider.dart';
+import '../data/community_realtime_service.dart';
 
 class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});

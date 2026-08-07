@@ -1,4 +1,4 @@
-import '../domain/models/health_models.dart';
+import '../../domain/models/health_models.dart';
 
 /// ===============================================================
 /// HealthON — IHealthRepository
@@ -48,6 +48,14 @@ abstract class IHealthRepository {
 
   /// 최근 동기화 로그 조회
   Future<HealthSyncLog?> getLatestSyncLog(String userId);
+
+  // ── 걷기 (walking provider 호환) ──
+  Future<int> getTodaySteps();
+  Future<double> estimateDistanceKm();
+  Future<double> estimateCalories();
+  Future<List<int>> getLast7DaysSteps();
+  Future<int> getWeeklySteps();
+  Future<int> getMonthlySteps();
 }
 
 // ===============================================================

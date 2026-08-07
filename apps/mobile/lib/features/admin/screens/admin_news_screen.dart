@@ -257,7 +257,7 @@ class _AdminNewsScreenState extends ConsumerState<AdminNewsScreen> {
     final titleCtrl = TextEditingController(text: news.title);
     final contentCtrl = TextEditingController(text: news.content);
     final authorCtrl = TextEditingController(text: news.authorName ?? '');
-    String category = news.category;
+    String category = news.category ?? 'notice';
     bool isPublished = news.isPublished;
     bool isPinned = news.isPinned;
     bool autoFeed = news.autoFeed;
@@ -509,7 +509,7 @@ class _NewsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catLabel = _categoryLabels[news.category] ?? news.category;
+    final catLabel = _categoryLabels[news.category] ?? news.category ?? '';
     final catColor = _categoryColors[news.category] ?? const Color(0xFF2E7D32);
 
     return Card(
@@ -577,10 +577,10 @@ class _NewsCard extends StatelessWidget {
                     label: '예약: ${news.scheduledAt!.month}/${news.scheduledAt!.day} ${news.scheduledAt!.hour}:${news.scheduledAt!.minute.toString().padLeft(2, '0')}',
                     color: Colors.orange,
                   ),
-                if (news.images.isNotEmpty)
-                  _Badge(label: '📷 ${news.images.length}', color: Colors.pink),
-                if (news.attachments.isNotEmpty)
-                  _Badge(label: '📎 ${news.attachments.length}', color: Colors.teal),
+                if (news.images != null && news.images!.isNotEmpty)
+                  _Badge(label: '📷 ${news.images!.length}', color: Colors.pink),
+                if (news.attachments != null && news.attachments!.isNotEmpty)
+                  _Badge(label: '📎 ${news.attachments!.length}', color: Colors.teal),
               ],
             ),
           ],

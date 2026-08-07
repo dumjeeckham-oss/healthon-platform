@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../admin_provider.dart';
 import '../admin_models.dart';
-import '../supabase_admin_repository.dart';
 
 /// ===============================================================
 /// HealthON — Admin Notices Screen v2
@@ -40,8 +39,6 @@ class _AdminNoticesScreenState extends ConsumerState<AdminNoticesScreen> {
       ref.read(adminNoticesProvider.notifier).load();
     });
   }
-
-  String _categoryLabel(String key) => _categories[key] ?? key;
 
   void _onCategoryChanged(String? category) {
     setState(() => _categoryFilter = category);
@@ -182,7 +179,40 @@ class _AdminNoticesScreenState extends ConsumerState<AdminNoticesScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
+        builder: (ctx, setDialogState) {
+        void _addTag() {
+          final text = tagCtrl.text.trim();
+          if (text.isNotEmpty && !tags.contains(text)) {
+            setDialogState(() {
+              tags = [...tags, text];
+              tagCtrl.clear();
+            });
+          }
+        }
+
+        void _addImageUrl() {
+          final url = imageUrlCtrl.text.trim();
+          if (url.isNotEmpty && !imageUrls.contains(url)) {
+            setDialogState(() {
+              imageUrls = [...imageUrls, url];
+              imageUrlCtrl.clear();
+            });
+          }
+        }
+
+        void _addAttachment() {
+          final name = attachmentNameCtrl.text.trim();
+          final url = attachmentUrlCtrl.text.trim();
+          if (name.isNotEmpty && url.isNotEmpty) {
+            setDialogState(() {
+              attachments = [...attachments, (name: name, url: url)];
+              attachmentNameCtrl.clear();
+              attachmentUrlCtrl.clear();
+            });
+          }
+        }
+
+        return AlertDialog(
           title: const Text('새 공지 작성'),
           insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
           content: SizedBox(
@@ -524,41 +554,10 @@ class _AdminNoticesScreenState extends ConsumerState<AdminNoticesScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-
-    void _addTag() {
-      final text = tagCtrl.text.trim();
-      if (text.isNotEmpty && !tags.contains(text)) {
-        setDialogState(() {
-          tags = [...tags, text];
-          tagCtrl.clear();
-        });
-      }
-    }
-
-    void _addImageUrl() {
-      final url = imageUrlCtrl.text.trim();
-      if (url.isNotEmpty && !imageUrls.contains(url)) {
-        setDialogState(() {
-          imageUrls = [...imageUrls, url];
-          imageUrlCtrl.clear();
-        });
-      }
-    }
-
-    void _addAttachment() {
-      final name = attachmentNameCtrl.text.trim();
-      final url = attachmentUrlCtrl.text.trim();
-      if (name.isNotEmpty && url.isNotEmpty) {
-        setDialogState(() {
-          attachments = [...attachments, (name: name, url: url)];
-          attachmentNameCtrl.clear();
-          attachmentUrlCtrl.clear();
-        });
-      }
-    }
+        );
+      },
+    ),
+  );
   }
 
   // ===========================================================
@@ -589,7 +588,40 @@ class _AdminNoticesScreenState extends ConsumerState<AdminNoticesScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
+        builder: (ctx, setDialogState) {
+        void _addTag() {
+          final text = tagCtrl.text.trim();
+          if (text.isNotEmpty && !tags.contains(text)) {
+            setDialogState(() {
+              tags = [...tags, text];
+              tagCtrl.clear();
+            });
+          }
+        }
+
+        void _addImageUrl() {
+          final url = imageUrlCtrl.text.trim();
+          if (url.isNotEmpty && !imageUrls.contains(url)) {
+            setDialogState(() {
+              imageUrls = [...imageUrls, url];
+              imageUrlCtrl.clear();
+            });
+          }
+        }
+
+        void _addAttachment() {
+          final name = attachmentNameCtrl.text.trim();
+          final url = attachmentUrlCtrl.text.trim();
+          if (name.isNotEmpty && url.isNotEmpty) {
+            setDialogState(() {
+              attachments = [...attachments, (name: name, url: url)];
+              attachmentNameCtrl.clear();
+              attachmentUrlCtrl.clear();
+            });
+          }
+        }
+
+        return AlertDialog(
           title: const Text('공지 수정'),
           insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
           content: SizedBox(
@@ -928,41 +960,10 @@ class _AdminNoticesScreenState extends ConsumerState<AdminNoticesScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-
-    void _addTag() {
-      final text = tagCtrl.text.trim();
-      if (text.isNotEmpty && !tags.contains(text)) {
-        setDialogState(() {
-          tags = [...tags, text];
-          tagCtrl.clear();
-        });
-      }
-    }
-
-    void _addImageUrl() {
-      final url = imageUrlCtrl.text.trim();
-      if (url.isNotEmpty && !imageUrls.contains(url)) {
-        setDialogState(() {
-          imageUrls = [...imageUrls, url];
-          imageUrlCtrl.clear();
-        });
-      }
-    }
-
-    void _addAttachment() {
-      final name = attachmentNameCtrl.text.trim();
-      final url = attachmentUrlCtrl.text.trim();
-      if (name.isNotEmpty && url.isNotEmpty) {
-        setDialogState(() {
-          attachments = [...attachments, (name: name, url: url)];
-          attachmentNameCtrl.clear();
-          attachmentUrlCtrl.clear();
-        });
-      }
-    }
+        );
+      },
+    ),
+  );
   }
 
   // ===========================================================
@@ -1073,9 +1074,6 @@ class _AdminNoticesScreenState extends ConsumerState<AdminNoticesScreen> {
     return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
-  }
 }
 
 // ===============================================================

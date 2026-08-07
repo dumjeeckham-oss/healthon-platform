@@ -154,7 +154,7 @@ class CommentTile extends ConsumerWidget {
   final VoidCallback onReply;
   final VoidCallback onDelete;
 
-  const CommentTile({
+  CommentTile({
     super.key,
     required this.comment,
     this.isReply = false,
@@ -278,8 +278,8 @@ class CommentTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final likeNotifier = ref.watch(commentLikeProvider);
-    final bool liked = likeNotifier.isLiked(comment.id);
+    final likeState = ref.watch(commentLikeProvider);
+    final bool liked = likeState.likedIds.contains(comment.id);
 
     return Semantics(
       label: '${comment.userId}님의 댓글: ${comment.content}',

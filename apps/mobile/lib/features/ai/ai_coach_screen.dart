@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../design_system/colors/app_colors.dart';
+import '../../../shared/theme/app_colors.dart';
 import 'ai_provider.dart';
 import 'ai_models.dart';
 import 'ai_health_chatbot.dart';

@@ -1,105 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/forest_species.dart';
-import '../screens/forest_species_detail_screen.dart';
 
 class ForestSpeciesCard extends StatelessWidget {
   final ForestSpecies species;
 
-  const ForestSpeciesCard({
-    super.key,
-    required this.species,
-  });
+  const ForestSpeciesCard({super.key, required this.species});
 
   @override
   Widget build(BuildContext context) {
-    final color = species.isUnlocked
-        ? Colors.green.shade50
-        : Colors.grey.shade200;
-
-    return InkWell(
-  borderRadius: BorderRadius.circular(18),
-
-  onTap: () {
-    if (!species.isUnlocked) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ForestSpeciesDetailScreen(
-          species: species,
-        ),
-      ),
-    );
-  },
-
-  child: Card(
-    elevation: species.isUnlocked ? 3 : 1,
-    color: color,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(18),
-    ),
-
-    child: Padding(
-      ...
-    ),
-  ),
-);
-      elevation: species.isUnlocked ? 3 : 1,
-      color: color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-
-            Text(
-              species.isUnlocked
-                  ? species.emoji
-                  : "❓",
-              style: const TextStyle(
-                fontSize: 54,
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            Text(
-              species.isUnlocked
-                  ? species.name
-                  : "???",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
+            Text(species.emoji, style: const TextStyle(fontSize: 48)),
             const SizedBox(height: 8),
-
-            Text(
-              "Lv.${species.level}",
-              style: const TextStyle(
-                color: Colors.grey,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(
-              species.isUnlocked
-                  ? "획득 완료"
-                  : "잠겨있음",
-              style: TextStyle(
-                color: species.isUnlocked
-                    ? Colors.green
-                    : Colors.grey,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text(species.name, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(species.description ?? '', style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),

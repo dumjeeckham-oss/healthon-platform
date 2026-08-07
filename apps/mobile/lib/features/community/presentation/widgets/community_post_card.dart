@@ -747,8 +747,8 @@ class _ChallengeRibbonSection extends StatelessWidget {
                       end: Offset.zero,
                     ).animate(
                       CurvedAnimation(
-                        parent: const _AlwaysCompleteAnimation(),
-                        curve: const Interval(
+                        parent: const AlwaysStoppedAnimation(1.0),
+                        curve: Interval(
                           0.1 * (i + 1).toDouble(),
                           1.0,
                           curve: Curves.easeOut,

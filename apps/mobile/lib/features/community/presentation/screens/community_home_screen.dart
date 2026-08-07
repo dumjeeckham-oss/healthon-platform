@@ -484,9 +484,9 @@ class _FabItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: FadeTransition(
-        opacity: const _AlwaysCompleteAnimation(),
+        opacity: const AlwaysStoppedAnimation(1.0),
         child: SlideTransition(
-          position: const _AlwaysCompleteAnimation(),
+          position: const AlwaysStoppedAnimation(Offset.zero),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
