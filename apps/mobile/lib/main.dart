@@ -20,6 +20,7 @@ void main() async {
       ),
     );
   } catch (e, stackTrace) {
+    // Don't rethrow — show error UI instead of white screen
     FlutterError.reportError(
       FlutterErrorDetails(
         exception: e,
@@ -62,7 +63,7 @@ class _HealthOnRootState extends ConsumerState<_HealthOnRoot>
   void initState() {
     super.initState();
 
-    // Rule 8: Connectivity + OfflineAwareSync 초기화
+    // Rule 8: Connectivity + Health 서비스는 Widget에서 초기화
     ConnectivityService.initialize();
     OfflineAwareSyncService().init();
 
