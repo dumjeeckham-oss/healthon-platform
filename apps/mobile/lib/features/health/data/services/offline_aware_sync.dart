@@ -1,5 +1,6 @@
 ﻿import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -32,6 +33,14 @@ class OfflineAwareSyncService {
   /// 초기화 — connectivity 스트림 구독
   void init() {
     if (_initialized) return;
+
+    if (kIsWeb) {
+      debugPrint(
+        '🌐 Web — OfflineAwareSyncService disabled',
+      );
+      _initialized = true;
+      return;
+    }
 
     _connectivitySub = ConnectivityService.stream.listen((status) {
       if (status == NetworkStatus.connected) {
@@ -67,6 +76,10 @@ class OfflineAwareSyncService {
   // =============================================================
 
   Future<int> _flushPending() async {
+    if (kIsWeb) {
+      return 0;
+    }
+
     final pending = await _cache.getPending();
     if (pending.isEmpty) return 0;
 
@@ -117,5 +130,11 @@ class OfflineAwareSyncService {
   Future<int> flushNow() => _flushPending();
 
   /// 미전송 개수
-  Future<int> pendingCount() => _cache.pendingCount();
+  Future<int> pendingCount() async {
+    if (kIsWeb) {
+      return 0;
+    }
+
+    return _cache.pendingCount();
+  }
 }
