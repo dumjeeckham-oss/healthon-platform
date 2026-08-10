@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/app.dart';
 import 'core/bootstrap/bootstrap.dart';
@@ -8,40 +10,74 @@ import 'features/health/data/services/app_lifecycle_sync.dart';
 import 'features/health/data/services/offline_aware_sync.dart';
 import 'features/health/presentation/providers/health_provider.dart';
 
+/// 안전하게 Supabase 상태 확인 (AssertionError 방지)
+void _diagSupabase(String label) {
+  try {
+    // ignore: unused_local_variable
+    final _ = Supabase.instance;
+    debugPrint('[DIAG][SUPABASE] $label accessible=true');
+  } catch (e) {
+    debugPrint('[DIAG][SUPABASE] $label accessible=false');
+    debugPrint('[DIAG][SUPABASE] $label reason=${e.runtimeType}');
+  }
+}
+
 void main() async {
-  debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  debugPrint('🚀 HealthON main() START');
-  debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  // ============================================================
+  // 1. main START
+  // ============================================================
+  debugPrint('[DIAG][MAIN] START');
+  debugPrint('[DIAG][MAIN] kIsWeb=$kIsWeb');
+  debugPrint('[DIAG][MAIN] platform=${kIsWeb ? "web" : "native"}');
+  assert(() { debugPrint('[DIAG][MAIN] debug=true'); return true; }());
 
   WidgetsFlutterBinding.ensureInitialized();
-  debugPrint('✅ WidgetsFlutterBinding initialized');
+  debugPrint('[DIAG][MAIN] WidgetsFlutterBinding=READY');
+
+  // ============================================================
+  // 2. Supabase BEFORE bootstrap
+  // ============================================================
+  debugPrint('[DIAG][SUPABASE] BEFORE_BOOTSTRAP');
+  _diagSupabase('BEFORE_BOOTSTRAP');
 
   try {
-    debugPrint('🔧 [MAIN] Bootstrap.initialize() START');
+    // ============================================================
+    // 3. Bootstrap
+    // ============================================================
+    debugPrint('[DIAG][BOOTSTRAP] initialize START');
 
     await Bootstrap.initialize();
 
-    debugPrint(
-      '🔧 [MAIN] Bootstrap.initialize() COMPLETED '
-      '(initialized=${Bootstrap.initialized})',
-    );
+    debugPrint('[DIAG][BOOTSTRAP] initialize END');
+    debugPrint('[DIAG][BOOTSTRAP] initialized=${Bootstrap.initialized}');
 
-    debugPrint('📱 [MAIN] runApp() START');
+    // Supabase AFTER bootstrap
+    debugPrint('[DIAG][SUPABASE] AFTER_BOOTSTRAP');
+    _diagSupabase('AFTER_BOOTSTRAP');
+
+    // ============================================================
+    // 4. runApp
+    // ============================================================
+    debugPrint('[DIAG][MAIN] runApp START');
     runApp(
       const ProviderScope(
         child: _HealthOnRoot(),
       ),
     );
-    debugPrint('📱 [MAIN] runApp() CALLED');
+    debugPrint('[DIAG][MAIN] runApp CALLED');
   } catch (e, stackTrace) {
-    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    debugPrint('❌ HealthON STARTUP ERROR');
-    debugPrint('❌ [MAIN] Bootstrap.initialize() FAILED');
-    debugPrint('❌ [MAIN] Error type: ${e.runtimeType}');
-    debugPrint('❌ [MAIN] Error: $e');
-    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    // ============================================================
+    // 5. Startup Error
+    // ============================================================
+    debugPrint('[DIAG][ERROR] startup error');
+    debugPrint('[DIAG][ERROR] type=${e.runtimeType}');
+    debugPrint('[DIAG][ERROR] message=$e');
+    debugPrint('[DIAG][ERROR] stackTrace first 3 lines:');
+    final lines = stackTrace.toString().split('\n');
+    for (int i = 0; i < lines.length && i < 3; i++) {
+      debugPrint('  ${lines[i]}');
+    }
 
-    // stackTrace는 FlutterError.reportError에 맡김
     FlutterError.reportError(
       FlutterErrorDetails(
         exception: e,
@@ -81,34 +117,60 @@ class _HealthOnRoot extends ConsumerStatefulWidget {
 class _HealthOnRootState extends ConsumerState<_HealthOnRoot>
     with WidgetsBindingObserver {
   bool _buildLogged = false;
+  bool _frameLogged = false;
 
   @override
   void initState() {
     super.initState();
-    debugPrint('🌱 [_HealthOnRoot] initState START');
 
-    // Rule 8: Connectivity + Health 서비스는 Widget에서 초기화
-    debugPrint('🌐 [_HealthOnRoot] ConnectivityService.initialize START');
+    debugPrint('[DIAG][ROOT] initState START');
+
+    // Connectivity
+    debugPrint('[DIAG][ROOT] ConnectivityService START');
     ConnectivityService.initialize();
-    debugPrint('🌐 [_HealthOnRoot] ConnectivityService.initialize COMPLETED');
+    debugPrint('[DIAG][ROOT] ConnectivityService END');
 
-    debugPrint('💾 [_HealthOnRoot] OfflineAwareSyncService.init START');
+    // OfflineAwareSync
+    debugPrint('[DIAG][ROOT] OfflineAwareSync START');
     OfflineAwareSyncService().init();
-    debugPrint('💾 [_HealthOnRoot] OfflineAwareSyncService.init COMPLETED');
+    debugPrint('[DIAG][ROOT] OfflineAwareSync END');
 
-    // Rule 12: LifecycleSync는 순수 Service, Provider 접근은 Widget에서
-    debugPrint('🔄 [_HealthOnRoot] AppLifecycleSync.init START');
+    // AppLifecycleSync
+    debugPrint('[DIAG][ROOT] LifecycleSync START');
     AppLifecycleSync().init(
       syncFn: () => ref.read(healthSyncProvider.notifier).sync(),
     );
-    debugPrint('🔄 [_HealthOnRoot] AppLifecycleSync.init COMPLETED');
+    debugPrint('[DIAG][ROOT] LifecycleSync END');
 
-    debugPrint('🌱 [_HealthOnRoot] initState COMPLETED');
+    debugPrint('[DIAG][ROOT] initState END');
+
+    // ============================================================
+    // First frame callback
+    // ============================================================
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_frameLogged) {
+        _frameLogged = true;
+        debugPrint('[DIAG][FRAME] first frame rendered');
+
+        // Supabase AFTER first frame
+        debugPrint('[DIAG][SUPABASE] AFTER_APP_RENDER');
+        _diagSupabase('AFTER_APP_RENDER');
+      }
+    });
+  }
+
+  // ============================================================
+  // AppLifecycleObserver
+  // ============================================================
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    debugPrint('[DIAG][LIFECYCLE] state=${state.toString().split('.').last}');
+    super.didChangeAppLifecycleState(state);
   }
 
   @override
   void dispose() {
-    debugPrint('🧹 [_HealthOnRoot] dispose');
+    debugPrint('[DIAG][LIFECYCLE] dispose');
     AppLifecycleSync().dispose();
     super.dispose();
   }
@@ -117,10 +179,8 @@ class _HealthOnRootState extends ConsumerState<_HealthOnRoot>
   Widget build(BuildContext context) {
     if (!_buildLogged) {
       _buildLogged = true;
-      debugPrint('🎨 [_HealthOnRoot] build FIRST');
+      debugPrint('[DIAG][ROOT] build FIRST');
     }
-
-    debugPrint('🎨 [_HealthOnRoot] returning HealthOnApp');
     return const HealthOnApp();
   }
 }
