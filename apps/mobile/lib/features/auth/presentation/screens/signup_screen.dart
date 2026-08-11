@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/supabase_auth_repository.dart' show EmailConfirmationRequiredException;
 import '../providers/auth_provider.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
@@ -35,26 +36,44 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   Future<void> _signup() async {
+    debugPrint('[DIAG][AUTH][SIGNUP] START');
+
     if (_nameController.text.trim().isEmpty) {
       _showMessage("이름을 입력해주세요.");
       return;
     }
 
-    if (_emailController.text.trim().isEmpty) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final name = _nameController.text.trim();
+
+    if (email.isEmpty) {
       _showMessage("이메일을 입력해주세요.");
       return;
     }
 
-    if (_passwordController.text.length < 6) {
+    if (password.length < 6) {
       _showMessage("비밀번호는 6자 이상 입력해주세요.");
       return;
     }
 
-    await ref.read(authProvider.notifier).signUp(
-          name: _nameController.text.trim(),
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+    debugPrint('[DIAG][AUTH][SIGNUP] emailPresent=true');
+    debugPrint('[DIAG][AUTH][SIGNUP] namePresent=true');
+    debugPrint('[DIAG][AUTH][SIGNUP] calling signUp provider...');
+
+    try {
+      await ref.read(authProvider.notifier).signUp(
+            name: name,
+            email: email,
+            password: password,
+          );
+      debugPrint('[DIAG][AUTH][SIGNUP] COMPLETE');
+    } catch (e) {
+      debugPrint('[DIAG][AUTH][SIGNUP] FAILED');
+      debugPrint('[DIAG][AUTH][SIGNUP] ERROR TYPE=${e.runtimeType}');
+      debugPrint('[DIAG][AUTH][SIGNUP] ERROR=$e');
+      rethrow;
+    }
   }
 
   @override
@@ -67,7 +86,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           }
         },
         error: (e, _) {
-          _showMessage(e.toString());
+          if (e is EmailConfirmationRequiredException) {
+            _showMessage(e.message);
+          } else {
+            _showMessage(e.toString());
+          }
         },
       );
     });

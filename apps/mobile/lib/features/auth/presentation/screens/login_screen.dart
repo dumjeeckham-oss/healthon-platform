@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/supabase_auth_repository.dart' show EmailConfirmationRequiredException;
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -33,20 +34,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _emailLogin() async {
-    if (_emailController.text.trim().isEmpty ||
-        _passwordController.text.isEmpty) {
+    debugPrint('[DIAG][AUTH][EMAIL] LOGIN BUTTON PRESSED');
+    final emailPresent = _emailController.text.trim().isNotEmpty;
+    final passwordPresent = _passwordController.text.isNotEmpty;
+    debugPrint('[DIAG][AUTH][EMAIL] emailPresent=$emailPresent');
+    debugPrint('[DIAG][AUTH][EMAIL] passwordPresent=$passwordPresent');
+
+    if (!emailPresent || !passwordPresent) {
       _showMessage("이메일과 비밀번호를 입력해주세요.");
       return;
     }
 
-    await ref.read(authProvider.notifier).signInWithEmail(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+    debugPrint('[DIAG][AUTH][EMAIL] SIGN_IN START');
+    try {
+      await ref.read(authProvider.notifier).signInWithEmail(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
+      debugPrint('[DIAG][AUTH][EMAIL] SIGN_IN SUCCESS');
+    } catch (e) {
+      debugPrint('[DIAG][AUTH][EMAIL] SIGN_IN FAILED');
+      debugPrint('[DIAG][AUTH][EMAIL] ERROR TYPE=${e.runtimeType}');
+      debugPrint('[DIAG][AUTH][EMAIL] ERROR=$e');
+      rethrow;
+    }
   }
 
   Future<void> _googleLogin() async {
-    await ref.read(authProvider.notifier).signInWithGoogle();
+    debugPrint('[DIAG][AUTH][GOOGLE] BUTTON PRESSED');
+    debugPrint('[DIAG][AUTH][GOOGLE] SIGN_IN START');
+    try {
+      await ref.read(authProvider.notifier).signInWithGoogle();
+      debugPrint('[DIAG][AUTH][GOOGLE] SIGN_IN SUCCESS');
+    } catch (e) {
+      debugPrint('[DIAG][AUTH][GOOGLE] SIGN_IN FAILED');
+      debugPrint('[DIAG][AUTH][GOOGLE] ERROR TYPE=${e.runtimeType}');
+      debugPrint('[DIAG][AUTH][GOOGLE] ERROR=$e');
+      rethrow;
+    }
   }
 
   @override
@@ -61,7 +86,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           }
         },
         error: (error, stack) {
-          _showMessage(error.toString());
+          // EmailConfirmationRequiredException → 사용자에게 안내
+          if (error is EmailConfirmationRequiredException) {
+            _showMessage(error.message);
+          } else {
+            _showMessage(error.toString());
+          }
         },
       );
     });

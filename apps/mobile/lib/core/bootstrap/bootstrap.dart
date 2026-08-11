@@ -23,8 +23,10 @@ class Bootstrap {
   Bootstrap._();
 
   static bool _initialized = false;
+  static bool _supabaseInitialized = false;
 
   static bool get initialized => _initialized;
+  static bool get supabaseInitialized => _supabaseInitialized;
 
   static Future<void> initialize() async {
     if (_initialized) return;
@@ -89,6 +91,8 @@ class Bootstrap {
 
   static Future<void> _initializeSupabase() async {
     debugPrint('☁ Initializing Supabase');
+    debugPrint('[DIAG][SUPABASE] CONFIG_CHECK');
+    debugPrint('[DIAG][SUPABASE] platform=${kIsWeb ? "web" : "native"}');
 
     // Try .env (native) first, then dart-define (web fallback)
     String url = '';
@@ -104,16 +108,38 @@ class Bootstrap {
     url = url.isNotEmpty ? url : const String.fromEnvironment('SUPABASE_URL');
     key = key.isNotEmpty ? key : const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 
-    if (url.isEmpty || key.isEmpty) {
-      debugPrint('⚠ Supabase config missing — skipping init');
+    final urlPresent = url.isNotEmpty;
+    final keyPresent = key.isNotEmpty;
+    debugPrint('[DIAG][SUPABASE] urlPresent=$urlPresent');
+    debugPrint('[DIAG][SUPABASE] publishableKeyPresent=$keyPresent');
+
+    if (!urlPresent || !keyPresent) {
+      debugPrint('❌ [DIAG][SUPABASE] CONFIG MISSING');
+      if (kIsWeb) {
+        debugPrint('❌ [DIAG][SUPABASE] Web requires:');
+        debugPrint('❌  --dart-define=SUPABASE_URL=...');
+        debugPrint('❌  --dart-define=SUPABASE_PUBLISHABLE_KEY=...');
+      } else {
+        debugPrint('❌ [DIAG][SUPABASE] Ensure .env has SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY');
+      }
       return;
     }
 
-    await Supabase.initialize(
-      url: url,
-      publishableKey: key,
-    );
+    try {
+      await Supabase.initialize(
+        url: url,
+        publishableKey: key,
+      );
 
-    debugPrint('✅ Supabase Initialized');
+      _supabaseInitialized = true;
+      debugPrint('[DIAG][SUPABASE] INITIALIZED');
+      debugPrint('[DIAG][SUPABASE] initialized=true');
+      debugPrint('✅ Supabase Initialized');
+    } catch (e) {
+      debugPrint('[DIAG][SUPABASE] INITIALIZE FAILED');
+      debugPrint('[DIAG][SUPABASE] error=${e.runtimeType}');
+      debugPrint('[DIAG][SUPABASE] message=$e');
+      rethrow;
+    }
   }
 }

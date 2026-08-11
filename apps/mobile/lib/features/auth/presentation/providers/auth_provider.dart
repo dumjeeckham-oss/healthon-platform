@@ -103,6 +103,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
       );
 
       state = AsyncData(user);
+    } on EmailConfirmationRequiredException catch (e) {
+      // 이메일 확인 필요 — error로 전달하여 UI에서 처리
+      state = AsyncError(e, StackTrace.current);
+      // SnackBar 등으로 친절한 메시지 표시를 위해 rethrow 불필요
     } catch (e, stack) {
       state = AsyncError(e, stack);
     }
