@@ -1,3 +1,30 @@
+# Evolution Proposal: Supabase 회원가입 직후 session null로 인한 anon RLS INSERT 실패 패턴을 MEMORY.md에 기록
+
+- Proposal-ID: evo-2026-08-12-supabase-signup-session-timing
+- Status: approved
+- Signature: supabase-signup-session-timing
+- Created-At: 2026-08-12 14:32
+- Last-Seen-At: 2026-08-12 14:32
+- Target-File: MEMORY.md
+- Trigger-Type: preference
+- Confidence: medium
+
+## Why This Matters
+- Supabase 회원가입 직후 session null로 인한 anon RLS INSERT 실패 패턴을 MEMORY.md에 기록
+
+## Evidence
+- Interactive proposal card was present in the session UI.
+- The original pending draft file was unavailable at approval time.
+- AutoClaw reconstructed this draft from the proposal payload so the review result can still be recorded.
+
+## Duplicate Check
+- Checked: pending draft path + signature/proposal fallback
+- Result: original draft file missing
+- Decision: create surrogate draft from proposal payload
+
+## Proposed Change
+### MEMORY.md — Supabase signup session 타이밍 이슈
+
 # MEMORY.md — HealthON Platform
 
 ## 내 역할
@@ -34,7 +61,7 @@
 ### 2. Auth ↔ Users 관계
 - `auth.users`와 `public.users`는 **1:1 구조**
 - `auth.users.id` = `public.users.id` 로 매핑
-- **회원가입 후 session 타이밍 이슈 (2026-08-12)**: `signUp()` 직후 클라이언트에서는 `session == null` 상태이며, 이 시점에 `saveUser()`를 호출하면 요청이 `anon` role로 전송되어 RLS 정책 `auth.uid() = id`를 통과하지 못하고 INSERT 실패함. DB 정책 자체는 정상이며, `onAuthStateChange`의 `SIGNED_IN` 이벤트 수신 후에만 `public.users` INSERT를 수행해야 함.
+- **회원가입 후 session 타이밍 문제 (2026-08-12 발견)**: `signUp()` 직후 클라이언트에서는 `session == null` 상태이며, 이 시점에 `saveUser()`를 호출하면 요청이 `anon`으로 전송되어 RLS 정책 `auth.uid() = id`를 통과하지 못하고 INSERT 실패함. DB 정책 자체는 정상이며, 클라이언트 측에서 `onAuthStateChange`의 `SIGNED_IN` 이벤트를 수신한 후에만 `public.users` INSERT를 수행하도록 해야 함.
 
 ### 3. Storage Bucket
 - `banner-images` — 배너 이미지
@@ -70,3 +97,12 @@
 - 웹 white screen 오류 수정 (bootstrap + splash + main)
 - .env 파일 복원 및 메모장 연결
 - dart analyze info 208건 → 0건 정리
+
+## Apply Plan
+1. Keep this reconstructed draft as the approval artifact.
+2. Record the proposal content exactly as shown in the interactive card.
+3. Append an audit note after approval or rejection.
+
+## User Approval
+- Approve: 批准 evo-2026-08-12-supabase-signup-session-timing
+- Reject: 拒绝 evo-2026-08-12-supabase-signup-session-timing

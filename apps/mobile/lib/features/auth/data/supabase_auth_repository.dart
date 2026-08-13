@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthUser;
 
@@ -37,18 +37,41 @@ class SupabaseAuthRepository implements AuthRepository {
 
     if (user == null) return null;
 
-    final profile = await fetchUser(user.id);
+    // public.users에서 프로필 조회 시도
+    try {
+      final profile = await fetchUser(user.id);
+      if (profile != null) return profile;
+    } catch (e) {
+      debugPrint('[DIAG][AUTH][PROFILE] fetchUser SELECT failed, '
+          'will try save (${e.runtimeType})');
+    }
 
-if (profile != null) {
-  return profile;
-}
+    // 프로필이 없음 → authenticated session으로 생성
+    final session = _supabase.auth.currentSession;
+    if (session != null) {
+      final authUser = AuthUser(
+        id: user.id,
+        email: user.email,
+        name: user.userMetadata?['full_name'],
+        photoUrl: user.userMetadata?['avatar_url'],
+      );
+      debugPrint('[DIAG][AUTH][PROFILE] SAVE START (post-auth)');
+      try {
+        await saveUser(authUser);
+        debugPrint('[DIAG][AUTH][PROFILE] SAVE SUCCESS');
+      } catch (e) {
+        debugPrint('[DIAG][AUTH][PROFILE] SAVE ERROR=${e.runtimeType}: $e');
+      }
+      return authUser;
+    }
 
-return AuthUser(
-  id: user.id,
-  email: user.email,
-  name: user.userMetadata?['full_name'],
-  photoUrl: user.userMetadata?['avatar_url'],
-);
+    // session도 없음 → auth metadata만으로 반환
+    return AuthUser(
+      id: user.id,
+      email: user.email,
+      name: user.userMetadata?['full_name'],
+      photoUrl: user.userMetadata?['avatar_url'],
+    );
   }
 
   @override
@@ -62,8 +85,56 @@ return AuthUser(
 
   @override
   Future<AuthUser> signInWithGoogle() async {
-    debugPrint('[DIAG][AUTH][GOOGLE] signInWithGoogle START');
+    debugPrint('[DIAG][AUTH][GOOGLE] SIGN_IN START');
+    debugPrint('[DIAG][AUTH][GOOGLE] platform=${kIsWeb ? "web" : "native"}');
 
+    if (kIsWeb) {
+      // Web: Supabase OAuth redirect (google_sign_in 패키지 불필요)
+      return _signInWithGoogleWeb();
+    } else {
+      // Native: GoogleSignIn + ID Token 방식
+      return _signInWithGoogleNative();
+    }
+  }
+
+  /// Web: Supabase OAuth redirect
+  Future<AuthUser> _signInWithGoogleWeb() async {
+    debugPrint('[DIAG][AUTH][GOOGLE] OAUTH START (Web)');
+    debugPrint('[DIAG][AUTH][GOOGLE] REDIRECT START');
+
+    // OAuth redirect — onAuthStateChange가 SIGNED_IN을 감지하여
+    // AuthNotifier가 자동으로 상태를 갱신한다.
+    await _supabase.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: Uri.base.origin,
+    );
+
+    // signInWithOAuth는 redirect 후 페이지를 나가므로
+    // 이 아래 코드는 redirect 이후 콜백에서 실행된다.
+    // 세션은 onAuthStateChange → SIGNED_IN 이벤트로 복구됨.
+
+    final user = _supabase.auth.currentUser;
+    debugPrint('[DIAG][AUTH][GOOGLE] CALLBACK user=${user != null}');
+    debugPrint('[DIAG][AUTH][GOOGLE] CALLBACK session=${_supabase.auth.currentSession != null}');
+
+    if (user == null) {
+      throw Exception('Google 로그인에 실패했습니다.');
+    }
+
+    final authUser = AuthUser(
+      id: user.id,
+      email: user.email,
+      name: user.userMetadata?['full_name'],
+      photoUrl: user.userMetadata?['avatar_url'],
+    );
+
+    await saveUser(authUser);
+
+    return authUser;
+  }
+
+  /// Native: GoogleSignIn + ID Token 방식
+  Future<AuthUser> _signInWithGoogleNative() async {
     final GoogleSignIn google = GoogleSignIn.instance;
 
     debugPrint('[DIAG][AUTH][GOOGLE] GoogleSignIn.initialize START');
@@ -75,7 +146,6 @@ return AuthUser(
     debugPrint('[DIAG][AUTH][GOOGLE] GOOGLE ACCOUNT RECEIVED');
 
     final auth = account.authentication;
-
     final idToken = auth.idToken;
     debugPrint('[DIAG][AUTH][GOOGLE] ID_TOKEN RECEIVED=${idToken != null && idToken.isNotEmpty}');
 
@@ -168,6 +238,7 @@ return AuthUser(
     final response = await _supabase.auth.signUp(
       email: email,
       password: password,
+      emailRedirectTo: 'http://localhost:9876',
     );
     debugPrint('[DIAG][AUTH][SIGNUP] SUPABASE_AUTH SUCCESS');
     debugPrint('[DIAG][AUTH][SIGNUP] user.id=${response.user?.id ?? "null"}');
@@ -186,21 +257,21 @@ return AuthUser(
       name: name,
     );
 
-    debugPrint('[DIAG][AUTH][SIGNUP] USER_PROFILE SAVE START');
-    await saveUser(authUser);
-    debugPrint('[DIAG][AUTH][SIGNUP] USER_PROFILE SAVE SUCCESS');
-
-    // 이메일 확인이 필요한 경우 세션이 없음 → 예외로 구분
-    if (session == null) {
-      debugPrint('[DIAG][AUTH][SIGNUP] EMAIL CONFIRMATION REQUIRED');
-      throw EmailConfirmationRequiredException(
-        '회원가입이 완료되었습니다. 입력하신 이메일에서 인증 링크를 확인해주세요.',
-        authUser: authUser,
-      );
+    // session이 있을 때만 public.users 저장
+    // session == null → 이메일 확인 필요 → 인증 완료 후 저장
+    if (session != null) {
+      debugPrint('[DIAG][AUTH][SIGNUP] USER_PROFILE SAVE START');
+      await saveUser(authUser);
+      debugPrint('[DIAG][AUTH][SIGNUP] USER_PROFILE SAVE SUCCESS');
+      debugPrint('[DIAG][AUTH][SIGNUP] session established');
+      return authUser;
     }
 
-    debugPrint('[DIAG][AUTH][SIGNUP] session established');
-    return authUser;
+    debugPrint('[DIAG][AUTH][SIGNUP] EMAIL CONFIRMATION REQUIRED');
+    throw EmailConfirmationRequiredException(
+      '회원가입이 완료되었습니다. 입력하신 이메일에서 인증 링크를 확인해주세요.',
+      authUser: authUser,
+    );
   }
 
   // ==========================================================
@@ -222,12 +293,27 @@ return AuthUser(
 
   @override
   Future<void> saveUser(AuthUser user) async {
-    await _supabase
-    .from('users')
-    .upsert(
-      user.toJson(),
-      onConflict: 'id',
-    );
+    debugPrint('[DIAG][AUTH][PROFILE] UPSERT START');
+    try {
+      final json = user.toJson();
+      // created_at NOT NULL 컬럼 대응 — null이면 현재 시각으로 채움
+      if (json['created_at'] == null) {
+        json['created_at'] = DateTime.now().toIso8601String();
+        debugPrint('[DIAG][AUTH][PROFILE] created_at defaulted to now');
+      }
+      await _supabase
+      .from('users')
+      .upsert(
+        json,
+        onConflict: 'id',
+      );
+      debugPrint('[DIAG][AUTH][PROFILE] UPSERT SUCCESS');
+    } catch (e) {
+      debugPrint('[DIAG][AUTH][PROFILE] UPSERT ERROR');
+      debugPrint('[DIAG][AUTH][PROFILE] error=${e.runtimeType}');
+      debugPrint('[DIAG][AUTH][PROFILE] message=$e');
+      rethrow;
+    }
   }
 
   // ==========================================================

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../auth/presentation/providers/auth_provider.dart';
 import '../../push/push_settings_screen.dart';
 
-class MyPageScreen extends StatelessWidget {
+class MyPageScreen extends ConsumerWidget {
   const MyPageScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("마이페이지"),
@@ -163,9 +165,23 @@ class MyPageScreen extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            onPressed: () {
-              // TODO
-              // 로그아웃
+            onPressed: () async {
+              debugPrint('[DIAG][AUTH] LOGOUT BUTTON PRESSED');
+              try {
+                await ref.read(authProvider.notifier).signOut();
+
+                if (!context.mounted) return;
+
+                context.go('/');
+              } catch (e) {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('로그아웃에 실패했습니다: $e'),
+                  ),
+                );
+              }
             },
             icon: const Icon(Icons.logout),
             label: const Text("로그아웃"),

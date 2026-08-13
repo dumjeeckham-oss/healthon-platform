@@ -22,6 +22,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initialize() async {
+    debugPrint('[DIAG][SPLASH] START');
+
     if (!Bootstrap.supabaseInitialized) {
       debugPrint('[DIAG][SPLASH] SUPABASE NOT INITIALIZED');
       await Future.delayed(const Duration(seconds: 1));
@@ -32,19 +34,23 @@ class _SplashScreenState extends State<SplashScreen> {
 
     try {
       final user = Supabase.instance.client.auth.currentUser;
+      final session = Supabase.instance.client.auth.currentSession;
+      debugPrint('[DIAG][SPLASH] user present=${user != null}');
+      debugPrint('[DIAG][SPLASH] session present=${session != null}');
 
       await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted) return;
 
       if (user == null) {
+        debugPrint('[DIAG][SPLASH] → / (login)');
         context.go('/');
       } else {
+        debugPrint('[DIAG][SPLASH] → /home');
         context.go('/home');
       }
     } catch (e) {
-      // Supabase not initialized (e.g. web without config) → login
-      debugPrint('SplashScreen: Supabase not available — $e');
+      debugPrint('[DIAG][SPLASH] ERROR type=${e.runtimeType} message=$e');
       await Future.delayed(const Duration(seconds: 1));
       if (!mounted) return;
       context.go('/');

@@ -1,5 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
 
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthChangeEvent, AuthState, Supabase;
+
+import '../../../../core/bootstrap/bootstrap.dart';
 import '../../data/supabase_auth_repository.dart';
 import '../../domain/auth_repository.dart';
 import '../../domain/auth_user.dart';
@@ -41,9 +46,67 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
   AuthNotifier(this._repository)
       : super(const AsyncLoading()) {
     Future.microtask(_initialize);
+    _startAuthStateListener();
   }
 
   final AuthRepository _repository;
+  StreamSubscription<AuthState>? _authSubscription;
+
+  // ================================================================
+  // Supabase onAuthStateChange 구독
+  //
+  // 이메일 인증 callback, Google OAuth redirect 등
+  // 외부에서 session이 생성/변경될 때 앱이 반응할 수 있도록 한다.
+  // ================================================================
+  void _startAuthStateListener() {
+    // Bootstrap.supabaseInitialized가 true인 경우에만 구독
+    if (!Bootstrap.supabaseInitialized) {
+      debugPrint('[DIAG][AUTH][STATE] listener SKIP — supabase not initialized');
+      return;
+    }
+
+    debugPrint('[DIAG][AUTH][STATE] listener START');
+
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen(
+      (event) {
+        debugPrint('[DIAG][AUTH][STATE] event=${event.event.name}');
+
+        switch (event.event) {
+          case AuthChangeEvent.signedIn:
+          case AuthChangeEvent.initialSession:
+            debugPrint('[DIAG][AUTH][STATE] session=${event.session != null}');
+            if (event.session != null) {
+              // 세션이 생성됨 → 사용자 정보 갱신
+              _refreshAuthState();
+            }
+            break;
+
+          case AuthChangeEvent.signedOut:
+            debugPrint('[DIAG][AUTH][STATE] SIGNED_OUT');
+            state = const AsyncData(null);
+            break;
+
+          default:
+            // TOKEN_REFRESHED, USER_UPDATED, PASSWORD_RECOVERY 등
+            break;
+        }
+      },
+      onError: (error) {
+        debugPrint('[DIAG][AUTH][STATE] listener ERROR=${error.runtimeType}');
+      },
+    );
+  }
+
+  Future<void> _refreshAuthState() async {
+    try {
+      final user = await _repository.getCurrentUser();
+      debugPrint('[DIAG][AUTH][STATE] refresh user=${user != null}');
+      state = AsyncData(user);
+    } catch (e, stack) {
+      debugPrint('[DIAG][AUTH][STATE] refresh ERROR=${e.runtimeType}');
+      state = AsyncError(e, stack);
+    }
+  }
 
   Future<void> _initialize() async {
     try {
@@ -133,4 +196,11 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
     state = AsyncError(e, stack);
   }
 }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    debugPrint('[DIAG][AUTH][STATE] listener disposed');
+    super.dispose();
+  }
 }
