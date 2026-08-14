@@ -280,11 +280,33 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    try {
-  await GoogleSignIn.instance.signOut();
-} catch (_) {}
+    debugPrint('[DIAG][AUTH][LOGOUT] START');
+    debugPrint('[DIAG][AUTH][LOGOUT] PLATFORM=${kIsWeb ? "WEB" : "NATIVE"}');
 
+    if (kIsWeb) {
+      // Chrome Web: GoogleSignIn 미사용 — Supabase 로그아웃만 실행
+      // (GoogleSignIn.instance.signOut()이 Web에서 완료되지 않아 hang 발생)
+      debugPrint('[DIAG][AUTH][LOGOUT] GOOGLE_SIGNOUT SKIPPED_WEB');
+    } else {
+      // Native: GoogleSignIn 로그아웃 후 Supabase 로그아웃
+      debugPrint('[DIAG][AUTH][LOGOUT] GOOGLE_SIGNOUT START');
+      try {
+        await GoogleSignIn.instance.signOut();
+        debugPrint('[DIAG][AUTH][LOGOUT] GOOGLE_SIGNOUT SUCCESS');
+      } catch (e) {
+        debugPrint('[DIAG][AUTH][LOGOUT] GOOGLE_SIGNOUT ERROR: $e');
+      }
+    }
+
+    debugPrint('[DIAG][AUTH][LOGOUT] SUPABASE_SIGNOUT START');
     await _supabase.auth.signOut();
+    debugPrint('[DIAG][AUTH][LOGOUT] SUPABASE_SIGNOUT SUCCESS');
+
+    final session = _supabase.auth.currentSession;
+    debugPrint(
+      '[DIAG][AUTH][LOGOUT] SESSION_PRESENT='
+      '${session != null}',
+    );
   }
 
   // ==========================================================
@@ -294,24 +316,48 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> saveUser(AuthUser user) async {
     debugPrint('[DIAG][AUTH][PROFILE] UPSERT START');
+
     try {
       final json = user.toJson();
-      // created_at NOT NULL 컬럼 대응 — null이면 현재 시각으로 채움
+
+      // 기존 row의 created_at 조회 — 존재하면 보존 (Google 재로그인 등)
+      try {
+        final existing = await _supabase
+            .from('users')
+            .select('created_at')
+            .eq('id', user.id)
+            .maybeSingle();
+        if (existing != null && existing['created_at'] != null) {
+          json['created_at'] = existing['created_at'];
+        }
+      } catch (_) {
+        // 조회 실패 시 무시 — 아래에서 now()로 보정
+      }
+
+      // DB NOT NULL + DEFAULT 대응
       if (json['created_at'] == null) {
-        json['created_at'] = DateTime.now().toIso8601String();
+        json['created_at'] = DateTime.now().toUtc().toIso8601String();
         debugPrint('[DIAG][AUTH][PROFILE] created_at defaulted to now');
       }
+
+      if (json['updated_at'] == null) {
+        json['updated_at'] = DateTime.now().toUtc().toIso8601String();
+        debugPrint('[DIAG][AUTH][PROFILE] updated_at defaulted to now');
+      }
+
+      debugPrint('[DIAG][AUTH][PROFILE] payload keys=${json.keys.toList()}');
+
       await _supabase
       .from('users')
       .upsert(
         json,
         onConflict: 'id',
       );
+
       debugPrint('[DIAG][AUTH][PROFILE] UPSERT SUCCESS');
-    } catch (e) {
-      debugPrint('[DIAG][AUTH][PROFILE] UPSERT ERROR');
-      debugPrint('[DIAG][AUTH][PROFILE] error=${e.runtimeType}');
-      debugPrint('[DIAG][AUTH][PROFILE] message=$e');
+    } catch (e, stackTrace) {
+      debugPrint('[DIAG][AUTH][PROFILE] UPSERT ERROR: $e');
+      debugPrint('[DIAG][AUTH][PROFILE] STACK: $stackTrace');
       rethrow;
     }
   }

@@ -4,11 +4,42 @@ import 'package:go_router/go_router.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../../push/push_settings_screen.dart';
 
-class MyPageScreen extends ConsumerWidget {
+class MyPageScreen extends ConsumerStatefulWidget {
   const MyPageScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyPageScreen> createState() => _MyPageScreenState();
+}
+
+class _MyPageScreenState extends ConsumerState<MyPageScreen> {
+  bool _loggingOut = false;
+
+  Future<void> _logout() async {
+    if (_loggingOut) return;
+
+    setState(() => _loggingOut = true);
+    debugPrint('[DIAG][AUTH] LOGOUT BUTTON PRESSED');
+    try {
+      await ref.read(authProvider.notifier).signOut();
+
+      if (!mounted) return;
+
+      context.go('/');
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('로그아웃에 실패했습니다: $e'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _loggingOut = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("마이페이지"),
@@ -165,24 +196,7 @@ class MyPageScreen extends ConsumerWidget {
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            onPressed: () async {
-              debugPrint('[DIAG][AUTH] LOGOUT BUTTON PRESSED');
-              try {
-                await ref.read(authProvider.notifier).signOut();
-
-                if (!context.mounted) return;
-
-                context.go('/');
-              } catch (e) {
-                if (!context.mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('로그아웃에 실패했습니다: $e'),
-                  ),
-                );
-              }
-            },
+            onPressed: _loggingOut ? null : _logout,
             icon: const Icon(Icons.logout),
             label: const Text("로그아웃"),
           ),
