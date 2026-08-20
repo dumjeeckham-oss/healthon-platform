@@ -7,6 +7,7 @@
 
 library;
 
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -194,6 +195,14 @@ class HealthSyncNotifier extends StateNotifier<HealthSyncStatus> {
   final HealthSyncService _service;
 
   Future<bool> sync() async {
+    if (kIsWeb) {
+      // Web: Health Sync 미지원 — 정상 종료 (예외/실패 로그 없음)
+      debugPrint('[DIAG][HEALTH][SYNC] PLATFORM=WEB');
+      debugPrint('[DIAG][HEALTH][SYNC] SKIPPED_WEB');
+      state = const HealthSyncStatus(state: HealthSyncState.success);
+      return true;
+    }
+
     state = const HealthSyncStatus(state: HealthSyncState.syncing);
 
     try {

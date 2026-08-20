@@ -1,0 +1,206 @@
+﻿--------- beginning of main
+08-18 17:42:43.198  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.199  1508  1536 I mtkpower_client: ret_hdl:1624
+08-18 17:42:43.200  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.200  1521  1568 I libPowerHal: [perfLockAcq] idx:0 hdl:1624 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1624
+08-18 17:42:43.200  1521  1568 I libPowerHal: [set_cpuidle] enable:0, fd:15, scn:0xb4000073ba600680
+08-18 17:42:43.201  1521  1568 I libPowerHal: [get_cpu_dma_latency_value] 0
+08-18 17:42:43.201  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1c3c100 param:0 pr:3
+08-18 17:42:43.201  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1624
+08-18 17:42:43.202  1508  1536 I mtkpower_client: ret_hdl:1625
+08-18 17:42:43.202  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.202  1521  1568 I libPowerHal: [perfLockAcq] idx:1 hdl:1625 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1625
+08-18 17:42:43.203  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:400000 param:2000000 pr:3
+08-18 17:42:43.203  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(vendor.samsung.): 2000000 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.203  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1625
+08-18 17:42:43.204  1521  1544 I mtkpower@impl: [setMode] type:5, enabled:1
+08-18 17:42:43.204  1508  1536 I mtkpower_client: ret_hdl:1626
+08-18 17:42:43.204  1521  1568 I libPowerHal: [perfLockAcq] idx:2 hdl:1626 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1626
+08-18 17:42:43.205  1521  1568 I libPowerHal: [setDvfsrcDevFreqOpp] opp:0, freq:4266000000
+08-18 17:42:43.205  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1000000 param:0 pr:3
+08-18 17:42:43.205  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1626
+08-18 17:42:43.207  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1624, pid: 1508, tid:1536
+08-18 17:42:43.207  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.208  1521  1568 I libPowerHal: [perfLockRel] hdl:1624, idx:0
+08-18 17:42:43.208  1521  1568 I libPowerHal: [set_cpuidle] enable:1, fd:15, scn:0xb4000073ba600680
+08-18 17:42:43.208  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1c3c100 param:1 pr:6
+08-18 17:42:43.208  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1624
+08-18 17:42:43.211  1508  1536 I mtkpower_client: ret_hdl:1627
+08-18 17:42:43.211  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1625, pid: 1508, tid:1536
+08-18 17:42:43.212  1521  1568 I libPowerHal: [perfLockAcq] idx:3 hdl:1627 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1627
+08-18 17:42:43.212  1521  1568 I libPowerHal: [set_cpuidle] enable:0, fd:15, scn:0xb4000073ba60a0e8
+08-18 17:42:43.212  1521  1568 I libPowerHal: [get_cpu_dma_latency_value] 0
+08-18 17:42:43.212  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1c3c100 param:0 pr:3
+08-18 17:42:43.212  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1627
+08-18 17:42:43.212  1521  1568 I libPowerHal: [perfLockRel] hdl:1625, idx:1
+08-18 17:42:43.212  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.213  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:400000 param:-1 pr:6
+08-18 17:42:43.213  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(-1): -1 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.213  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1625
+08-18 17:42:43.214  1521  1568 I libPowerHal: [perfLockAcq] idx:0 hdl:1628 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1628
+08-18 17:42:43.214  1508  1536 I mtkpower_client: ret_hdl:1628
+08-18 17:42:43.214  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1626, pid: 1508, tid:1536
+08-18 17:42:43.214  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:400000 param:2000000 pr:3
+08-18 17:42:43.214  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(vendor.samsung.): 2000000 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.214  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1628
+08-18 17:42:43.214  1521  1568 I libPowerHal: [perfLockRel] hdl:1626, idx:2
+08-18 17:42:43.214  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.214  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1000000 param:-1 pr:6
+08-18 17:42:43.214  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1626
+08-18 17:42:43.215  1508  1536 I mtkpower_client: ret_hdl:1629
+08-18 17:42:43.215  1521  1568 I libPowerHal: [perfLockAcq] idx:1 hdl:1629 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1629
+08-18 17:42:43.215  1521  1568 I libPowerHal: [setDvfsrcDevFreqOpp] opp:0, freq:4266000000
+08-18 17:42:43.215  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1000000 param:0 pr:3
+08-18 17:42:43.215  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1629
+08-18 17:42:43.221  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1627, pid: 1508, tid:1536
+08-18 17:42:43.221  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.222  1521  1568 I libPowerHal: [perfLockRel] hdl:1627, idx:3
+08-18 17:42:43.222  1521  1568 I libPowerHal: [set_cpuidle] enable:1, fd:15, scn:0xb4000073ba60a0e8
+08-18 17:42:43.222  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1c3c100 param:1 pr:6
+08-18 17:42:43.223  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1627
+08-18 17:42:43.223  1508  1536 I mtkpower_client: ret_hdl:1630
+08-18 17:42:43.224  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1628, pid: 1508, tid:1536
+08-18 17:42:43.224  1521  1568 I libPowerHal: [perfLockAcq] idx:2 hdl:1630 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1630
+08-18 17:42:43.224  1521  1568 I libPowerHal: [set_cpuidle] enable:0, fd:15, scn:0xb4000073ba606d70
+08-18 17:42:43.224  1521  1568 I libPowerHal: [get_cpu_dma_latency_value] 0
+08-18 17:42:43.224  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1c3c100 param:0 pr:3
+08-18 17:42:43.224  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1630
+08-18 17:42:43.224  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.225  1521  1568 I libPowerHal: [perfLockRel] hdl:1628, idx:0
+08-18 17:42:43.225  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:400000 param:-1 pr:6
+08-18 17:42:43.226  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(-1): -1 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.226  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1628
+08-18 17:42:43.226  1508  1536 I mtkpower_client: ret_hdl:1631
+08-18 17:42:43.226  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1629, pid: 1508, tid:1536
+08-18 17:42:43.226  1521  1568 I libPowerHal: [perfLockAcq] idx:3 hdl:1631 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1631
+08-18 17:42:43.227  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:400000 param:2000000 pr:3
+08-18 17:42:43.227  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(vendor.samsung.): 2000000 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.227  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1631
+08-18 17:42:43.227  1521  1568 I libPowerHal: [perfLockRel] hdl:1629, idx:1
+08-18 17:42:43.227  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.228  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1000000 param:-1 pr:6
+08-18 17:42:43.228  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1629
+08-18 17:42:43.229  1508  1536 I mtkpower_client: ret_hdl:1632
+08-18 17:42:43.229  1521  1568 I libPowerHal: [perfLockAcq] idx:0 hdl:1632 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1632
+08-18 17:42:43.229  1521  1568 I libPowerHal: [setDvfsrcDevFreqOpp] opp:0, freq:4266000000
+08-18 17:42:43.229  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1000000 param:0 pr:3
+08-18 17:42:43.229  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1632
+08-18 17:42:43.327  1575  1575 I BufferQueueProducer: [NavigationBar0$_3624#91](this:0xb4000079fbea76b0,id:-1,api:0,p:-1,c:1575) queueBuffer: fps=0.08 dur=24886.41 max=24572.29 min=314.12
+08-18 17:42:43.751  1575  1575 I BufferQueueProducer: [GoogleDiscoverWindow$_17275#2523](this:0xb4000079ee240eb0,id:-1,api:0,p:-1,c:1575) queueBuffer: fps=0.04 dur=25007.53 max=25007.53 min=25007.53
+08-18 17:42:43.755  2098  2141 I SurfaceControl: apply, lowDebugName=Focus request: a8bfbd3 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity, caller=android.view.SurfaceControl$Transaction.apply:3569 android.view.SurfaceControl$Transaction.apply:3519 com.android.server.wm.WindowAnimator.animate:468 com.android.server.wm.WindowAnimator$$ExternalSyntheticLambda1.doFrame:14 android.view.Choreographer$CallbackRecord.run:1959 android.view.Choreographer$CallbackRecord.run:1970 
+08-18 17:42:43.758  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1630, pid: 1508, tid:1536
+08-18 17:42:43.759  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.760  1508  1536 I mtkpower_client: ret_hdl:1633
+08-18 17:42:43.760  1508  1536 I mtkpower_client: perf_lock_rel, hdl:1631, pid: 1508, tid:1536
+08-18 17:42:43.760  1521  1568 I libPowerHal: [perfLockRel] hdl:1630, idx:2
+08-18 17:42:43.760  1521  1568 I libPowerHal: [set_cpuidle] enable:1, fd:15, scn:0xb4000073ba606d70
+08-18 17:42:43.760  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1c3c100 param:1 pr:6
+08-18 17:42:43.761  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1630
+08-18 17:42:43.761  1521  1568 I libPowerHal: [perfLockAcq] idx:1 hdl:1633 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1633
+08-18 17:42:43.761  1575  1575 I BufferQueueProducer: [com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity$_4305#2524](this:0xb4000079fbebbeb0,id:-1,api:0,p:-1,c:1575) queueBuffer: fps=0.23 dur=25544.78 max=24917.73 min=10.16
+08-18 17:42:43.762  1521  1568 I libPowerHal: [set_cpuidle] enable:0, fd:15, scn:0xb4000073ba6039f8
+08-18 17:42:43.762  1521  1568 I libPowerHal: [get_cpu_dma_latency_value] 0
+08-18 17:42:43.762  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1c3c100 param:0 pr:3
+08-18 17:42:43.762  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1633
+08-18 17:42:43.763  1521  1568 I libPowerHal: [perfLockRel] hdl:1631, idx:3
+08-18 17:42:43.763  1508  1536 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:1536
+08-18 17:42:43.764  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:400000 param:-1 pr:6
+08-18 17:42:43.765  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(-1): -1 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.765  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1631
+08-18 17:42:43.765  1508  1536 I mtkpower_client: ret_hdl:1634
+08-18 17:42:43.766  1521  1568 I libPowerHal: [perfLockAcq] idx:2 hdl:1634 hint:-1 pid:1508 tid:1536 duration:0 lock_user:vendor.samsung. => ret_hdl:1634
+08-18 17:42:43.766  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:400000 param:2000000 pr:3
+08-18 17:42:43.766  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(vendor.samsung.): 2000000 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.766  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1634
+08-18 17:42:43.774  1521  1544 I mtkpower@impl: [setMode] type:5, enabled:0
+08-18 17:42:43.813  2098  2141 I SurfaceControl: apply, lowDebugName=startRemoteWallpaperAnimation_144455112, caller=android.view.SurfaceControl$Transaction.apply:3569 android.view.SurfaceControl$Transaction.apply:3519 com.android.server.wm.WindowAnimator.animate:468 com.android.server.wm.WindowAnimator$$ExternalSyntheticLambda1.doFrame:14 android.view.Choreographer$CallbackRecord.run:1959 android.view.Choreographer$CallbackRecord.run:1970 
+08-18 17:42:43.905  1508  5743 I mtkpower_client: perf_lock_rel, hdl:1633, pid: 1508, tid:5743
+08-18 17:42:43.905  1508  5743 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5743
+08-18 17:42:43.905  1521  1568 I libPowerHal: [perfLockRel] hdl:1633, idx:1
+08-18 17:42:43.905  1521  1568 I libPowerHal: [set_cpuidle] enable:1, fd:15, scn:0xb4000073ba6039f8
+08-18 17:42:43.905  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1c3c100 param:1 pr:6
+08-18 17:42:43.906  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1633
+08-18 17:42:43.906  1508  5743 I mtkpower_client: ret_hdl:1635
+08-18 17:42:43.906  1521  1568 I libPowerHal: [perfLockAcq] idx:1 hdl:1635 hint:-1 pid:1508 tid:5743 duration:0 lock_user:vendor.samsung. => ret_hdl:1635
+08-18 17:42:43.906  1521  1568 I libPowerHal: [set_cpuidle] enable:0, fd:15, scn:0xb4000073ba6039f8
+08-18 17:42:43.906  1508  5743 I mtkpower_client: perf_lock_rel, hdl:1634, pid: 1508, tid:5743
+08-18 17:42:43.906  1521  1568 I libPowerHal: [get_cpu_dma_latency_value] 0
+08-18 17:42:43.906  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1c3c100 param:0 pr:3
+08-18 17:42:43.906  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1635
+08-18 17:42:43.906  1508  5743 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5743
+08-18 17:42:43.906  1521  1568 I libPowerHal: [perfLockRel] hdl:1634, idx:2
+08-18 17:42:43.906  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:400000 param:-1 pr:6
+08-18 17:42:43.907  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(-1): -1 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.907  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1634
+08-18 17:42:43.907  1508  5743 I mtkpower_client: ret_hdl:1636
+08-18 17:42:43.907  1521  1568 I libPowerHal: [perfLockAcq] idx:2 hdl:1636 hint:-1 pid:1508 tid:5743 duration:0 lock_user:vendor.samsung. => ret_hdl:1636
+08-18 17:42:43.907  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:400000 param:2000000 pr:3
+08-18 17:42:43.907  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(vendor.samsung.): 2000000 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:43.907  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1636
+08-18 17:42:43.907  1508  5743 I mtkpower_client: perf_lock_rel, hdl:1632, pid: 1508, tid:5743
+08-18 17:42:43.907  1508  5743 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5743
+08-18 17:42:43.907  1521  1568 I libPowerHal: [perfLockRel] hdl:1632, idx:0
+08-18 17:42:43.908  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1000000 param:-1 pr:6
+08-18 17:42:43.909  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1632
+08-18 17:42:43.909  1508  5743 I mtkpower_client: ret_hdl:1637
+08-18 17:42:43.909  1521  1568 I libPowerHal: [perfLockAcq] idx:0 hdl:1637 hint:-1 pid:1508 tid:5743 duration:0 lock_user:vendor.samsung. => ret_hdl:1637
+08-18 17:42:43.909  1521  1568 I libPowerHal: [setDvfsrcDevFreqOpp] opp:0, freq:4266000000
+08-18 17:42:43.909  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1000000 param:0 pr:3
+08-18 17:42:43.909  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1637
+08-18 17:42:44.230  1508  5746 I mtkpower_client: perf_lock_rel, hdl:1635, pid: 1508, tid:5746
+08-18 17:42:44.230  1508  5746 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5746
+08-18 17:42:44.231  1521  1568 I libPowerHal: [perfLockRel] hdl:1635, idx:1
+08-18 17:42:44.231  1521  1568 I libPowerHal: [set_cpuidle] enable:1, fd:15, scn:0xb4000073ba6039f8
+08-18 17:42:44.231  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1c3c100 param:1 pr:6
+08-18 17:42:44.231  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1635
+08-18 17:42:44.232  1508  5746 I mtkpower_client: ret_hdl:1638
+08-18 17:42:44.232  1508  5746 I mtkpower_client: perf_lock_rel, hdl:1636, pid: 1508, tid:5746
+08-18 17:42:44.232  1521  1568 I libPowerHal: [perfLockAcq] idx:3 hdl:1638 hint:-1 pid:1508 tid:5746 duration:0 lock_user:vendor.samsung. => ret_hdl:1638
+08-18 17:42:44.232  1521  1568 I libPowerHal: [set_cpuidle] enable:0, fd:15, scn:0xb4000073ba60a0e8
+08-18 17:42:44.232  1521  1568 I libPowerHal: [get_cpu_dma_latency_value] 0
+08-18 17:42:44.232  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1c3c100 param:0 pr:3
+08-18 17:42:44.232  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1638
+08-18 17:42:44.233  1508  5746 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5746
+08-18 17:42:44.233  1521  1568 I libPowerHal: [perfLockRel] hdl:1636, idx:2
+08-18 17:42:44.233  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:400000 param:-1 pr:6
+08-18 17:42:44.234  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(-1): -1 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:44.234  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1636
+08-18 17:42:44.234  1508  5746 I mtkpower_client: ret_hdl:1639
+08-18 17:42:44.234  1508  5746 I mtkpower_client: perf_lock_rel, hdl:1637, pid: 1508, tid:5746
+08-18 17:42:44.234  1521  1568 I libPowerHal: [perfLockAcq] idx:1 hdl:1639 hint:-1 pid:1508 tid:5746 duration:0 lock_user:vendor.samsung. => ret_hdl:1639
+08-18 17:42:44.235  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:400000 param:2000000 pr:3
+08-18 17:42:44.235  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(vendor.samsung.): 2000000 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:44.235  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1639
+08-18 17:42:44.235  1508  5746 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5746
+08-18 17:42:44.235  1521  1568 I libPowerHal: [perfLockRel] hdl:1637, idx:0
+08-18 17:42:44.236  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1000000 param:-1 pr:6
+08-18 17:42:44.236  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1637
+08-18 17:42:44.237  1508  5746 I mtkpower_client: ret_hdl:1640
+08-18 17:42:44.237  1521  1568 I libPowerHal: [perfLockAcq] idx:0 hdl:1640 hint:-1 pid:1508 tid:5746 duration:0 lock_user:vendor.samsung. => ret_hdl:1640
+08-18 17:42:44.237  1521  1568 I libPowerHal: [setDvfsrcDevFreqOpp] opp:0, freq:4266000000
+08-18 17:42:44.237  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1000000 param:0 pr:3
+08-18 17:42:44.237  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1640
+08-18 17:42:44.432  1575  1575 I BufferQueueProducer: [StatusBar$_3624#93](this:0xb4000079fbdda6b0,id:-1,api:0,p:-1,c:1575) queueBuffer: fps=0.17 dur=6011.23 max=6011.23 min=6011.23
+08-18 17:42:44.566  1508  5799 I mtkpower_client: perf_lock_rel, hdl:1638, pid: 1508, tid:5799
+08-18 17:42:44.566  1508  5799 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5799
+08-18 17:42:44.567  1521  1568 I libPowerHal: [perfLockRel] hdl:1638, idx:3
+08-18 17:42:44.567  1521  1568 I libPowerHal: [set_cpuidle] enable:1, fd:15, scn:0xb4000073ba60a0e8
+08-18 17:42:44.567  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:1c3c100 param:1 pr:6
+08-18 17:42:44.567  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1638
+08-18 17:42:44.568  1508  5799 I mtkpower_client: ret_hdl:1641
+08-18 17:42:44.568  1521  1568 I libPowerHal: [perfLockAcq] idx:2 hdl:1641 hint:-1 pid:1508 tid:5799 duration:0 lock_user:vendor.samsung. => ret_hdl:1641
+08-18 17:42:44.568  1521  1568 I libPowerHal: [set_cpuidle] enable:0, fd:15, scn:0xb4000073ba606d70
+08-18 17:42:44.568  1521  1568 I libPowerHal: [get_cpu_dma_latency_value] 0
+08-18 17:42:44.568  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:1c3c100 param:0 pr:3
+08-18 17:42:44.568  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1641
+08-18 17:42:44.568  1508  5799 I mtkpower_client: perf_lock_rel, hdl:1639, pid: 1508, tid:5799
+08-18 17:42:44.569  1508  5799 I mtkpower_client: perf_lock_acq, hdl:0, dur:0, num:2, pid:1508, tid:5799
+08-18 17:42:44.569  1521  1568 I libPowerHal: [perfLockRel] hdl:1639, idx:1
+08-18 17:42:44.569  1521  1568 I libPowerHal: [PD] vendor.samsung. update cmd:400000 param:-1 pr:6
+08-18 17:42:44.570  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(-1): -1 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:44.570  1521  1568 I libPowerHal: [perfLockRel] Done for hdl : 1639
+08-18 17:42:44.570  1508  5799 I mtkpower_client: ret_hdl:1642
+08-18 17:42:44.570  1521  1568 I libPowerHal: [perfLockAcq] idx:3 hdl:1642 hint:-1 pid:1508 tid:5799 duration:0 lock_user:vendor.samsung. => ret_hdl:1642
+08-18 17:42:44.571  1521  1568 I libPowerHal: [PE] vendor.samsung. update cmd:400000 param:2000000 pr:3
+08-18 17:42:44.571  1521  1568 I libPowerHal: [recordCPUFreqInfo] set cluster[0] min(vendor.samsung.): 2000000 max(-1): -1 cluster[1] min(-1): 0 max(-1): 0
+08-18 17:42:44.571  1521  1568 I libPowerHal: [perfLockAcq] Done for hdl : 1642
